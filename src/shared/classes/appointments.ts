@@ -68,7 +68,7 @@ export class Appointments {
     }
 
     getStart() {
-        return new Date(this.start);
+        return new Date(this.start)
     }
 
     setEnd(end: Date) {

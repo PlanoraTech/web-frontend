@@ -1,3 +1,23 @@
+:root {
+  /*dark colors*/
+  --body-bg-dark: #333;
+  --body-color-dark: white;
+  --nav-bg-dark: #222;
+  --nav-link-color-dark: white;
+  --nav-link-hover-dark: #111;
+  --class-card-bg-dark: #555;
+  --schedule-bg-dark: #444;
+  --select-button-bg-dark: #555;
+  --select-button-color-dark: white;
+  --day-header-bg-dark: #222;
+  --day2-4-bg-dark: #393939;
+  /*----------*/
+  /*light colors*/
+
+  /*-----------*/
+}
+
+
 /* nav bar style */
 
 body {
@@ -28,31 +48,39 @@ li a {
   transition-duration: 0.5s;
 }
 
-/* Change the link color to #111 (black) on hover */
 li a:hover {
   background-color: #111;
   transition-duration: 0.5s;
 }
 
-.light_dark_switch {
+.light-dark-switch {
+  float: right;
+  padding: 14px 16px;
+  transition-duration: 0.5s;
+
+}
+
+.light-dark-switch:hover {
+  background-color: #111;
+  transition-duration: 0.5s;
+  cursor: pointer;
+}
+
+.login-nav {
   float: right;
 }
 
-.login_nav {
-  float: right;
-}
-
-.logo_nav_img {
+.logo-nav-img {
   padding: 0;
   max-width: 15%;
   max-height: 46px;
 }
 
-.logo_nav_img img {
+.logo-nav-img img {
   max-width: 46px;
 }
 
-.logo_nav_img a {
+.logo-nav-img a {
   padding: 0;
 }
 
@@ -111,15 +139,13 @@ button {
   background-color: #444;
   border-radius: 7px;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
+  /* overflow-y;
+  overflow-x: unset; */
 }
 
-.day-1,
-.day-2,
-.day-3,
-.day-4,
-.day-5 {
+.days {
   display: grid;
-  grid-template-rows: auto;
+  grid-template-rows: min-content auto;
   justify-content: center;
   gap: 5px;
 }
@@ -129,11 +155,7 @@ button {
   background-color: #393939;
 }
 
-.day-header-mon,
-.day-header-tue,
-.day-header-wed,
-.day-header-thu,
-.day-header-fri {
+.day-header {
   text-align: center;
   background-color: #222;
   font-weight: bold;
@@ -148,42 +170,183 @@ button {
   border-radius: 0px 7px 0px 0px;
 }
 
+.card-container {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-self: self-start;
+}
+
+.choose {
+  text-align: center;
+}
+
 /*------------------------------------*/
 
 /*-------------------------------------------------------*/
 
-/*Class cards*/
+/*Cards*/
 
-.class_card {
+.class-card {
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
   background-color: #555;
   border-radius: 5px;
   transition: 0.3s;
   padding-left: 1.75vh;
   margin: 10px;
-  min-width: 12vw;
+  min-width: 5vw;
+  width: 11.5vw;
   max-height: 10vh;
   overflow: hidden;
 }
 
-.class_card:hover {
+.class-card:hover {
   box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
 }
 
-.class_container {
-  padding: 0.35vh 0vh 0.8vh 0vh;
-}
-
-.class_card h3 {
+.class-card h3 {
   margin-bottom: 0rem;
   margin-top: 1.3vh;
   text-overflow: ellipsis;
   overflow: hidden;
+  white-space: nowrap;
 }
 
-.class_container p {
+.class-container p {
   margin: 0.3vh 0vh 0.3vh 0vh;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
+}
+
+.class-container {
+  padding: 0.35vh 0vh 0.8vh 0vh;
+}
+
+.event-card {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
+  background-color: #555;
+  border-radius: 5px;
+  transition: 0.3s;
+  padding-left: 1.75vh;
+  margin: 10px;
+  min-width: 5vw;
+  width: 10.5vw;
+  max-height: 10vh;
+  overflow: hidden;
+}
+
+.event-card:hover {
+  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+}
+
+.event-card h3 {
+  margin-bottom: 0rem;
+  margin-top: 1.3vh;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.event-container p {
+  margin: 0.3vh 0vh 0.3vh 0vh;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.event-container {
+  padding: 0.35vh 0vh 0.8vh 0vh;
+}
+
+/*--------------------------------------------------------------*/
+
+.body-dark {
+  background-color: var(--body-bg-dark);
+  color: var(--body-color-dark);
+}
+
+.nav-dark {
+  background-color: var(--nav-bg-dark);
+}
+
+.nav-link-dark {
+  color: var(--nav-link-color-dark);
+}
+
+.nav-link-dark:hover {
+  background-color: var(--nav-link-hover-dark);
+}
+
+.class-card-dark {
+  background-color: var(--class-card-bg-dark);
+}
+
+.schedule-dark {
+  background-color: var(--schedule-bg-dark);
+}
+
+.select-button-dark {
+  background-color: var(--select-button-bg-dark);
+  color: var(--select-button-color-dark);
+}
+
+.day-header-dark {
+  background-color: var(--day-header-bg-dark);
+}
+
+.day-2-4-dark {
+  background-color: var(--day2-4-bg-dark);
+}
+
+/*Login-register*/
+
+.login-register-button {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.login-register-button:hover {
+  color: #111;
+}
+
+.login-register-container {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
+  background-color: #444;
+  border-radius: 10px;
+  width: 25vw;
+  margin: auto;
+  margin-top: 4vh;
+  padding: 1.25vh 1.25vw 1.25vh 1.25vw;
+  overflow: hidden;
+}
+
+.login-register-container h2 {
+  margin-top: 1.3vh;
+  text-align: center;
+}
+
+.login-register-form input {
+  margin-top: 0.7vh;
+  margin-bottom: 0.7vh;
+  background-color: #555;
+  border-radius: 5px;
+  border: none;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
+  height: 3vh;
+  width: 24.5vw;
+  color: white;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+}
+
+.button-container button {
+  margin-top: 1vh;
+  margin-bottom: 0;
+  background-color: #555;
+  width: 10vw;
 }

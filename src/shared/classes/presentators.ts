@@ -1,7 +1,9 @@
+import { Appointments } from "./appointments";
 
 export class Presentators {
     private id: string;
     private name: string;
+    private appointments?: Appointments[];
     private institutionId: string;
 
     constructor(id: string, name: string, institutionId: string) {
@@ -24,6 +26,14 @@ export class Presentators {
 
     getName() {
         return this.name;
+    }
+
+    getAppointments() {
+        return this.appointments;
+    }
+
+    setAppointments(appointments: Appointments[]) {
+        this.appointments = appointments;
     }
 
     setInstitutionId(institutionId: string) {

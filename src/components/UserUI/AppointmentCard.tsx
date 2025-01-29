@@ -27,9 +27,9 @@ export function AppointmentCard(props: Props) {
     }
 
     return (
-        <div className="class_card" title={`${props.appointment.getSubject()?.getName()} - Room ${getallrooms()} - ${getzero(props.appointment.getStart())} - ${getzero(props.appointment.getEnd())} - ${getallpres()}`}>
+        <div className="class-card" title={`${props.appointment.getSubject()?.getName()} - Room ${getallrooms()} - Date ${props.appointment.getStart().getMonth()}.${props.appointment.getStart().getDate()}. - ${props.appointment.getEnd().getMonth()}.${props.appointment.getEnd().getDate()}. - ${getzero(props.appointment.getStart())} - ${getzero(props.appointment.getEnd())} - ${getallpres()}`}>
             <h3><b>{props.appointment.getSubject()?.getName()}</b></h3>
-            <div className="class_container">
+            <div className="class-container">
                 <p>{getallrooms()} - {getzero(props.appointment.getStart())} - {getzero(props.appointment.getEnd())}</p>
             </div>
         </div>
