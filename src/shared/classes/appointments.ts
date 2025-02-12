@@ -12,6 +12,7 @@ export class Appointments {
     private end: Date;
     private isCancelled: boolean;
     private timetableId?: string;
+    private institutionId?: string;
     constructor(id: string, subject: Subjects, presentators: Presentators[], rooms: Rooms[], dayofweek: string, start: Date, end: Date, isCancelled: boolean) {
         this.id = id;
         this.subject = subject;
@@ -93,5 +94,13 @@ export class Appointments {
 
     getTimetableId() {
         return this.timetableId;
+    }
+
+    setInstitutionId(institutionId: string) {
+        this.institutionId = institutionId;
+    }
+
+    getInstitutionId() {
+        return this.institutionId;
     }
 }

@@ -1,87 +1,99 @@
 :root {
-  /*dark colors*/
-  --body-bg-dark: #333;
-  --body-color-dark: white;
-  --nav-bg-dark: #222;
-  --nav-link-color-dark: white;
-  --nav-link-hover-dark: #111;
-  --class-card-bg-dark: #555;
-  --schedule-bg-dark: #444;
-  --select-button-bg-dark: #555;
-  --select-button-color-dark: white;
-  --day-header-bg-dark: #222;
-  --day2-4-bg-dark: #393939;
-  /*----------*/
-  /*light colors*/
-
-  /*-----------*/
+    /*dark colors*/
+    --dark01: #111;
+    --dark02: #222;
+    --dark03: #333;
+    --dark39: #393939;
+    --dark04: #444;
+    --dark05: #555;
+    --dark-text: white;
+    /*----------*/
+    /*light colors*/
+    --light01: #e2f4ff;
+    --light02: #d2eeff;
+    --light03: #c6e9ff;
+    --light04: #b0e1ff;
+    --light05: #9cd9ff;
+    --light06: #95d6ff;
+    --light07: #8ad2ff;
+    --light08: #89d2ff;
+    --light09: #7dcdfe;
+    --light10: #76cbff;
+    --light-text: black;
+    /*-----------*/
 }
 
+body {
+    margin: 0;
+    font-family: Tinos;
+    /* background-color: var(--dark03); */
+    background-color: var(--light02);
+    /* color: var(--dark-text); */
+    color: var(--light-text);
+}
 
 /* nav bar style */
 
-body {
-  margin: 0;
-  font-family: Tinos;
-  background-color: #333;
-  color: white;
-}
 
 ul {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  background-color: #222;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    /* background-color: var(--dark02); */
+    background-color: var(--light07);
 }
 
 li {
-  float: left;
+    float: left;
 }
 
-li a {
-  display: block;
-  color: white;
-  text-align: center;
-  padding: 14px 16px;
-  text-decoration: none;
-  transition-duration: 0.5s;
+.links {
+    display: block;
+    /* color: var(--dark-text); */
+    color: var(--light-text);
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    transition-duration: 0.5s;
 }
 
-li a:hover {
-  background-color: #111;
-  transition-duration: 0.5s;
+.links:hover {
+    /* background-color: var(--dark01); */
+    background-color: var(--light10);
+    transition-duration: 0.5s;
 }
 
 .light-dark-switch {
-  float: right;
-  padding: 14px 16px;
-  transition-duration: 0.5s;
+    float: right;
+    padding: 14px 16px;
+    transition-duration: 0.5s;
 
 }
 
 .light-dark-switch:hover {
-  background-color: #111;
-  transition-duration: 0.5s;
-  cursor: pointer;
+    /* background-color: var(--dark01); */
+    background-color: var(--light10);
+    transition-duration: 0.5s;
+    cursor: pointer;
 }
 
 .login-nav {
-  float: right;
+    float: right;
 }
 
 .logo-nav-img {
-  padding: 0;
-  max-width: 15%;
-  max-height: 46px;
+    padding: 0;
+    max-width: 15%;
+    max-height: 46px;
 }
 
 .logo-nav-img img {
-  max-width: 46px;
+    max-width: 46px;
 }
 
 .logo-nav-img a {
-  padding: 0;
+    padding: 0;
 }
 
 /*---------------------------------------------------------------*/
@@ -89,97 +101,109 @@ li a:hover {
 /*Homepage/introduction*/
 
 .introduction {
-  margin: auto;
-  text-align: center;
-  margin-top: 50px;
-  max-width: 800px;
+    margin: auto;
+    text-align: center;
+    margin-top: 50px;
+    max-width: 800px;
 }
 
 .introduction h1 {
-  text-align: center;
+    text-align: center;
 }
 
 /*-----------------------------------------------------------------*/
 
-/*User UI*/
+/*User/Presentator UI*/
 
 select,
 button {
-  width: 7vw;
-  background-color: #555;
-  color: white;
-  border-radius: 5px;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
-  border: none;
-  height: 23px;
-  overflow: hidden;
-  margin-bottom: 10px;
+    width: 7vw;
+    /* background-color: var(--dark05); */
+    background-color: var(--light01);
+    /* color: var(--dark-text); */
+    color: var(--light-text);
+    border-radius: 5px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
+    border: none;
+    height: 3vh;
+    transition: 0.3s;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+select:hover,
+button:hover {
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.3);
+    transition: 0.3s;
 }
 
 /*Time table*/
 
 .main {
-  display: grid;
-  grid-template-columns: 1fr 5fr 1fr;
-  margin: auto;
-  margin-top: 3vh;
-  width: 95vw;
+    display: grid;
+    grid-template-columns: 1fr 5fr 1fr;
+    margin: auto;
+    margin-top: 3vh;
+    width: 95vw;
 }
 
 .sidebar {
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding: 0.5rem;
 }
 
 .schedule {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  background-color: #444;
-  border-radius: 7px;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
-  /* overflow-y;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    /* background-color: var(--dark04); */
+    background-color: var(--light03);
+    border-radius: 7px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
+    /* overflow-y;
   overflow-x: unset; */
 }
 
 .days {
-  display: grid;
-  grid-template-rows: min-content auto;
-  justify-content: center;
-  gap: 5px;
+    display: grid;
+    grid-template-rows: min-content auto;
+    justify-content: center;
+    gap: 5px;
 }
 
 .day-2,
 .day-4 {
-  background-color: #393939;
+    /* background-color: var(--dark39); */
+    background-color: var(--light04);
 }
 
 .day-header {
-  text-align: center;
-  background-color: #222;
-  font-weight: bold;
-  padding: 5px;
+    text-align: center;
+    /* background-color: var(--dark02); */
+    background-color: var(--light05);
+    font-weight: bold;
+    padding: 5px;
 }
 
 .day-header-mon {
-  border-radius: 7px 0px 0px 0px;
+    border-radius: 7px 0px 0px 0px;
 }
 
 .day-header-fri {
-  border-radius: 0px 7px 0px 0px;
+    border-radius: 0px 7px 0px 0px;
 }
 
 .card-container {
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  align-self: self-start;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-self: self-start;
 }
 
 .choose {
-  text-align: center;
+    text-align: center;
 }
 
 /*------------------------------------*/
@@ -189,164 +213,164 @@ button {
 /*Cards*/
 
 .class-card {
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
-  background-color: #555;
-  border-radius: 5px;
-  transition: 0.3s;
-  padding-left: 1.75vh;
-  margin: 10px;
-  min-width: 5vw;
-  width: 11.5vw;
-  max-height: 10vh;
-  overflow: hidden;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
+    /* background-color: var(--dark05); */
+    background-color: var(--light01);
+    border-radius: 5px;
+    transition: 0.3s;
+    padding-left: 1.75vh;
+    padding-bottom: 0.8vh;
+    margin: 10px;
+    min-width: 5vw;
+    width: 11.5vw;
+    max-height: 16vh;
+    overflow: hidden;
+}
+
+.teacher-change {
+    width: 10vw;
+    margin: 0.8vh 0vh 0.8vh 0vh;
 }
 
 .class-card:hover {
-  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.3);
+    transition: 0.3s;
 }
 
 .class-card h3 {
-  margin-bottom: 0rem;
-  margin-top: 1.3vh;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
+    margin-bottom: 0rem;
+    margin-top: 1.3vh;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .class-container p {
-  margin: 0.3vh 0vh 0.3vh 0vh;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
+    margin: 0.3vh 0vh 0.3vh 0vh;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .class-container {
-  padding: 0.35vh 0vh 0.8vh 0vh;
+    padding-top: 0.35vh;
+}
+
+.class-card input {
+    margin: 0;
+    /* margin-bottom: 0.8vh; */
 }
 
 .event-card {
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
-  background-color: #555;
-  border-radius: 5px;
-  transition: 0.3s;
-  padding-left: 1.75vh;
-  margin: 10px;
-  min-width: 5vw;
-  width: 10.5vw;
-  max-height: 10vh;
-  overflow: hidden;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
+    /* background-color: var(--dark05); */
+    background-color: var(--light01);
+    border-radius: 5px;
+    transition: 0.3s;
+    padding-left: 1.75vh;
+    margin: 10px;
+    min-width: 5vw;
+    width: 10.5vw;
+    max-height: 10vh;
+    overflow: hidden;
 }
 
 .event-card:hover {
-  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.3);
+    transition: 0.3s;
 }
 
 .event-card h3 {
-  margin-bottom: 0rem;
-  margin-top: 1.3vh;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
+    margin-bottom: 0rem;
+    margin-top: 1.3vh;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .event-container p {
-  margin: 0.3vh 0vh 0.3vh 0vh;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
+    margin: 0.3vh 0vh 0.3vh 0vh;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .event-container {
-  padding: 0.35vh 0vh 0.8vh 0vh;
+    padding: 0.35vh 0vh 0.8vh 0vh;
 }
 
 /*--------------------------------------------------------------*/
 
-.body-dark {
-  background-color: var(--body-bg-dark);
-  color: var(--body-color-dark);
-}
-
-.nav-dark {
-  background-color: var(--nav-bg-dark);
-}
-
-.nav-link-dark {
-  color: var(--nav-link-color-dark);
-}
-
-.nav-link-dark:hover {
-  background-color: var(--nav-link-hover-dark);
-}
-
-.class-card-dark {
-  background-color: var(--class-card-bg-dark);
-}
-
-.schedule-dark {
-  background-color: var(--schedule-bg-dark);
-}
-
-.select-button-dark {
-  background-color: var(--select-button-bg-dark);
-  color: var(--select-button-color-dark);
-}
-
-.day-header-dark {
-  background-color: var(--day-header-bg-dark);
-}
-
-.day-2-4-dark {
-  background-color: var(--day2-4-bg-dark);
-}
-
-/*Login-register*/
+/*Login-register-profile*/
 
 .login-register-button {
-  cursor: pointer;
-  text-decoration: underline;
+    cursor: pointer;
+    text-decoration: underline;
 }
 
 .login-register-button:hover {
-  color: #111;
+    color: var(--dark02);
 }
 
-.login-register-container {
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
-  background-color: #444;
-  border-radius: 10px;
-  width: 25vw;
-  margin: auto;
-  margin-top: 4vh;
-  padding: 1.25vh 1.25vw 1.25vh 1.25vw;
-  overflow: hidden;
+.login-register-container,
+.profile-container {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
+    /* background-color: var(--dark04); */
+    background-color: var(--light03);
+    border-radius: 10px;
+    width: 25vw;
+    margin: auto;
+    margin-top: 4vh;
+    padding: 1.25vh 1.25vw 1.25vh 1.25vw;
+    overflow: hidden;
 }
 
-.login-register-container h2 {
-  margin-top: 1.3vh;
-  text-align: center;
+.login-register-container h2,
+.profile-container h2 {
+    margin-top: 1.3vh;
+    text-align: center;
 }
 
-.login-register-form input {
-  margin-top: 0.7vh;
-  margin-bottom: 0.7vh;
-  background-color: #555;
-  border-radius: 5px;
-  border: none;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
-  height: 3vh;
-  width: 24.5vw;
-  color: white;
+.login-register-div input {
+    margin-top: 0.7vh;
+    margin-bottom: 0.7vh;
+    /* background-color: var(--dark05); */
+    background-color: var(--light01);
+    border-radius: 5px;
+    border: none;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
+    height: 3vh;
+    width: 24.5vw;
+    /* color: var(--dark-text); */
+
 }
 
 .button-container {
-  display: flex;
-  justify-content: center;
+    display: flex;
+    justify-content: center;
 }
 
 .button-container button {
-  margin-top: 1vh;
-  margin-bottom: 0;
-  background-color: #555;
-  width: 10vw;
+    margin-top: 1vh;
+    margin-bottom: 0;
+    background-color: var(--light06);
+    /* background-color: var(--dark05); */
+    width: 10vw;
+    transition: 0.5s;
 }
+
+.button-container button:hover {
+    background-color: var(--light08);
+    transition: 0.5s;
+}
+
+.button-container button:active {
+    background-color: var(--light09);
+}
+
+#errors {
+    color: red;
+    text-align: center;
+}
+
+/*------------------------------------*/

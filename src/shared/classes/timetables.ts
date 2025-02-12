@@ -1,5 +1,6 @@
 import { Institutions } from "./institutions";
 import { Appointments } from "./appointments";
+import { Events } from "./events";
 
 export class Timetables {
     private id: string;
@@ -7,6 +8,8 @@ export class Timetables {
     private appointments?: Appointments[];
     private institution: Institutions;
     private institutionId: string;
+    private events?: Events[];
+
     constructor(id: string, name: string, institution: Institutions, institutionId: string) {
         this.id = id;
         this.name = name;
@@ -52,5 +55,13 @@ export class Timetables {
 
     getInstitutionId() {
         return this.institutionId;
+    }
+
+    setEvents(events: Events[]) {
+        this.events = events;
+    }
+
+    getEvents() {
+        return this.events;
     }
 }

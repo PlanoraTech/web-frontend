@@ -1,25 +1,21 @@
 import { Appointments } from "../../shared/classes/appointments";
+import { Presentators } from "../../shared/classes/presentators";
 import { AppointmentCard } from "./AppointmentCard"
-import { useEffect } from "react";
 
 interface Props {
     appointments: Appointments[];
+    presentatorlist: Presentators[];
 }
 
 export function AppointmentDay(props: Props) {
-
-    useEffect(() => {
-        console.log("AppointmentDay props changed");
-    }, []);
     const sorted = props.appointments.sort((a, b) => a.getStart().getTime() - b.getStart().getTime());
 
-
     return (
-        <>
+        <div className="card-container">
             {
                 sorted.length > 0 ? (
                     sorted.map((appointment, index) => (
-                        <AppointmentCard key={index} appointment={appointment} />
+                        <AppointmentCard key={index} appointment={appointment} presentatorlist={props.presentatorlist!} />
                     ))
                 ) : (
                     <div className="class-card" title="No appointments for today! Lucky you!">
@@ -30,6 +26,6 @@ export function AppointmentDay(props: Props) {
                     </div>
                 )
             }
-        </>
+        </div>
     )
 }

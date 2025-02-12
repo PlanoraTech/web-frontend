@@ -1,12 +1,14 @@
 import { useNavigate } from "react-router";
 import { Institutions } from "../../shared/classes/institutions";
 import { AppointmentDay } from "./AppointmentDay";
+import { EventDay } from "./EventDay";
 import { useEffect, useState } from "react";
 import { Presentators } from "../../shared/classes/presentators";
 import { Rooms } from "../../shared/classes/rooms";
 import { Timetables } from "../../shared/classes/timetables";
 import { Appointments } from "../../shared/classes/appointments";
 import { Subjects } from "../../shared/classes/subjects";
+import { Events } from "../../shared/classes/events";
 
 interface ScheduleProps {
     institution: Institutions[];
@@ -26,19 +28,14 @@ export function Schedule(props: ScheduleProps) {
     const [thursdayAppointments, setThursdayAppointments] = useState<Appointments[]>([]);
     const [fridayAppointments, setFridayAppointments] = useState<Appointments[]>([]);
     const [maxLength, setMaxLength] = useState(0);
-
+    const [error, setError] = useState("");
 
     const navigate = useNavigate();
+    const baseUrl = "http://localhost:3000/institutions";
 
     useEffect(() => {
         fetchTimetables(selectedInstitution!);
-    }, [selectedInstitution]);
-
-    useEffect(() => {
         fetchPresentators(selectedInstitution!);
-    }, [selectedInstitution]);
-
-    useEffect(() => {
         fetchRooms(selectedInstitution!);
     }, [selectedInstitution]);
 
@@ -55,51 +52,69 @@ export function Schedule(props: ScheduleProps) {
     }, [selectedRoomlist]);
 
     async function fetchTimetables(selectedinstitution: Institutions) {
-        console.log("fetching timetables")
         let timetablelist = [];
-        const response = await fetch(`http://localhost:3000/institutions/${selectedinstitution.getId()}/timetables`)
+        let url = `${baseUrl}/${selectedinstitution.getId()}/timetables`;
+        if (localStorage.getItem('token')) {
+            url = `${baseUrl}/${selectedinstitution.getId()}/timetables/?token=${localStorage.getItem('token')}`
+        }
+        const response = await fetch(url)
         const timetables = await response.json()
+        if (response.status === 403) {
+            setError("You no not have permission to view this institution's timetables!")
+        } else {
+            setError("");
+        }
         for (let i = 0; i < timetables.length; i++) {
+            let eventlist = [];
+            for (let j = 0; j < timetables[i].events.length; j++) {
+                eventlist.push(new Events(timetables[i].events[j].id, timetables[i].events[j].title, timetables[i].events[j].date))
+            }
             let timetable: Timetables = new Timetables(timetables[i].id, timetables[i].name, selectedinstitution, selectedinstitution.getId());
+            timetable.setEvents(eventlist);
             timetablelist.push(timetable)
         }
         setSelectedTimetablelist(timetablelist)
     }
 
     async function fetchPresentators(selectedinstitution: Institutions) {
-        console.log("fetching presentators")
         let presentatorlist = [];
-        const response = await fetch(`http://localhost:3000/institutions/${selectedinstitution.getId()}/presentators`)
+        let url = `${baseUrl}/${selectedinstitution.getId()}/presentators`
+        if (localStorage.getItem('token')) {
+            url = `${baseUrl}/${selectedinstitution.getId()}/presentators/?token=${localStorage.getItem('token')}`
+        }
+        const response = await fetch(url)
         const presentators = await response.json()
         for (let i = 0; i < presentators.length; i++) {
-            let pr: Presentators = new Presentators(presentators[i].id, presentators[i].name, selectedinstitution.getId());
-            presentatorlist.push(pr)
+            presentatorlist.push(new Presentators(presentators[i].id, presentators[i].name, selectedinstitution.getId()));
         }
         selectedinstitution.setPresentators(presentatorlist);
         setSelectedPresentatorlist(presentatorlist)
-        console.log("fetching presentators done")
     }
 
     async function fetchRooms(selectedinstitution: Institutions) {
-        console.log('fetching rooms')
         let roomlist = [];
-        const response = await fetch(`http://localhost:3000/institutions/${selectedinstitution.getId()}/rooms`)
+        let url = `${baseUrl}/${selectedinstitution.getId()}/rooms`
+        if (localStorage.getItem('token')) {
+            url = `${baseUrl}/${selectedinstitution.getId()}/rooms/?token=${localStorage.getItem('token')}`
+        }
+        const response = await fetch(url)
         const rooms = await response.json()
         for (let i = 0; i < rooms.length; i++) {
-            let room: Rooms = new Rooms(rooms[i].id, rooms[i].name, rooms[i].isAvailable, selectedinstitution.getId());
-            roomlist.push(room)
+            roomlist.push(new Rooms(rooms[i].id, rooms[i].name, rooms[i].isAvailable, selectedinstitution.getId()));
         }
         selectedinstitution.setRooms(roomlist);
         setSelectedRoomlist(roomlist)
-        console.log('fetching rooms done')
     }
 
     async function fetchTimetableAppointments(selectedttablelist: Timetables[]) {
-        console.log("fetching appointments")
-        console.log(selectedttablelist)
         for (let i = 0; i < selectedttablelist.length; i++) {
-            const response = await fetch(`http://localhost:3000/institutions/${selectedttablelist[i].getInstitutionId()}/timetables/${selectedttablelist[i].getId()}/appointments`)
+            let url = `${baseUrl}/${selectedttablelist[i].getInstitutionId()}/timetables/${selectedttablelist[i].getId()}/appointments`
+            if (localStorage.getItem('token')) {
+                url = `${baseUrl}/${selectedttablelist[i].getInstitutionId()}/timetables/${selectedttablelist[i].getId()}/appointments/?token=${localStorage.getItem('token')}`
+            }
+            const response = await fetch(url)
             const appointments = await response.json()
+            // console.log(appointments)
             let oneapplist = [];
             for (let i = 0; i < appointments.length; i++) {
                 let oneroomlist = [];
@@ -108,22 +123,29 @@ export function Schedule(props: ScheduleProps) {
                     oneroomlist.push(new Rooms(appointments[i].rooms[j].id, appointments[i].rooms[j].name, appointments[i].rooms[j].isAvailable, appointments[i].rooms[j].institutionId));
                 }
                 for (let j = 0; j < appointments[i].presentators.length; j++) {
-                    onepreslist.push(new Presentators(appointments[i].presentators[j].id, appointments[i].presentators[j].name, appointments[i].presentators[j].institutionId));
+                    let pres: Presentators = new Presentators(appointments[i].presentators[j].id, appointments[i].presentators[j].name, appointments[i].presentators[j].institutionId);
+                    pres.setIsSubstituted(appointments[i].presentators[j].isSubstituted);
+                    onepreslist.push(pres);
                 }
                 let subject: Subjects = new Subjects(appointments[i].subject.id, appointments[i].subject.name, appointments[i].subject.subjectId, appointments[i].subject.institutionId);
-                let appointment: Appointments = new Appointments(appointments[i].id, subject, onepreslist, oneroomlist, appointments[i].dayOfWeek, appointments[i].start, appointments[i].end, appointments[i].isCancelled);
-                oneapplist.push(appointment)
+                let appointment: Appointments = new Appointments(appointments[i].id, subject, onepreslist, oneroomlist, appointments[i].dayOfWeek, appointments[i].start, appointments[i].end, appointments[i].isCancelled)
+                appointment.setInstitutionId(selectedInstitution!.getId()!)
+                oneapplist.push(appointment);
             }
             selectedttablelist[i].setAppointments(oneapplist)
+            // console.log(oneapplist)
         }
     }
 
     async function fetchPresentatorAppointments(selectedpresentatorlist: Presentators[]) {
-        console.log("fetching presentator appointments")
-        console.log(selectedpresentatorlist)
         for (let i = 0; i < selectedpresentatorlist.length; i++) {
-            const response = await fetch(`http://localhost:3000/institutions/${selectedpresentatorlist[i].getInstitutionId()}/presentators/${selectedpresentatorlist[i].getId()}/appointments`)
+            let url = `${baseUrl}/${selectedpresentatorlist[i].getInstitutionId()}/presentators/${selectedpresentatorlist[i].getId()}/appointments`
+            if (localStorage.getItem('token')) {
+                url = `${baseUrl}/${selectedpresentatorlist[i].getInstitutionId()}/presentators/${selectedpresentatorlist[i].getId()}/appointments/?token=${localStorage.getItem('token')}`
+            }
+            const response = await fetch(url)
             const appointments = await response.json()
+            // console.log(appointments)
             let oneapplist = [];
             for (let i = 0; i < appointments.length; i++) {
                 let oneroomlist = [];
@@ -132,23 +154,29 @@ export function Schedule(props: ScheduleProps) {
                     oneroomlist.push(new Rooms(appointments[i].rooms[j].id, appointments[i].rooms[j].name, appointments[i].rooms[j].isAvailable, appointments[i].rooms[j].institutionId));
                 }
                 for (let j = 0; j < appointments[i].presentators.length; j++) {
-                    onepreslist.push(new Presentators(appointments[i].presentators[j].id, appointments[i].presentators[j].name, appointments[i].presentators[j].institutionId));
+                    let pres: Presentators = new Presentators(appointments[i].presentators[j].id, appointments[i].presentators[j].name, appointments[i].presentators[j].institutionId);
+                    pres.setIsSubstituted(appointments[i].presentators[j].isSubstituted);
+                    onepreslist.push(pres);
                 }
                 let subject: Subjects = new Subjects(appointments[i].subject.id, appointments[i].subject.name, appointments[i].subject.subjectId, appointments[i].subject.institutionId);
-                let appointment: Appointments = new Appointments(appointments[i].id, subject, onepreslist, oneroomlist, appointments[i].dayOfWeek, appointments[i].start, appointments[i].end, appointments[i].isCancelled);
-                oneapplist.push(appointment)
+                let appointment: Appointments = new Appointments(appointments[i].id, subject, onepreslist, oneroomlist, appointments[i].dayOfWeek, appointments[i].start, appointments[i].end, appointments[i].isCancelled)
+                appointment.setInstitutionId(selectedInstitution!.getId()!)
+                oneapplist.push(appointment);
             }
             selectedpresentatorlist[i].setAppointments(oneapplist)
+            // console.log(oneapplist)
         }
     }
 
     async function fetchRoomAppointments(selectedroomlist: Rooms[]) {
-        console.log('fetching room appointments')
-        console.log(selectedroomlist)
         for (let i = 0; i < selectedroomlist.length; i++) {
-            const response = await fetch(`http://localhost:3000/institutions/${selectedroomlist[i].getInstitutionId()}/rooms/${selectedroomlist[i].getId()}/appointments`)
+            let url = `${baseUrl}/${selectedroomlist[i].getInstitutionId()}/rooms/${selectedroomlist[i].getId()}/appointments`
+            if (localStorage.getItem('token')) {
+                url = `${baseUrl}/${selectedroomlist[i].getInstitutionId()}/rooms/${selectedroomlist[i].getId()}/appointments/?token=${localStorage.getItem('token')}`
+            }
+            const response = await fetch(url)
             const appointments = await response.json()
-            console.log(appointments)
+            // console.log(appointments)
             let oneapplist = [];
             for (let i = 0; i < appointments.length; i++) {
                 let oneroomlist = [];
@@ -157,14 +185,38 @@ export function Schedule(props: ScheduleProps) {
                     oneroomlist.push(new Rooms(appointments[i].rooms[j].id, appointments[i].rooms[j].name, appointments[i].rooms[j].isAvailable, appointments[i].rooms[j].institutionId));
                 }
                 for (let j = 0; j < appointments[i].presentators.length; j++) {
-                    onepreslist.push(new Presentators(appointments[i].presentators[j].id, appointments[i].presentators[j].name, appointments[i].presentators[j].institutionId));
+                    let pres: Presentators = new Presentators(appointments[i].presentators[j].id, appointments[i].presentators[j].name, appointments[i].presentators[j].institutionId);
+                    pres.setIsSubstituted(appointments[i].presentators[j].isSubstituted);
+                    onepreslist.push(pres);
                 }
                 let subject: Subjects = new Subjects(appointments[i].subject.id, appointments[i].subject.name, appointments[i].subject.subjectId, appointments[i].subject.institutionId);
-                let appointment: Appointments = new Appointments(appointments[i].id, subject, onepreslist, oneroomlist, appointments[i].dayOfWeek, appointments[i].start, appointments[i].end, appointments[i].isCancelled);
-                oneapplist.push(appointment)
-                console.log(oneapplist)
+                let appointment: Appointments = new Appointments(appointments[i].id, subject, onepreslist, oneroomlist, appointments[i].dayOfWeek, appointments[i].start, appointments[i].end, appointments[i].isCancelled)
+                appointment.setInstitutionId(selectedInstitution!.getId()!)
+                oneapplist.push(appointment);
+                // console.log(oneapplist)
             }
             selectedroomlist[i].setAppointments(oneapplist)
+        }
+    }
+
+
+    function sortDays(appointments: Appointments[]) {
+        for (let i = 0; i < appointments!.length; i++) {
+            if (appointments![i].getStart().getDay() === 1) {
+                mondayAppointments.push(appointments![i])
+            }
+            if (appointments![i].getStart().getDay() === 2) {
+                tuesdayAppointments.push(appointments![i])
+            }
+            if (appointments![i].getStart().getDay() === 3) {
+                wednesdayAppointments.push(appointments![i])
+            }
+            if (appointments![i].getStart().getDay() === 4) {
+                thursdayAppointments.push(appointments![i])
+            }
+            if (appointments![i].getStart().getDay() === 5) {
+                fridayAppointments.push(appointments![i])
+            }
         }
     }
 
@@ -172,15 +224,16 @@ export function Schedule(props: ScheduleProps) {
         const institutionId = e.target.value;
         const institution = props.institution.find(inst => inst.getId() === institutionId) || null;
         console.log(institution)
-        if (institution?.getAccess() === "PRIVATE") {
+        if (institution?.getAccess() === "PRIVATE" && !localStorage.getItem('token')) {
             navigate("/login");
         } else {
             setSelectedInstitution(institution!);
             setSelectedTimetable(null);
+            setSelectedPresentator(null);
+            setSelectedRoom(null);
             clearlists();
         }
     };
-
 
     const handleTimeTableChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const ttId = e.target.value;
@@ -188,26 +241,10 @@ export function Schedule(props: ScheduleProps) {
         setSelectedPresentator(null);
         setSelectedRoom(null);
         clearlists();
-        for (let i = 0; i < timetable!.getAppointments()!.length; i++) {
-            if (timetable!.getAppointments()![i].getDayOfWeek() === "MONDAY") {
-                mondayAppointments.push(timetable!.getAppointments()![i])
-            }
-            if (timetable!.getAppointments()![i].getDayOfWeek() === "TUESDAY") {
-                tuesdayAppointments.push(timetable!.getAppointments()![i])
-            }
-            if (timetable!.getAppointments()![i].getDayOfWeek() === "WEDNESDAY") {
-                wednesdayAppointments.push(timetable!.getAppointments()![i])
-            }
-            if (timetable!.getAppointments()![i].getDayOfWeek() === "THURSDAY") {
-                thursdayAppointments.push(timetable!.getAppointments()![i])
-            }
-            if (timetable!.getAppointments()![i].getDayOfWeek() === "FRIDAY") {
-                fridayAppointments.push(timetable!.getAppointments()![i])
-            }
-        }
+        sortDays(timetable!.getAppointments()!)
         setSelectedTimetable(timetable);
         longest([mondayAppointments, tuesdayAppointments, wednesdayAppointments, thursdayAppointments, fridayAppointments]);
-        console.log(timetable)
+        // console.log(timetable)
     };
 
     const handlePresentatorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -216,26 +253,10 @@ export function Schedule(props: ScheduleProps) {
         setSelectedTimetable(null);
         setSelectedRoom(null);
         clearlists();
-        for (let i = 0; i < presentator!.getAppointments()!.length; i++) {
-            if (presentator!.getAppointments()![i].getDayOfWeek() === "MONDAY") {
-                mondayAppointments.push(presentator!.getAppointments()![i])
-            }
-            if (presentator!.getAppointments()![i].getDayOfWeek() === "TUESDAY") {
-                tuesdayAppointments.push(presentator!.getAppointments()![i])
-            }
-            if (presentator!.getAppointments()![i].getDayOfWeek() === "WEDNESDAY") {
-                wednesdayAppointments.push(presentator!.getAppointments()![i])
-            }
-            if (presentator!.getAppointments()![i].getDayOfWeek() === "THURSDAY") {
-                thursdayAppointments.push(presentator!.getAppointments()![i])
-            }
-            if (presentator!.getAppointments()![i].getDayOfWeek() === "FRIDAY") {
-                fridayAppointments.push(presentator!.getAppointments()![i])
-            }
-        }
+        sortDays(presentator!.getAppointments()!)
         setSelectedPresentator(presentator);
         longest([mondayAppointments, tuesdayAppointments, wednesdayAppointments, thursdayAppointments, fridayAppointments]);
-        console.log(presentator)
+        // console.log(presentator)
     };
 
     const handleRoomChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -244,26 +265,10 @@ export function Schedule(props: ScheduleProps) {
         setSelectedTimetable(null);
         setSelectedPresentator(null);
         clearlists();
-        for (let i = 0; i < room!.getAppointments()!.length; i++) {
-            if (room!.getAppointments()![i].getDayOfWeek() === "MONDAY") {
-                mondayAppointments.push(room!.getAppointments()![i])
-            }
-            if (room!.getAppointments()![i].getDayOfWeek() === "TUESDAY") {
-                tuesdayAppointments.push(room!.getAppointments()![i])
-            }
-            if (room!.getAppointments()![i].getDayOfWeek() === "WEDNESDAY") {
-                wednesdayAppointments.push(room!.getAppointments()![i])
-            }
-            if (room!.getAppointments()![i].getDayOfWeek() === "THURSDAY") {
-                thursdayAppointments.push(room!.getAppointments()![i])
-            }
-            if (room!.getAppointments()![i].getDayOfWeek() === "FRIDAY") {
-                fridayAppointments.push(room!.getAppointments()![i])
-            }
-        }
+        sortDays(room!.getAppointments()!)
         setSelectedRoom(room);
         longest([mondayAppointments, tuesdayAppointments, wednesdayAppointments, thursdayAppointments, fridayAppointments]);
-        console.log(room)
+        // console.log(room)
     }
 
     function longest(lists: Appointments[][]) {
@@ -289,7 +294,7 @@ export function Schedule(props: ScheduleProps) {
             {!selectedInstitution && (
                 <h3 className="choose">Choose an institution!</h3>
             )}
-            {selectedInstitution && !selectedTimetable && !selectedPresentator && !selectedRoom && (
+            {selectedInstitution && !error && !selectedTimetable && !selectedPresentator && !selectedRoom && (
                 <h3 className="choose">Choose a timetable or presentator or a room!</h3>
             )}
             {selectedInstitution && selectedTimetable && (
@@ -300,6 +305,9 @@ export function Schedule(props: ScheduleProps) {
             )}
             {selectedInstitution && selectedRoom && (
                 <h3 className="choose">Room {selectedRoom.getName()}</h3>
+            )}
+            {error && (
+                <h3 style={{ color: '#fc6464' }} className="choose">{error}</h3>
             )}
             <div className="main">
                 <div className="sidebar">
@@ -327,48 +335,43 @@ export function Schedule(props: ScheduleProps) {
                             <option key={room.getId()} value={room.getId()}>{room.getName()}</option>
                         ))}
                     </select>
-                    {/* <button>Change view</button> */}
                 </div>
                 <div className="schedule">
                     <div className="day-1 days" >
                         <div className="day-header-mon day-header">Monday</div>
-                        <div className="card-container">
-                            <AppointmentDay appointments={mondayAppointments!} />
-                        </div>
+                        <AppointmentDay appointments={mondayAppointments!} presentatorlist={selectedPresentatorlist!} />
                     </div>
                     <div className="day-2 days">
                         <div className="day-header-tue day-header">Tuesday</div>
-                        <div className="card-container">
-                            <AppointmentDay appointments={tuesdayAppointments!} />
-                        </div>
+                        <AppointmentDay appointments={tuesdayAppointments!} presentatorlist={selectedPresentatorlist!} />
                     </div>
                     <div className="day-3 days">
                         <div className="day-header-wed day-header">Wednesday</div>
-                        <div className="card-container">
-                            <AppointmentDay appointments={wednesdayAppointments!} />
-                        </div>
+                        <AppointmentDay appointments={wednesdayAppointments!} presentatorlist={selectedPresentatorlist!} />
                     </div>
                     <div className="day-4 days">
                         <div className="day-header-thu day-header">Thursday</div>
-                        <div className="card-container">
-                            <AppointmentDay appointments={thursdayAppointments!} />
-                        </div>
+                        <AppointmentDay appointments={thursdayAppointments!} presentatorlist={selectedPresentatorlist!} />
                     </div>
                     <div className="day-5 days">
                         <div className="day-header-fri day-header">Friday</div>
-                        <div className="card-container">
-                            <AppointmentDay appointments={fridayAppointments!} />
-                        </div>
+                        <AppointmentDay appointments={fridayAppointments!} presentatorlist={selectedPresentatorlist!} />
                     </div>
                 </div>
                 <div className="sidebar">
                     <strong>Events:</strong>
-                    <div className="event-card" title="No events for today!">
-                        <h3><b>Nothing :)</b></h3>
-                        <div className="event-container">
-                            <p>No events for today!</p>
+                    {selectedTimetable && selectedTimetable.getEvents() && selectedTimetable.getEvents()!.length > 0 ? (
+                        selectedTimetable?.getEvents()?.map((event: Events) => (
+                            <EventDay key={event.getId()} event={event} />
+                        ))
+                    ) : (
+                        <div className="event-card" title="No events for today!">
+                            <h3><b>Nothing :)</b></h3>
+                            <div className="event-container">
+                                <p>No events for today!</p>
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
         </>

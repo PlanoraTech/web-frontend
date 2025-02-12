@@ -3,6 +3,7 @@ import { Appointments } from "./appointments";
 export class Presentators {
     private id: string;
     private name: string;
+    private isSubstituted?: boolean;
     private appointments?: Appointments[];
     private institutionId: string;
 
@@ -26,6 +27,14 @@ export class Presentators {
 
     getName() {
         return this.name;
+    }
+
+    setIsSubstituted(isSubstituted: boolean) {
+        this.isSubstituted = isSubstituted;
+    }
+
+    getIsSubstituted() {
+        return this.isSubstituted;
     }
 
     getAppointments() {
