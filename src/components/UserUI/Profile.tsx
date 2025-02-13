@@ -17,6 +17,7 @@ export function Profile() {
             if (!response.ok) {
             } else {
                 const data = await response.json();
+                console.log(data);
                 setEmail(data.email);
             }
         }

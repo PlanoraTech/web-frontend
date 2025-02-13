@@ -23,13 +23,55 @@
     /*-----------*/
 }
 
+.dark-theme {
+    --body-bg-color: var(--dark03);
+    --nav-bg-color: var(--dark02);
+    --body-color: var(--dark-text);
+    --links-color: var(--dark-text);
+    --links-hover-bg-color: var(--dark01);
+    --select-button-bg-color: var(--dark05);
+    --select-button-color: var(--dark-text);
+    --schedule-bg-color: var(--dark04);
+    --day2-4-bg-color: var(--dark39);
+    --dayheader-bg-color: var(--dark02);
+    --class-event-card-bg-color: var(--dark05);
+    --login-register-input-bg-color: var(--dark05);
+    --login-register-input-color: var(--dark-text);
+    --login-register-profile-container-bg-color: var(--dark04);
+    --button-container-bg-color: var(--dark05);
+    --button-container-hover-bg-color: var(--dark04);
+    --button-container-active-bg-color: var(--dark03);
+}
+
+.light-theme {
+    --body-bg-color: var(--light02);
+    --nav-bg-color: var(--light07);
+    --body-color: var(--light-text);
+    --links-color: var(--light-text);
+    --links-hover-bg-color: var(--light10);
+    --select-button-color: var(--light-text);
+    --select-button-bg-color: var(--light01);
+    --schedule-bg-color: var(--light03);
+    --day2-4-bg-color: var(--light04);
+    --dayheader-bg-color: var(--light05);
+    --class-event-card-bg-color: var(--light01);
+    --login-register-input-bg-color: var(--light01);
+    --login-register-profile-container-bg-color: var(--light03);
+    --button-container-bg-color: var(--light06);
+    --button-container-hover-bg-color: var(--light08);
+    --button-container-active-bg-color: var(--light09);
+}
+
+#root {
+    justify-content: center;
+    align-items: center;
+}
+
 body {
     margin: 0;
     font-family: Tinos;
-    /* background-color: var(--dark03); */
-    background-color: var(--light02);
-    /* color: var(--dark-text); */
-    color: var(--light-text);
+    background-color: var(--body-bg-color);
+    color: var(--body-color);
 }
 
 /* nav bar style */
@@ -40,8 +82,7 @@ ul {
     margin: 0;
     padding: 0;
     overflow: hidden;
-    /* background-color: var(--dark02); */
-    background-color: var(--light07);
+    background-color: var(--nav-bg-color);
 }
 
 li {
@@ -50,8 +91,7 @@ li {
 
 .links {
     display: block;
-    /* color: var(--dark-text); */
-    color: var(--light-text);
+    color: var(--links-color);
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
@@ -59,8 +99,7 @@ li {
 }
 
 .links:hover {
-    /* background-color: var(--dark01); */
-    background-color: var(--light10);
+    background-color: var(--links-hover-bg-color);
     transition-duration: 0.5s;
 }
 
@@ -72,8 +111,7 @@ li {
 }
 
 .light-dark-switch:hover {
-    /* background-color: var(--dark01); */
-    background-color: var(--light10);
+    background-color: var(--links-hover-bg-color);
     transition-duration: 0.5s;
     cursor: pointer;
 }
@@ -117,11 +155,9 @@ li {
 
 select,
 button {
-    width: 7vw;
-    /* background-color: var(--dark05); */
-    background-color: var(--light01);
-    /* color: var(--dark-text); */
-    color: var(--light-text);
+    width: 9vw;
+    background-color: var(--select-button-bg-color);
+    color: var(--select-button-color);
     border-radius: 5px;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
     border: none;
@@ -133,7 +169,7 @@ button {
 
 select:hover,
 button:hover {
-    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.3);
+    box-shadow: 2px 8px 16px 2px rgba(0, 0, 0, 0.3);
     transition: 0.3s;
 }
 
@@ -144,7 +180,7 @@ button:hover {
     grid-template-columns: 1fr 5fr 1fr;
     margin: auto;
     margin-top: 3vh;
-    width: 95vw;
+    width: min-content;
 }
 
 .sidebar {
@@ -157,12 +193,29 @@ button:hover {
 .schedule {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    /* background-color: var(--dark04); */
-    background-color: var(--light03);
+    background-color: var(--schedule-bg-color);
     border-radius: 7px;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
-    /* overflow-y;
-  overflow-x: unset; */
+    max-height: 83vh;
+    min-width: fit-content;
+    overflow-y: auto;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    background-color: var(--schedule-bg-color);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--day2-4-bg-color);
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--dayheader-bg-color);
+    transition: 0.3s;
 }
 
 .days {
@@ -174,14 +227,12 @@ button:hover {
 
 .day-2,
 .day-4 {
-    /* background-color: var(--dark39); */
-    background-color: var(--light04);
+    background-color: var(--day2-4-bg-color);
 }
 
 .day-header {
     text-align: center;
-    /* background-color: var(--dark02); */
-    background-color: var(--light05);
+    background-color: var(--dayheader-bg-color);
     font-weight: bold;
     padding: 5px;
 }
@@ -200,6 +251,7 @@ button:hover {
     display: flex;
     flex-direction: column;
     align-self: self-start;
+    /* width: min-content; */
 }
 
 .choose {
@@ -213,18 +265,43 @@ button:hover {
 /*Cards*/
 
 .class-card {
+    position: relative;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
-    /* background-color: var(--dark05); */
-    background-color: var(--light01);
+    background-color: var(--class-event-card-bg-color);
     border-radius: 5px;
-    transition: 0.3s;
     padding-left: 1.75vh;
     padding-bottom: 0.8vh;
     margin: 10px;
     min-width: 5vw;
-    width: 11.5vw;
-    max-height: 16vh;
+    width: 12.5vw;
+    max-width: 12.5vw;
     overflow: hidden;
+    transition: all 0.3s ease-in-out;
+}
+
+.extra-content {
+    max-height: 0;
+    overflow: hidden;
+}
+
+.class-card.expanded {
+    position: relative;
+    transform: scale(1.5);
+    height: min-content;
+    box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+}
+
+.class-card.expanded:last-child:not(:first-child) {
+    position: relative;
+    transform: translateY(-80%) scale(1.5);
+    height: min-content;
+    box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+}
+
+.class-card.expanded .extra-content {
+    max-height: max-content;
 }
 
 .teacher-change {
@@ -233,7 +310,7 @@ button:hover {
 }
 
 .class-card:hover {
-    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.3);
+    box-shadow: 2px 8px 16px 2px rgba(0, 0, 0, 0.3);
     transition: 0.3s;
 }
 
@@ -245,11 +322,17 @@ button:hover {
     white-space: nowrap;
 }
 
-.class-container p {
-    margin: 0.3vh 0vh 0.3vh 0vh;
+.rooms {
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
+}
+
+.class-container p {
+    margin: 0.3vh 0vh 0.3vh 0vh;
+    /* text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap; */
 }
 
 .class-container {
@@ -263,20 +346,19 @@ button:hover {
 
 .event-card {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
-    /* background-color: var(--dark05); */
-    background-color: var(--light01);
+    background-color: var(--class-event-card-bg-color);
     border-radius: 5px;
     transition: 0.3s;
     padding-left: 1.75vh;
-    margin: 10px;
+    margin: 5px;
     min-width: 5vw;
-    width: 10.5vw;
+    width: 10vw;
     max-height: 10vh;
     overflow: hidden;
 }
 
 .event-card:hover {
-    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.3);
+    box-shadow: 2px 8px 16px 2px rgba(0, 0, 0, 0.3);
     transition: 0.3s;
 }
 
@@ -308,15 +390,11 @@ button:hover {
     text-decoration: underline;
 }
 
-.login-register-button:hover {
-    color: var(--dark02);
-}
 
 .login-register-container,
 .profile-container {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
-    /* background-color: var(--dark04); */
-    background-color: var(--light03);
+    background-color: var(--login-register-profile-container-bg-color);
     border-radius: 10px;
     width: 25vw;
     margin: auto;
@@ -334,14 +412,13 @@ button:hover {
 .login-register-div input {
     margin-top: 0.7vh;
     margin-bottom: 0.7vh;
-    /* background-color: var(--dark05); */
-    background-color: var(--light01);
+    background-color: var(--login-register-input-bg-color);
     border-radius: 5px;
     border: none;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
     height: 3vh;
     width: 24.5vw;
-    /* color: var(--dark-text); */
+    color: var(--login-register-input-color);
 
 }
 
@@ -353,19 +430,18 @@ button:hover {
 .button-container button {
     margin-top: 1vh;
     margin-bottom: 0;
-    background-color: var(--light06);
-    /* background-color: var(--dark05); */
+    background-color: var(--button-container-bg-color);
     width: 10vw;
     transition: 0.5s;
 }
 
 .button-container button:hover {
-    background-color: var(--light08);
+    background-color: var(--button-container-hover-bg-color);
     transition: 0.5s;
 }
 
 .button-container button:active {
-    background-color: var(--light09);
+    background-color: var(--button-container-active-bg-color);
 }
 
 #errors {

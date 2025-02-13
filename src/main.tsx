@@ -6,6 +6,7 @@ import { Home } from './components/Home'
 import { UserPage } from './components/UserUI/UserPage'
 import { Login } from './components/UserUI/Login'
 import { Profile } from './components/UserUI/Profile'
+import { ThemeProvider } from './ThemeContext'
 
 const router = createBrowserRouter([
     {
@@ -34,6 +35,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
-        <RouterProvider router={router} />
+        <ThemeProvider>
+            <RouterProvider router={router} />
+        </ThemeProvider>
     </React.StrictMode>,
 )
