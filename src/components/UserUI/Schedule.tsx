@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router";
 import { Institutions } from "../../shared/classes/institutions";
 import { AppointmentDay } from "./AppointmentDay";
-import { EventDay } from "./EventDay";
 import { useEffect, useState } from "react";
 import { Presentators } from "../../shared/classes/presentators";
 import { Rooms } from "../../shared/classes/rooms";
@@ -9,6 +8,7 @@ import { Timetables } from "../../shared/classes/timetables";
 import { Appointments } from "../../shared/classes/appointments";
 import { Subjects } from "../../shared/classes/subjects";
 import { Events } from "../../shared/classes/events";
+import { EventDay } from "./EventDay";
 
 interface ScheduleProps {
     institution: Institutions[];
@@ -37,6 +37,7 @@ export function Schedule(props: ScheduleProps) {
         fetchTimetables(selectedInstitution!);
         fetchPresentators(selectedInstitution!);
         fetchRooms(selectedInstitution!);
+        fetchEvents(selectedInstitution!);
     }, [selectedInstitution]);
 
     useEffect(() => {
@@ -65,15 +66,10 @@ export function Schedule(props: ScheduleProps) {
             setError("");
         }
         for (let i = 0; i < timetables.length; i++) {
-            let eventlist = [];
-            for (let j = 0; j < timetables[i].events.length; j++) {
-                eventlist.push(new Events(timetables[i].events[j].id, timetables[i].events[j].title, timetables[i].events[j].date))
-            }
             let timetable: Timetables = new Timetables(timetables[i].id, timetables[i].name, selectedinstitution, selectedinstitution.getId());
-            timetable.setEvents(eventlist);
             timetablelist.push(timetable)
         }
-        setSelectedTimetablelist(timetablelist)
+        setSelectedTimetablelist(timetablelist.sort((a, b) => a.getName().localeCompare(b.getName())))
     }
 
     async function fetchPresentators(selectedinstitution: Institutions) {
@@ -88,7 +84,7 @@ export function Schedule(props: ScheduleProps) {
             presentatorlist.push(new Presentators(presentators[i].id, presentators[i].name, selectedinstitution.getId()));
         }
         selectedinstitution.setPresentators(presentatorlist);
-        setSelectedPresentatorlist(presentatorlist)
+        setSelectedPresentatorlist(presentatorlist.sort((a, b) => a.getName().localeCompare(b.getName())))
     }
 
     async function fetchRooms(selectedinstitution: Institutions) {
@@ -103,7 +99,21 @@ export function Schedule(props: ScheduleProps) {
             roomlist.push(new Rooms(rooms[i].id, rooms[i].name, rooms[i].isAvailable, selectedinstitution.getId()));
         }
         selectedinstitution.setRooms(roomlist);
-        setSelectedRoomlist(roomlist)
+        setSelectedRoomlist(roomlist.sort((a, b) => a.getName().localeCompare(b.getName())))
+    }
+
+    async function fetchEvents(selectedinstitution: Institutions) {
+        let eventlist = [];
+        let url = `${baseUrl}/${selectedinstitution.getId()}/events`
+        if (localStorage.getItem('token')) {
+            url = `${baseUrl}/${selectedinstitution.getId()}/events/?token=${localStorage.getItem('token')}`
+        }
+        const response = await fetch(url)
+        const events = await response.json()
+        for (let i = 0; i < events.length; i++) {
+            eventlist.push(new Events(events[i].id, events[i].title, events[i].date, selectedinstitution.getId()));
+        }
+        selectedinstitution.setEvents(eventlist.sort((a, b) => a.getDate().getTime() - b.getDate().getTime()));
     }
 
     async function fetchTimetableAppointments(selectedttablelist: Timetables[]) {
@@ -317,24 +327,28 @@ export function Schedule(props: ScheduleProps) {
                             <option key={institution.getId()} value={institution.getId()}>{institution.getName()}</option>
                         ))}
                     </select>
-                    <select onChange={handleTimeTableChange} value={selectedTimetable?.getId() || 'default'}>
-                        <option value="default" disabled>TimeTables</option>
-                        {selectedTimetablelist?.map((tt: Timetables) => (
-                            <option key={tt.getId()} value={tt.getId()}>{tt.getName()}</option>
-                        ))}
-                    </select>
-                    <select onChange={handlePresentatorChange} value={selectedPresentator?.getId() || 'default'}>
-                        <option value="default" disabled>Presentators</option>
-                        {selectedPresentatorlist?.map((pres: Presentators) => (
-                            <option key={pres.getId()} value={pres.getId()}>{pres.getName()}</option>
-                        ))}
-                    </select>
-                    <select onChange={handleRoomChange} value={selectedRoom?.getId() || 'default'}>
-                        <option value="default" disabled>Rooms</option>
-                        {selectedRoomlist?.map((room: Rooms) => (
-                            <option key={room.getId()} value={room.getId()}>{room.getName()}</option>
-                        ))}
-                    </select>
+                    {selectedInstitution ?
+                        <>
+                            <select onChange={handleTimeTableChange} value={selectedTimetable?.getId() || 'default'}>
+                                <option value="default" disabled>TimeTables</option>
+                                {selectedTimetablelist?.map((tt: Timetables) => (
+                                    <option key={tt.getId()} value={tt.getId()}>{tt.getName()}</option>
+                                ))}
+                            </select>
+                            <select onChange={handlePresentatorChange} value={selectedPresentator?.getId() || 'default'}>
+                                <option value="default" disabled>Presentators</option>
+                                {selectedPresentatorlist?.map((pres: Presentators) => (
+                                    <option key={pres.getId()} value={pres.getId()}>{pres.getName()}</option>
+                                ))}
+                            </select>
+                            <select onChange={handleRoomChange} value={selectedRoom?.getId() || 'default'}>
+                                <option value="default" disabled>Rooms</option>
+                                {selectedRoomlist?.map((room: Rooms) => (
+                                    <option key={room.getId()} value={room.getId()}>{room.getName()}</option>
+                                ))}
+                            </select>
+                        </>
+                        : null}
                 </div>
                 <div className="schedule">
                     <div className="day-1 days" >
@@ -359,19 +373,23 @@ export function Schedule(props: ScheduleProps) {
                     </div>
                 </div>
                 <div className="sidebar">
-                    <strong>Events:</strong>
-                    {selectedTimetable && selectedTimetable.getEvents() && selectedTimetable.getEvents()!.length > 0 ? (
-                        selectedTimetable?.getEvents()?.map((event: Events) => (
-                            <EventDay key={event.getId()} event={event} />
-                        ))
-                    ) : (
-                        <div className="event-card" title="No events for today!">
-                            <h3><b>Nothing :)</b></h3>
-                            <div className="event-container">
-                                <p>No events for today!</p>
-                            </div>
+                    <div className="events-container">
+                        <h4>Events:</h4>
+                        <div className="events-card-container">
+                            {selectedInstitution && selectedInstitution.getEvents() && selectedInstitution.getEvents()!.length > 0 ? (
+                                selectedInstitution!.getEvents()?.map((event: Events) => (
+                                    <EventDay key={event.getId()} event={event} />
+                                ))
+                            ) : (
+                                <div className="event-card" title="No events for today!">
+                                    <h3><b>Nothing :)</b></h3>
+                                    <div className="event-container">
+                                        <p>No events for today!</p>
+                                    </div>
+                                </div>
+                            )}
                         </div>
-                    )}
+                    </div>
                 </div>
             </div>
         </>

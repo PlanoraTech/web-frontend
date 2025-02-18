@@ -21,7 +21,7 @@ export function AppointmentDay(props: Props) {
                     <div className="class-card" title="No appointments for today! Lucky you!">
                         <h3><b>Nothing :)</b></h3>
                         <div className="class-container">
-                            <p>No appointments for today!</p>
+                            <p className="rooms">No appointments for today!</p>
                         </div>
                     </div>
                 )

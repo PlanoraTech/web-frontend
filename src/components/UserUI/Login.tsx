@@ -36,13 +36,16 @@ export function Login() {
                 body: JSON.stringify({ email: logemail, password: logpassword }),
             });
             if (!response.ok) {
-                setError(await response.json());
+                const data = await response.json();
+                setError(data.message);
 
             } else {
                 const data = await response.json();
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('expiry', data.expiry);
                 localStorage.setItem('role', data.user.role);
+                localStorage.setItem('institutions', JSON.stringify(data.user.institutions));
+                localStorage.setItem('presentatorid', "8f57cd8b-d673-4f5f-a6c5-c03d9f5d6dad");
                 navigate('/profile');
                 setError("");
                 setLogEmail("");
@@ -76,7 +79,8 @@ export function Login() {
                 body: JSON.stringify({ email: regemail, password: regpassword }),
             });
             if (!response.ok) {
-                setError(await response.json());
+                const data = await response.json();
+                setError(data.message);
             } else {
                 const data = await response.json();
                 localStorage.setItem('token', data.token);

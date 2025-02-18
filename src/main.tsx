@@ -7,6 +7,7 @@ import { UserPage } from './components/UserUI/UserPage'
 import { Login } from './components/UserUI/Login'
 import { Profile } from './components/UserUI/Profile'
 import { ThemeProvider } from './ThemeContext'
+import { Menu } from './components/DirectorUI/Menu'
 
 const router = createBrowserRouter([
     {
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
     {
         path: "/profile",
         element: <Profile />,
+    },
+    {
+        path: "/manage",
+        element: <Menu />,
     }
 ]);
 

@@ -9,16 +9,20 @@
     --dark-text: white;
     /*----------*/
     /*light colors*/
+    --light00: #ffffff;
+    --light20: #f0f0f0;
+    --light21: #e6e6e6;
     --light01: #e2f4ff;
     --light02: #d2eeff;
-    --light03: #c6e9ff;
-    --light04: #b0e1ff;
-    --light05: #9cd9ff;
-    --light06: #95d6ff;
-    --light07: #8ad2ff;
-    --light08: #89d2ff;
-    --light09: #7dcdfe;
-    --light10: #76cbff;
+    --light03: #78cbff;
+    --light04: #66c4ff;
+    --light05: #54bdff;
+    --light06: #46b8ff;
+    --light07: #35b1ff;
+    --light08: #26acff;
+    --light09: #14a5ff;
+    --light10: #009dff;
+    --light11: #0095ff;
     --light-text: black;
     /*-----------*/
 }
@@ -31,6 +35,7 @@
     --links-hover-bg-color: var(--dark01);
     --select-button-bg-color: var(--dark05);
     --select-button-color: var(--dark-text);
+    --select-button-hover-bg-color: var(--dark05);
     --schedule-bg-color: var(--dark04);
     --day2-4-bg-color: var(--dark39);
     --dayheader-bg-color: var(--dark02);
@@ -44,44 +49,52 @@
 }
 
 .light-theme {
-    --body-bg-color: var(--light02);
-    --nav-bg-color: var(--light07);
+    --body-bg-color: var(--light00);
+    /*--light02*/
+    --nav-bg-color: var(--light10);
+    /*--light07*/
     --body-color: var(--light-text);
     --links-color: var(--light-text);
-    --links-hover-bg-color: var(--light10);
+    --links-hover-bg-color: var(--light11);
     --select-button-color: var(--light-text);
-    --select-button-bg-color: var(--light01);
-    --schedule-bg-color: var(--light03);
-    --day2-4-bg-color: var(--light04);
-    --dayheader-bg-color: var(--light05);
-    --class-event-card-bg-color: var(--light01);
-    --login-register-input-bg-color: var(--light01);
-    --login-register-profile-container-bg-color: var(--light03);
-    --button-container-bg-color: var(--light06);
-    --button-container-hover-bg-color: var(--light08);
-    --button-container-active-bg-color: var(--light09);
+    --select-button-bg-color: var(--light08);
+    --select-button-hover-bg-color: var(--light00);
+    /*--light01*/
+    --schedule-bg-color: var(--light00);
+    /*--light03*/
+    --day2-4-bg-color: var(--light20);
+    /*--light04*/
+    --dayheader-bg-color: var(--light08);
+    /*--light07*/
+    --class-event-card-bg-color: var(--light00);
+    --login-register-input-bg-color: var(--light00);
+    /*--light01*/
+    --login-register-profile-container-bg-color: var(--light00);
+    --button-container-bg-color: var(--light00);
+    --button-container-hover-bg-color: var(--light20);
+    --button-container-active-bg-color: var(--light21);
 }
 
 #root {
-    justify-content: center;
     align-items: center;
+    justify-content: center;
 }
 
 body {
     margin: 0;
     font-family: Tinos;
-    background-color: var(--body-bg-color);
     color: var(--body-color);
+    background-color: var(--body-bg-color);
 }
 
 /* nav bar style */
 
 
 ul {
-    list-style-type: none;
     margin: 0;
     padding: 0;
     overflow: hidden;
+    list-style-type: none;
     background-color: var(--nav-bg-color);
 }
 
@@ -91,16 +104,16 @@ li {
 
 .links {
     display: block;
-    color: var(--links-color);
-    text-align: center;
     padding: 14px 16px;
+    text-align: center;
     text-decoration: none;
+    color: var(--links-color);
     transition-duration: 0.5s;
 }
 
 .links:hover {
-    background-color: var(--links-hover-bg-color);
     transition-duration: 0.5s;
+    background-color: var(--links-hover-bg-color);
 }
 
 .light-dark-switch {
@@ -111,9 +124,9 @@ li {
 }
 
 .light-dark-switch:hover {
-    background-color: var(--links-hover-bg-color);
-    transition-duration: 0.5s;
     cursor: pointer;
+    transition-duration: 0.5s;
+    background-color: var(--links-hover-bg-color);
 }
 
 .login-nav {
@@ -140,9 +153,9 @@ li {
 
 .introduction {
     margin: auto;
-    text-align: center;
     margin-top: 50px;
     max-width: 800px;
+    text-align: center;
 }
 
 .introduction h1 {
@@ -156,73 +169,79 @@ li {
 select,
 button {
     width: 9vw;
-    background-color: var(--select-button-bg-color);
-    color: var(--select-button-color);
-    border-radius: 5px;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
     border: none;
     height: 3vh;
     transition: 0.3s;
     overflow: hidden;
+    border-radius: 5px;
     margin-bottom: 10px;
+    color: var(--select-button-color);
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
+    background-color: var(--select-button-bg-color);
 }
 
 select:hover,
 button:hover {
-    box-shadow: 2px 8px 16px 2px rgba(0, 0, 0, 0.3);
     transition: 0.3s;
+    box-shadow: 2px 8px 16px 2px rgba(0, 0, 0, 0.3);
+    background-color: var(--select-button-hover-bg-color);
+}
+
+select:focus {
+    transition: 0.3s;
+    background-color: var(--select-button-hover-bg-color);
 }
 
 /*Time table*/
 
 .main {
-    display: grid;
-    grid-template-columns: 1fr 5fr 1fr;
     margin: auto;
+    display: grid;
     margin-top: 3vh;
     width: min-content;
+    grid-template-columns: 1fr 5fr 1fr;
 }
 
 .sidebar {
     display: flex;
+    padding: 0.5rem;
     align-items: center;
     flex-direction: column;
-    padding: 0.5rem;
 }
 
 .schedule {
     display: grid;
+    max-height: 83vh;
+    overflow-y: auto;
+    border-radius: 7px;
+    min-width: fit-content;
     grid-template-columns: repeat(5, 1fr);
     background-color: var(--schedule-bg-color);
-    border-radius: 7px;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
-    max-height: 83vh;
-    min-width: fit-content;
-    overflow-y: auto;
 }
 
 ::-webkit-scrollbar {
     width: 10px;
-    background-color: var(--schedule-bg-color);
     border-radius: 5px;
+    background-color: var(--schedule-bg-color);
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: var(--day2-4-bg-color);
-    border-radius: 5px;
     transition: 0.3s;
+    border-radius: 5px;
+    background-color: var(--dayheader-bg-color);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background-color: var(--dayheader-bg-color);
     transition: 0.3s;
+    background-color: var(--links-hover-bg-color);
 }
 
 .days {
-    display: grid;
-    grid-template-rows: min-content auto;
-    justify-content: center;
     gap: 5px;
+    display: grid;
+    justify-content: center;
+    grid-template-rows: min-content auto;
 }
 
 .day-2,
@@ -231,10 +250,10 @@ button:hover {
 }
 
 .day-header {
+    padding: 5px;
+    font-weight: bold;
     text-align: center;
     background-color: var(--dayheader-bg-color);
-    font-weight: bold;
-    padding: 5px;
 }
 
 .day-header-mon {
@@ -251,7 +270,6 @@ button:hover {
     display: flex;
     flex-direction: column;
     align-self: self-start;
-    /* width: min-content; */
 }
 
 .choose {
@@ -265,18 +283,18 @@ button:hover {
 /*Cards*/
 
 .class-card {
+    margin: 10px;
+    width: 12.5vw;
+    min-width: 5vw;
+    overflow: hidden;
+    max-width: 12.5vw;
     position: relative;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
-    background-color: var(--class-event-card-bg-color);
     border-radius: 5px;
     padding-left: 1.75vh;
     padding-bottom: 0.8vh;
-    margin: 10px;
-    min-width: 5vw;
-    width: 12.5vw;
-    max-width: 12.5vw;
-    overflow: hidden;
     transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
+    background-color: var(--class-event-card-bg-color);
 }
 
 .extra-content {
@@ -285,19 +303,51 @@ button:hover {
 }
 
 .class-card.expanded {
-    position: relative;
-    transform: scale(1.5);
-    height: min-content;
-    box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.5);
     z-index: 10;
+    position: relative;
+    height: min-content;
+    transform: scale(1.5);
+    box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.5);
 }
 
 .class-card.expanded:last-child:not(:first-child) {
-    position: relative;
-    transform: translateY(-80%) scale(1.5);
-    height: min-content;
-    box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.5);
     z-index: 10;
+    position: relative;
+    height: min-content;
+    transform: translateY(-80%) scale(1.5);
+    box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.5);
+}
+
+.class-card.expanded.monday {
+    z-index: 10;
+    position: relative;
+    height: min-content;
+    transform: translateX(25%) scale(1.5);
+    box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.5);
+}
+
+.class-card.expanded.monday:last-child:not(:first-child) {
+    z-index: 10;
+    position: relative;
+    height: min-content;
+    transform: translateX(25%) translateY(-80%) scale(1.5);
+    box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.5);
+}
+
+.class-card.expanded.friday {
+    z-index: 10;
+    position: relative;
+    height: min-content;
+    transform: translateX(-25%) scale(1.5);
+    box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.5);
+}
+
+.class-card.expanded.friday:last-child:not(:first-child) {
+    z-index: 10;
+    position: relative;
+    height: min-content;
+    transform: translateX(-25%) translateY(-80%) scale(1.5);
+    box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.5);
 }
 
 .class-card.expanded .extra-content {
@@ -310,29 +360,26 @@ button:hover {
 }
 
 .class-card:hover {
-    box-shadow: 2px 8px 16px 2px rgba(0, 0, 0, 0.3);
     transition: 0.3s;
+    box-shadow: 2px 8px 16px 2px rgba(0, 0, 0, 0.3);
 }
 
 .class-card h3 {
-    margin-bottom: 0rem;
-    margin-top: 1.3vh;
-    text-overflow: ellipsis;
     overflow: hidden;
+    margin-top: 1.3vh;
+    margin-bottom: 0rem;
     white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .rooms {
-    text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .class-container p {
     margin: 0.3vh 0vh 0.3vh 0vh;
-    /* text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap; */
 }
 
 .class-container {
@@ -341,45 +388,64 @@ button:hover {
 
 .class-card input {
     margin: 0;
-    /* margin-bottom: 0.8vh; */
 }
 
 .event-card {
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
-    background-color: var(--class-event-card-bg-color);
-    border-radius: 5px;
-    transition: 0.3s;
-    padding-left: 1.75vh;
     margin: 5px;
-    min-width: 5vw;
     width: 10vw;
+    min-width: 5vw;
+    transition: 0.3s;
     max-height: 10vh;
     overflow: hidden;
+    border-radius: 5px;
+    padding-left: 1.75vh;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
+    background-color: var(--class-event-card-bg-color);
 }
 
 .event-card:hover {
-    box-shadow: 2px 8px 16px 2px rgba(0, 0, 0, 0.3);
     transition: 0.3s;
+    box-shadow: 2px 8px 16px 2px rgba(0, 0, 0, 0.3);
 }
 
 .event-card h3 {
-    margin-bottom: 0rem;
-    margin-top: 1.3vh;
-    text-overflow: ellipsis;
     overflow: hidden;
+    margin-top: 1.3vh;
     white-space: nowrap;
+    margin-bottom: 0rem;
+    text-overflow: ellipsis;
 }
 
-.event-container p {
-    margin: 0.3vh 0vh 0.3vh 0vh;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
+.events-container {
+    display: flex;
+    border-radius: 7px;
+    align-items: center;
+    flex-direction: column;
+    background-color: var(--dayheader-bg-color);
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
+}
+
+.events-container h4 {
+    margin: 0.5vh 0vh 0.5vh 0vh;
+}
+
+.events-card-container {
+    max-height: 77.25vh;
+    overflow-y: auto;
+    padding: 0.35vh 0vh 0.8vh 0vh;
 }
 
 .event-container {
     padding: 0.35vh 0vh 0.8vh 0vh;
 }
+
+.event-container p {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    margin: 0.3vh 0vh 0.3vh 0vh;
+}
+
 
 /*--------------------------------------------------------------*/
 
@@ -393,14 +459,14 @@ button:hover {
 
 .login-register-container,
 .profile-container {
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
-    background-color: var(--login-register-profile-container-bg-color);
-    border-radius: 10px;
     width: 25vw;
     margin: auto;
     margin-top: 4vh;
-    padding: 1.25vh 1.25vw 1.25vh 1.25vw;
     overflow: hidden;
+    border-radius: 10px;
+    padding: 1.25vh 1.25vw 1.25vh 1.25vw;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
+    background-color: var(--login-register-profile-container-bg-color);
 }
 
 .login-register-container h2,
@@ -410,15 +476,15 @@ button:hover {
 }
 
 .login-register-div input {
-    margin-top: 0.7vh;
-    margin-bottom: 0.7vh;
-    background-color: var(--login-register-input-bg-color);
-    border-radius: 5px;
-    border: none;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
     height: 3vh;
+    border: none;
     width: 24.5vw;
+    margin-top: 0.7vh;
+    border-radius: 5px;
+    margin-bottom: 0.7vh;
     color: var(--login-register-input-color);
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
+    background-color: var(--login-register-input-bg-color);
 
 }
 
@@ -428,16 +494,16 @@ button:hover {
 }
 
 .button-container button {
+    width: 10vw;
     margin-top: 1vh;
     margin-bottom: 0;
-    background-color: var(--button-container-bg-color);
-    width: 10vw;
     transition: 0.5s;
+    background-color: var(--button-container-bg-color);
 }
 
 .button-container button:hover {
-    background-color: var(--button-container-hover-bg-color);
     transition: 0.5s;
+    background-color: var(--button-container-hover-bg-color);
 }
 
 .button-container button:active {

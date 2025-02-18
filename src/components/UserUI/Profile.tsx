@@ -31,6 +31,7 @@ export function Profile() {
                 <div className="profile-div">
                     <h2>Profile</h2>
                     <p>Email: {email}</p>
+                    <p>Role: {localStorage.getItem("role")}</p>
                 </div>
                 <div className="button-container">
                     <button onClick={handlelogout}>Logout</button>

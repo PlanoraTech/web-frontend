@@ -19,7 +19,7 @@ export function UserPage() {
                 let ins: Institutions = new Institutions(institutions[i].id, institutions[i].name, institutions[i].type, institutions[i].access, institutions[i].color, institutions[i].website);
                 instlist.push(ins);
             }
-            setInstitutions(instlist)
+            setInstitutions(instlist.sort((a: Institutions, b: Institutions) => a.getName().localeCompare(b.getName())));
             console.log(instlist);
         }
         fetchInstitutions();

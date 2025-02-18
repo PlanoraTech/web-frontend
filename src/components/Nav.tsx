@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { useTheme } from "../ThemeContext";
 
 export function Nav() {
-    const [darkmode, setDarkmode] = useState(true);
     const [loggedin, setLoggedin] = useState('Sign up/Login');
     const [loggedinlink, setLoggedinLink] = useState('login');
     const { theme, toggleTheme } = useTheme();
@@ -30,9 +29,11 @@ export function Nav() {
                         localStorage.removeItem('role');
                     } else {
                         const data = await response.json();
+                        console.log(data);
                         localStorage.setItem('expiry', data.expiry);
                         localStorage.setItem('role', data.user.role);
                         localStorage.setItem('institutions', JSON.stringify(data.user.institutions));
+                        localStorage.setItem('presentatorid', "8f57cd8b-d673-4f5f-a6c5-c03d9f5d6dad");
                         setLoggedin('Profile');
                         setLoggedinLink('profile');
                     }
@@ -45,11 +46,12 @@ export function Nav() {
     return (
         <>
             <ul>
-                <li className="logo-nav-img"><a className='links' href="/home"><img src={square_logo} alt="logo" /></a></li>
-                <li className="logo-nav"><a className='links' href="/home">Home</a></li>
-                <li><a className='links' href="/timetables">Institutions</a></li>
-                <li className="login-nav"><a className='links' href={`/${loggedinlink}`}>{loggedin}</a></li>
-                <li className="light-dark-switch" onClick={toggleTheme}>{theme === "light" ? "Dark Mode" : "Light Mode"}</li>
+                {/* <li className="logo-nav-img"><a className='links' href="/home"><img src={square_logo} alt="logo" /></a></li> */}
+                <li className="logo-nav"><a className='links' href="/home"><b>Home</b></a></li>
+                <li><a className='links' href="/timetables"><b>Institutions</b></a></li>
+                {localStorage.getItem('role') === 'DIRECTOR' ? <li><a className='links' href="/manage"><b>Manage</b></a></li> : null}
+                <li className="login-nav"><a className='links' href={`/${loggedinlink}`}><b>{loggedin}</b></a></li>
+                <li className="light-dark-switch" onClick={toggleTheme}><b>{theme === "light" ? "Dark Mode" : "Light Mode"}</b></li>
             </ul >
         </>
     );

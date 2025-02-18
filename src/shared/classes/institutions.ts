@@ -3,6 +3,7 @@ import { Subjects } from './subjects';
 import { Rooms } from './rooms';
 import { Timetables } from './timetables';
 import { Users } from './users';
+import { Events } from './events';
 
 export class Institutions {
     private id: string;
@@ -15,6 +16,7 @@ export class Institutions {
     private subjects?: Subjects[];
     private rooms?: Rooms[];
     private timetables?: Timetables[];
+    private events?: Events[];
     private users?: Users[];
 
     constructor(id: string, name: string, type: string, access: string, color: string, website: string) {
@@ -104,6 +106,14 @@ export class Institutions {
 
     getTimetables() {
         return this.timetables;
+    }
+
+    setEvents(events: Events[]) {
+        this.events = events;
+    }
+
+    getEvents() {
+        return this.events;
     }
 
     setUsers(users: Users[]) {
