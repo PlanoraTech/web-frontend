@@ -37,6 +37,7 @@ export function Nav() {
                         const data = await response.json();
                         console.log(data);
                         localStorage.setItem('expiry', data.expiry);
+                        console.log(data.user.institutions)
                         localStorage.setItem('institutions', JSON.stringify(data.user.institutions));
                         for (let i = 0; i < data.user.institutions.length; i++) {
                             if (data.user.institutions[i].role === 'DIRECTOR') {

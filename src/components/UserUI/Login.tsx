@@ -29,7 +29,7 @@ export function Login() {
     }
 
     const handlelogin = async () => {
-        if (!logemail || !logpassword || !rememberMe) {
+        if (!logemail || !logpassword) {
             setError("Please fill in all fields");
         } else {
             const response = await fetch(`${baseUrl}/login`, {

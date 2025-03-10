@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { Appointments } from "../../shared/classes/appointments"
 import { Presentators } from "../../shared/classes/presentators";
-import { AppointmentPopOver } from "../DirectorUI/AppointmentPopOver";
+import { AppointmentPopOver } from "../AppointmentPopOver";
 import ReactDOM from "react-dom";
+import { getTimeWithZeros } from "../../functions/getTimeWithZeros";
 
 interface Props {
     appointment: Appointments;
@@ -17,19 +18,10 @@ export function AppointmentCard(props: Props) {
     const [iscancelled, setIscancelled] = useState(false);
     const [iswaiting, setIsWaiting] = useState(props.appointment?.getIsCancelled() || false);
     const [issubstituted, setIsSubstituted] = useState(props.appointment?.getPresentators()?.find(pres => pres.getId() === localStorage.getItem("presentatorid"))?.getIsSubstituted()! || false);
-    const [issubstituteddirector, setIsSubstitutedDirector] = useState(false);
     const [ispresentatorsappointment, setIsPresentatorsAppointment] = useState(false);
     const [isdirector, setIsDirector] = useState(false);
     const [ispart, setIsPart] = useState(false);
-    const [isHovered, setIsHovered] = useState(false);
-    const hoverTimeout = useRef<number | null>(null);
-    const [presentators, setPresentators] = useState(
-        props.appointment?.getPresentators()?.map((pres) => ({
-            id: pres.getId(),
-            name: pres.getName(),
-            isSubstituted: pres.getIsSubstituted(),
-        })) || []
-    );
+    const [position, setPosition] = useState({ x: 0, y: 0 });
 
     useEffect(() => {
         if (props.type == "manage") {
@@ -52,44 +44,18 @@ export function AppointmentCard(props: Props) {
         if (localStorage.getItem("role") === "PRESENTATOR" && props.appointment?.getPresentators()?.find(pres => pres.getId() === localStorage.getItem("presentatorid"))) {
             setIsPresentatorsAppointment(true);
         }
-        if (props.appointment) {
-            setPresentators(
-                props.appointment.getPresentators()?.map((pres) => ({
-                    id: pres.getId(),
-                    name: pres.getName(),
-                    isSubstituted: pres.getIsSubstituted(),
-                })) || []
-            );
-        }
         let numberofpresentators = 0;
-        for (let i = 0; i < presentators!.length; i++) {
-            if (presentators![i].isSubstituted === true) {
+        for (let i = 0; i < props.appointment.getPresentators()!.length; i++) {
+            if (props.appointment.getPresentators()![i].getIsSubstituted() === true) {
                 numberofpresentators++;
             }
         }
-        if (numberofpresentators === presentators!.length) {
+        if (numberofpresentators === props.appointment.getPresentators()!.length) {
             setIsWaiting(true);
         } else {
             setIsWaiting(false);
         }
-    }, [props.appointment, issubstituted, issubstituteddirector]);
-
-    // useEffect(() => {
-    //     if (showpopover) {
-    //         const popoverElement = document.getElementById("manage_sidebar_2");
-    //         if (popoverElement) {
-    //             console.log("asd")
-    //             ReactDOM.createPortal(
-    //                 <AppointmentPopOver
-    //                     appointment={props.appointment}
-    //                     presentatorlist={props.presentatorlist}
-    //                     show={showpopover}
-    //                 />,
-    //                 popoverElement
-    //             );
-    //         }
-    //     }
-    // }, [showpopover]);
+    }, [props.appointment, issubstituted]);
 
     function getallrooms(): string {
         const rooms = props.appointment?.getRooms();
@@ -97,10 +63,6 @@ export function AppointmentCard(props: Props) {
             return "";
         }
         return rooms.map(room => room.getName()).join(" ");
-    }
-
-    function getzero(time: Date): string {
-        return `${("0" + time?.getHours()).slice(-2)}:${("0" + time?.getMinutes()).slice(-2)}`
     }
 
     function crossed(): string {
@@ -129,11 +91,19 @@ export function AppointmentCard(props: Props) {
     }
 
     const handleshowedit = () => {
+        console.log(showedit)
         setShowedit(!showedit);
     }
 
-    const handleshowpopover = () => {
-
+    const handleshowpopover = (event: React.MouseEvent<HTMLDivElement>) => {
+        let x = event.clientX - 70; 
+        let y = event.clientY + 10; 
+        const popoverHeight = 250; 
+        const screenHeight = window.innerHeight;
+        if (y + popoverHeight > screenHeight) {
+            y = screenHeight - popoverHeight - 10;
+        }
+        setPosition({ x, y });
         setPopover((prev) => !prev);
     }
 
@@ -152,68 +122,43 @@ export function AppointmentCard(props: Props) {
         }
     }
 
-    const handleMouseEnter = () => {
-        hoverTimeout.current = window.setTimeout(() => {
-            setIsHovered(true);
-        }, 500);
-    };
-
-    const handleMouseLeave = () => {
-        if (hoverTimeout.current !== null) {
-            clearTimeout(hoverTimeout.current);
-        }
-        setIsHovered(false);
-    };
-
     return (
-        <div title={`${props.appointment?.getSubject()?.getName()} - ${getzero(props.appointment?.getStart())} - ${getzero(props.appointment?.getEnd())}`} className={`class-card ${isHovered ? "expanded" : ""}`} onMouseEnter={manage ? undefined : handleMouseEnter} onMouseLeave={manage ? undefined : handleMouseLeave} onClick={handleshowpopover} onDoubleClick={handleshowedit}>
+        <div title={`${props.appointment?.getSubject()?.getName()} - ${getTimeWithZeros(props.appointment?.getStart())} - ${getTimeWithZeros(props.appointment?.getEnd())}`} className={`class-card`} onClick={handleshowedit} onDoubleClick={handleshowpopover}>
             <h3 style={{ color: `${cancelledcolor()}`, textDecoration: `${crossed()}` }}><b>{props.appointment?.getSubject()?.getName()}</b></h3>
             <div className="class-container" style={{ color: `${cancelledcolor()}`, textDecoration: `${crossed()}` }}>
-                <p className="rooms">{getallrooms()} - {getzero(props.appointment?.getStart())} - {getzero(props.appointment?.getEnd())}</p>
-                {isdirector && showedit ? (
-                    <>
-                        {
-                            presentators.map((pres) => (
-                                <>
-                                    <p key={pres.id} id={`${pres.id}-${props.appointment.getId()}`} style={{ textDecoration: `${substituted(pres.id)}` }}>{pres.name}</p>
-                                </>
-                            ))
-                        }
+                <p className="rooms">{getallrooms()} - {getTimeWithZeros(props.appointment?.getStart())} - {getTimeWithZeros(props.appointment?.getEnd())}</p>
+                <>
+                    <div className="extra-content">
+                        {props.appointment?.getPresentators()?.map((pres, index) => (
+                            <p key={index} id={pres.getId()} style={{ textDecoration: `${substituted(pres.getId())}` }}>{pres.getName()}</p>
+                        ))}
                         {iswaiting ? <p style={{ color: `${cancelledcolor()}` }}><b>Substitution in progress...</b></p> : null}
                         {iscancelled ? <p style={{ color: `${cancelledcolor()}` }}><b>Cancelled!</b></p> : null}
-
-                    </>
-                ) : (
-                    <>
-                        <div className="extra-content">
-                            {props.appointment?.getPresentators()?.map((pres, index) => (
-                                <p key={index} id={pres.getId()} style={{ textDecoration: `${substituted(pres.getId())}` }}>{pres.getName()}</p>
-                            ))}
-                            {iswaiting ? <p style={{ color: `${cancelledcolor()}` }}><b>Substitution in progress...</b></p> : null}
-                            {iscancelled ? <p style={{ color: `${cancelledcolor()}` }}><b>Cancelled!</b></p> : null}
-                        </div>
-                        {
-                            ispresentatorsappointment && ispart && showedit ? (
-                                <>
-                                    <label>Cancelled? </label>
-                                    <input id={`checkbox-${props.appointment?.getId()}`} onChange={handlesubstitution} checked={issubstituted} type="checkbox" />
-                                </>
-                            ) : null
-                        }
-                    </>
-                )}
+                    </div>
+                    {
+                        ispresentatorsappointment && ispart && showedit ? (
+                            <>
+                                <label>Cancelled? </label>
+                                <input id={`checkbox-${props.appointment?.getId()}`} onChange={handlesubstitution} checked={issubstituted} type="checkbox" />
+                            </>
+                        ) : null
+                    }
+                </>
             </div>
-            {showpopover && manage ?
+            {showpopover &&
                 <>
                     {ReactDOM.createPortal(
                         <AppointmentPopOver
                             appointment={props.appointment}
                             presentatorlist={props.presentatorlist}
                             show={showpopover}
+                            type={props.type}
+                            x={position.x}
+                            y={position.y}
                         />,
-                        document.getElementById("manage_sidebar_2")!
+                        document.getElementById(`${props.type == "main" ? "sidebar_2" : "manage_sidebar_2"}`)!
                     )}
-                </> : null}
+                </>}
         </div>
     )
 }

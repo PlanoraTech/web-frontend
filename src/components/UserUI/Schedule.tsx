@@ -158,7 +158,7 @@ export function Schedule(props: ScheduleProps) {
                 <div id="schedule">
                     <Testcalendar appointments={selectedAppointments!} presentatorlist={selectedInstitution?.getPresentators()!} institution={selectedInstitution!} type="main" />
                 </div>
-                <div className="sidebar"></div>
+                <div className="sidebar" id="sidebar_2"></div>
             </div>
         </>
     )
