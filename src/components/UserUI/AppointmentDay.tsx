@@ -15,7 +15,7 @@ export function AppointmentDay(props: Props) {
             {
                 sorted.length > 0 ? (
                     sorted.map((appointment, index) => (
-                        <AppointmentCard key={index} appointment={appointment} presentatorlist={props.presentatorlist!} />
+                        <AppointmentCard key={index} appointment={appointment} presentatorlist={props.presentatorlist!} type="main" />
                     ))
                 ) : (
                     <div className="class-card" title="No appointments for today! Lucky you!">

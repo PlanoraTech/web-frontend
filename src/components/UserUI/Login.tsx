@@ -5,12 +5,16 @@ import { useNavigate } from "react-router";
 export function Login() {
     const [error, setError] = useState("");
     const [register, setRegister] = useState(false);
-    const [logemail, setLogEmail] = useState("");
     const [regemail, setRegEmail] = useState("");
     const [regemailagain, setRegEmailAgain] = useState("");
-    const [logpassword, setLogPassword] = useState("");
-    const [regpassword, setRegPassword] = useState("");
     const [regpasswordagain, setRegPasswordAgain] = useState("");
+    const [regpassword, setRegPassword] = useState("");
+    const [logemail, setLogEmail] = useState("");
+    const [logpassword, setLogPassword] = useState("");
+    const [rememberMe, setRememberMe] = useState(false);
+
+    let baseUrl = 'https://planora-dfce142fac4b.herokuapp.com';
+    let localUrl = 'http://localhost:3000';
 
     const navigate = useNavigate();
 
@@ -25,15 +29,15 @@ export function Login() {
     }
 
     const handlelogin = async () => {
-        if (!logemail || !logpassword) {
+        if (!logemail || !logpassword || !rememberMe) {
             setError("Please fill in all fields");
         } else {
-            const response = await fetch('http://localhost:3000/login', {
+            const response = await fetch(`${baseUrl}/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ email: logemail, password: logpassword }),
+                body: JSON.stringify({ email: logemail, password: logpassword, rememberMe: rememberMe }),
             });
             if (!response.ok) {
                 const data = await response.json();
@@ -41,15 +45,18 @@ export function Login() {
 
             } else {
                 const data = await response.json();
+                console.log(data);
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('expiry', data.expiry);
-                localStorage.setItem('role', data.user.role);
                 localStorage.setItem('institutions', JSON.stringify(data.user.institutions));
-                localStorage.setItem('presentatorid', "8f57cd8b-d673-4f5f-a6c5-c03d9f5d6dad");
+                if (data.user.institutions.length === 0) {
+                    localStorage.setItem('role', "USER");
+                }
                 navigate('/profile');
                 setError("");
                 setLogEmail("");
                 setLogPassword("");
+                setRememberMe(false);
             }
         }
     }
@@ -71,7 +78,7 @@ export function Login() {
             console.log("invalid password");
             setError("Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number and one special character");
         } else {
-            const response = await fetch('http://localhost:3000/register', {
+            const response = await fetch(`${baseUrl}/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -83,9 +90,10 @@ export function Login() {
                 setError(data.message);
             } else {
                 const data = await response.json();
+                console.log(data);
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('expiry', data.expiry);
-                window.location.href = "/login";
+                navigate('/profile');
                 setError("");
                 setRegEmail("");
                 setRegEmailAgain("");
@@ -101,9 +109,9 @@ export function Login() {
             <Nav />
             {
                 register ? (
-                    <div className="login-register-container">
+                    <div className="form-container">
                         <h2>Register</h2>
-                        <div className="login-register-div">
+                        <div className="form-div">
                             <label htmlFor="reg-email">Email</label><br />
                             <input type="text" id="reg-email" name="reg-email" placeholder="Email" value={regemail} onChange={(e) => setRegEmail(e.target.value)} required /><br />
                             <label htmlFor="reg-email-again">Email again</label><br />
@@ -116,22 +124,23 @@ export function Login() {
                             <div className="button-container">
                                 <button className="submit-button" type="button" onClick={handleregister}>Register</button><br />
                             </div>
-                            <p>Already have an account? Click <span className="login-register-button" onClick={changelogin}>here</span> to login!</p>
+                            <p>Already have an account? Click <span className="form-button" onClick={changelogin}>here</span> to login!</p>
                         </div>
                     </div>
                 ) : (
-                    <div className="login-register-container">
+                    <div className="form-container">
                         <h2>Login</h2>
-                        <div className="login-register-div">
+                        <div className="form-div">
                             <label htmlFor="log-email">Email</label><br />
                             <input type="text" id="log-email" name="log-email" placeholder="Email" value={logemail} onChange={(e) => setLogEmail(e.target.value)} required /><br />
                             <label htmlFor="log-password">Password</label><br />
                             <input type="password" id="log-password" name="log-password" placeholder="Password" value={logpassword} onChange={(e) => setLogPassword(e.target.value)} required /><br />
                             <p id="errors">{error}</p>
+                            <label htmlFor="remember-me"><input onChange={() => setRememberMe(!rememberMe)} type="checkbox" id="remember-me" name="remember-me" checked={rememberMe} /> Remember Me? </label>
                             <div className="button-container">
                                 <button className="submit-button" type="button" onClick={handlelogin}>Login</button><br />
                             </div>
-                            <p>Don't have an account? Click <span className="login-register-button" onClick={changeregister}>here</span> to register!</p>
+                            <p>Don't have an account? Click <span className="form-button" onClick={changeregister}>here</span> to register!</p>
                         </div>
                     </div>
                 )

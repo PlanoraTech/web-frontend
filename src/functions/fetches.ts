@@ -1,0 +1,255 @@
+import { Users } from "../shared/classes/users";
+import { Appointments } from "../shared/classes/appointments";
+import { Events } from "../shared/classes/events";
+import { Institutions } from "../shared/classes/institutions";
+import { Presentators } from "../shared/classes/presentators";
+import { Rooms } from "../shared/classes/rooms";
+import { Subjects } from "../shared/classes/subjects";
+import { Timetables } from "../shared/classes/timetables";
+
+let baseUrl = 'https://planora-dfce142fac4b.herokuapp.com/institutions';
+let localUrl = 'http://localhost:3000/institutions';
+let tokenUrl = `?token=${localStorage.getItem('token')}`;
+
+export async function fetchInstitutions() {
+    // console.log("institutions");
+    let instlist = [];
+    let url = `${baseUrl}`;
+    const response = await fetch(url)
+    const institutions = await response.json()
+    for (let i = 0; i < institutions.length; i++) {
+        let ins: Institutions = new Institutions(institutions[i].id, institutions[i].name, institutions[i].type, institutions[i].access, institutions[i].color, institutions[i].website);
+        instlist.push(ins);
+    }
+    console.log(instlist);
+    return instlist.sort((a: Institutions, b: Institutions) => a.getName().localeCompare(b.getName()));
+}
+
+export async function fetchManageInstitutions() {
+    let ins = JSON.parse(localStorage.getItem("institutions")!);
+    let instlist = [];
+    for (let i = 0; i < ins.length; i++) {
+        let url = `${baseUrl}/${ins[i].institutionId}`;
+        if (localStorage.getItem('token')) {
+            url = `${baseUrl}/${ins[i].institutionId}/${tokenUrl}`
+        }
+        const response = await fetch(url);
+        const fetchedinstitution = await response.json();
+        let institution: Institutions = new Institutions(fetchedinstitution.id, fetchedinstitution.name, fetchedinstitution.type, fetchedinstitution.access, fetchedinstitution.color, fetchedinstitution.website);
+        instlist.push(institution);
+    }
+    console.log(instlist);
+    return instlist.sort((a: Institutions, b: Institutions) => a.getName().localeCompare(b.getName()));
+}
+
+export async function fetchTimetables(selectedinstitution: Institutions) {
+    // console.log("timetables");
+    let timetablelist = [];
+    let error = "";
+    let url = `${baseUrl}/${selectedinstitution.getId()}/timetables`;
+    if (localStorage.getItem('token')) {
+        url = `${baseUrl}/${selectedinstitution.getId()}/timetables/${tokenUrl}`
+    }
+    const response = await fetch(url)
+    const timetables = await response.json()
+    // console.log(timetables)
+    if (response.status === 403) {
+        error = "You no not have permission to view this institution's timetables!";
+    } else {
+        error = "";
+    }
+    for (let i = 0; i < timetables.length; i++) {
+        let timetable: Timetables = new Timetables(timetables[i].id, timetables[i].name, selectedinstitution, selectedinstitution.getId());
+        timetablelist.push(timetable)
+    }
+    selectedinstitution.setTimetables(timetablelist);
+    // console.log(timetablelist);
+    const data = {
+        timetablelist: timetablelist.sort((a, b) => a.getName().localeCompare(b.getName())),
+        error: error
+    };
+    return data;
+}
+
+export async function fetchPresentators(selectedinstitution: Institutions) {
+    // console.log("presentators");
+    let presentatorlist = [];
+    let url = `${baseUrl}/${selectedinstitution.getId()}/presentators`
+    if (localStorage.getItem('token')) {
+        url = `${baseUrl}/${selectedinstitution.getId()}/presentators/${tokenUrl}`
+    }
+    const response = await fetch(url)
+    const presentators = await response.json()
+    // console.log(presentators)
+    for (let i = 0; i < presentators.length; i++) {
+        presentatorlist.push(new Presentators(presentators[i].id, presentators[i].name, selectedinstitution.getId()));
+    }
+    // console.log(presentatorlist);
+    selectedinstitution.setPresentators(presentatorlist);
+    return presentatorlist.sort((a, b) => a.getName().localeCompare(b.getName()));
+}
+
+export async function fetchRooms(selectedinstitution: Institutions) {
+    // console.log("rooms");
+    let roomlist = [];
+    let url = `${baseUrl}/${selectedinstitution.getId()}/rooms`
+    if (localStorage.getItem('token')) {
+        url = `${baseUrl}/${selectedinstitution.getId()}/rooms/${tokenUrl}`
+    }
+    const response = await fetch(url)
+    const rooms = await response.json()
+    // console.log(rooms)
+    for (let i = 0; i < rooms.length; i++) {
+        roomlist.push(new Rooms(rooms[i].id, rooms[i].name, rooms[i].isAvailable, selectedinstitution.getId()));
+    }
+    // console.log(roomlist);
+    selectedinstitution.setRooms(roomlist);
+    return roomlist.sort((a, b) => a.getName().localeCompare(b.getName()))
+}
+
+export async function fetchEvents(selectedinstitution: Institutions) {
+    // console.log("events");
+    let eventlist = [];
+    let url = `${baseUrl}/${selectedinstitution.getId()}/events`
+    if (localStorage.getItem('token')) {
+        url = `${baseUrl}/${selectedinstitution.getId()}/events/${tokenUrl}`
+    }
+    const response = await fetch(url)
+    const events = await response.json()
+    // console.log(events)
+    for (let i = 0; i < events.length; i++) {
+        eventlist.push(new Events(events[i].id, events[i].title, events[i].date, selectedinstitution.getId()));
+    }
+    selectedinstitution.setEvents(eventlist.sort((a, b) => a.getDate().getTime() - b.getDate().getTime()));
+}
+
+export async function fetchSubjects(selectedinstitution: Institutions) {
+    // console.log("subjects");
+    let subjectlist = [];
+    let url = `${baseUrl}/${selectedinstitution.getId()}/subjects`
+    if (localStorage.getItem('token')) {
+        url = `${baseUrl}/${selectedinstitution.getId()}/subjects/${tokenUrl}`
+    }
+    const response = await fetch(url)
+    const subjects = await response.json()
+    // console.log(subjects)
+    for (let i = 0; i < subjects.length; i++) {
+        subjectlist.push(new Subjects(subjects[i].id, subjects[i].name, subjects[i].subjectId, selectedinstitution.getId()));
+    }
+    selectedinstitution.setSubjects(subjectlist);
+}
+
+export async function fetchUsers(selectedinstitution: Institutions) {
+    // console.log("users");
+    let userlist = [];
+    let url = `${baseUrl}/${selectedinstitution.getId()}/users`
+    if (localStorage.getItem('token')) {
+        url = `${baseUrl}/${selectedinstitution.getId()}/users/${tokenUrl}`
+    }
+    const response = await fetch(url)
+    const users = await response.json()
+    // console.log(users)
+    for (let i = 0; i < users.length; i++) {
+        userlist.push(new Users(users[i].email, users[i].role));
+    }
+    selectedinstitution.setUsers(userlist);
+}
+
+export async function fetchTimetableAppointments(selectedttablelist: Timetables[], selectedinstitution: Institutions) {
+    // console.log("timetable appointments");
+    for (let f = 0; f < selectedttablelist.length; f++) {
+        let url = `${baseUrl}/${selectedttablelist[f].getInstitutionId()}/timetables/${selectedttablelist[f].getId()}/appointments`
+        if (localStorage.getItem('token')) {
+            url = `${baseUrl}/${selectedttablelist[f].getInstitutionId()}/timetables/${selectedttablelist[f].getId()}/appointments/${tokenUrl}`
+        }
+        const response = await fetch(url)
+        const appointments = await response.json()
+        // console.log(appointments)
+        let oneapplist = [];
+        for (let i = 0; i < appointments.length; i++) {
+            let oneroomlist = [];
+            let onepreslist = [];
+            for (let j = 0; j < appointments[i].rooms.length; j++) {
+                oneroomlist.push(new Rooms(appointments[i].rooms[j].id, appointments[i].rooms[j].name, appointments[i].rooms[j].isAvailable, appointments[i].rooms[j].institutionId));
+            }
+            for (let j = 0; j < appointments[i].presentators.length; j++) {
+                let pres: Presentators = new Presentators(appointments[i].presentators[j].id, appointments[i].presentators[j].name, appointments[i].presentators[j].institutionId);
+                pres.setIsSubstituted(appointments[i].presentators[j].isSubstituted);
+                onepreslist.push(pres);
+            }
+            let subject: Subjects = new Subjects(appointments[i].subject.id, appointments[i].subject.name, appointments[i].subject.subjectId, appointments[i].subject.institutionId);
+            let appointment: Appointments = new Appointments(appointments[i].id, subject, onepreslist, oneroomlist, appointments[i].start, appointments[i].end, appointments[i].isCancelled)
+            appointment.setOrigin(JSON.stringify({ type: "timetables", id: selectedttablelist[f].getId()! }))
+            appointment.setInstitutionId(selectedinstitution.getId()!)
+            oneapplist.push(appointment);
+        }
+        selectedttablelist[f].setAppointments(oneapplist)
+        // console.log(oneapplist)
+    }
+}
+
+export async function fetchPresentatorAppointments(selectedpresentatorlist: Presentators[], selectedinstitution: Institutions) {
+    // console.log("presentator appointments");
+    for (let f = 0; f < selectedpresentatorlist.length; f++) {
+        let url = `${baseUrl}/${selectedpresentatorlist[f].getInstitutionId()}/presentators/${selectedpresentatorlist[f].getId()}/appointments`
+        if (localStorage.getItem('token')) {
+            url = `${baseUrl}/${selectedpresentatorlist[f].getInstitutionId()}/presentators/${selectedpresentatorlist[f].getId()}/appointments/?token=${localStorage.getItem('token')}`
+        }
+        const response = await fetch(url)
+        const appointments = await response.json()
+        // console.log(appointments)
+        let oneapplist = [];
+        for (let i = 0; i < appointments.length; i++) {
+            let oneroomlist = [];
+            let onepreslist = [];
+            for (let j = 0; j < appointments[i].rooms.length; j++) {
+                oneroomlist.push(new Rooms(appointments[i].rooms[j].id, appointments[i].rooms[j].name, appointments[i].rooms[j].isAvailable, appointments[i].rooms[j].institutionId));
+            }
+            for (let j = 0; j < appointments[i].presentators.length; j++) {
+                let pres: Presentators = new Presentators(appointments[i].presentators[j].id, appointments[i].presentators[j].name, appointments[i].presentators[j].institutionId);
+                pres.setIsSubstituted(appointments[i].presentators[j].isSubstituted);
+                onepreslist.push(pres);
+            }
+            let subject: Subjects = new Subjects(appointments[i].subject.id, appointments[i].subject.name, appointments[i].subject.subjectId, appointments[i].subject.institutionId);
+            let appointment: Appointments = new Appointments(appointments[i].id, subject, onepreslist, oneroomlist, appointments[i].start, appointments[i].end, appointments[i].isCancelled)
+            appointment.setOrigin(JSON.stringify({ type: "presentators", id: selectedpresentatorlist[f].getId() }))
+            appointment.setInstitutionId(selectedinstitution.getId()!)
+            oneapplist.push(appointment);
+        }
+        selectedpresentatorlist[f].setAppointments(oneapplist)
+        // console.log(oneapplist)
+    }
+}
+
+export async function fetchRoomAppointments(selectedroomlist: Rooms[], selectedinstitution: Institutions) {
+    // console.log("room appointments");
+    for (let f = 0; f < selectedroomlist.length; f++) {
+        let url = `${baseUrl}/${selectedroomlist[f].getInstitutionId()}/rooms/${selectedroomlist[f].getId()}/appointments`
+        if (localStorage.getItem('token')) {
+            url = `${baseUrl}/${selectedroomlist[f].getInstitutionId()}/rooms/${selectedroomlist[f].getId()}/appointments/?token=${localStorage.getItem('token')}`
+        }
+        const response = await fetch(url)
+        const appointments = await response.json()
+        // console.log(appointments)
+        let oneapplist = [];
+        for (let i = 0; i < appointments.length; i++) {
+            let oneroomlist = [];
+            let onepreslist = [];
+            for (let j = 0; j < appointments[i].rooms.length; j++) {
+                oneroomlist.push(new Rooms(appointments[i].rooms[j].id, appointments[i].rooms[j].name, appointments[i].rooms[j].isAvailable, appointments[i].rooms[j].institutionId));
+            }
+            for (let j = 0; j < appointments[i].presentators.length; j++) {
+                let pres: Presentators = new Presentators(appointments[i].presentators[j].id, appointments[i].presentators[j].name, appointments[i].presentators[j].institutionId);
+                pres.setIsSubstituted(appointments[i].presentators[j].isSubstituted);
+                onepreslist.push(pres);
+            }
+            let subject: Subjects = new Subjects(appointments[i].subject.id, appointments[i].subject.name, appointments[i].subject.subjectId, appointments[i].subject.institutionId);
+            let appointment: Appointments = new Appointments(appointments[i].id, subject, onepreslist, oneroomlist, appointments[i].start, appointments[i].end, appointments[i].isCancelled)
+            appointment.setOrigin(JSON.stringify({ type: "rooms", id: selectedroomlist[f].getId() }))
+            appointment.setInstitutionId(selectedinstitution.getId()!)
+            oneapplist.push(appointment);
+            // console.log(oneapplist)
+        }
+        selectedroomlist[f].setAppointments(oneapplist)
+    }
+}

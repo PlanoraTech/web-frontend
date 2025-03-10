@@ -7,18 +7,16 @@ export class Appointments {
     private subject?: Subjects;
     private presentators?: Presentators[];
     private rooms?: Rooms[];
-    private dayofweek: string;
     private start: Date;
     private end: Date;
     private isCancelled: boolean;
-    private timetableId?: string;
     private institutionId?: string;
-    constructor(id: string, subject: Subjects, presentators: Presentators[], rooms: Rooms[], dayofweek: string, start: Date, end: Date, isCancelled: boolean) {
+    private origin?: string;
+    constructor(id: string, subject: Subjects, presentators: Presentators[], rooms: Rooms[], start: Date, end: Date, isCancelled: boolean) {
         this.id = id;
         this.subject = subject;
         this.presentators = presentators;
         this.rooms = rooms;
-        this.dayofweek = dayofweek;
         this.start = start;
         this.end = end;
         this.isCancelled = isCancelled;
@@ -56,14 +54,6 @@ export class Appointments {
         return this.rooms;
     }
 
-    setDayOfWeek(dayofweek: string) {
-        this.dayofweek = dayofweek;
-    }
-
-    getDayOfWeek() {
-        return this.dayofweek;
-    }
-
     setStart(start: Date) {
         this.start = start;
     }
@@ -88,19 +78,19 @@ export class Appointments {
         return this.isCancelled;
     }
 
-    setTimetableId(timetableId: string) {
-        this.timetableId = timetableId;
-    }
-
-    getTimetableId() {
-        return this.timetableId;
-    }
-
     setInstitutionId(institutionId: string) {
         this.institutionId = institutionId;
     }
 
     getInstitutionId() {
         return this.institutionId;
+    }
+
+    setOrigin(origin: string) {
+        this.origin = origin;
+    }
+
+    getOrigin() {
+        return this.origin;
     }
 }

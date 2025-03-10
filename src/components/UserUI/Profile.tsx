@@ -4,6 +4,10 @@ import { Nav } from "../Nav"
 export function Profile() {
     const [email, setEmail] = useState("");
 
+    let baseUrl = 'https://planora-dfce142fac4b.herokuapp.com';
+    let localUrl = 'http://localhost:3000';
+    let tokenUrl = `?token=${localStorage.getItem('token')}`;
+
     const handlelogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('expiry');
@@ -13,7 +17,7 @@ export function Profile() {
 
     useEffect(() => {
         async function fetchProfile() {
-            const response = await fetch('http://localhost:3000/profile?token=' + localStorage.getItem('token'));
+            const response = await fetch(`${baseUrl}/profile/${tokenUrl}`);
             if (!response.ok) {
             } else {
                 const data = await response.json();

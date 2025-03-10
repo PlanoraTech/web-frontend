@@ -2,27 +2,17 @@ import { useState, useEffect } from "react"
 import { Institutions } from "../../shared/classes/institutions"
 import { Nav } from "../Nav"
 import { Schedule } from "./Schedule"
+import { fetchInstitutions } from "../../functions/fetches"
 
 export function UserPage() {
     const [institutions, setInstitutions] = useState<Institutions[]>([])
 
     useEffect(() => {
-        async function fetchInstitutions() {
-            let instlist = [];
-            let url = `http://localhost:3000/institutions`;
-            if (localStorage.getItem('token')) {
-                url = `http://localhost:3000/institutions?token=${localStorage.getItem('token')}`
-            }
-            const response = await fetch(url)
-            const institutions = await response.json()
-            for (let i = 0; i < institutions.length; i++) {
-                let ins: Institutions = new Institutions(institutions[i].id, institutions[i].name, institutions[i].type, institutions[i].access, institutions[i].color, institutions[i].website);
-                instlist.push(ins);
-            }
-            setInstitutions(instlist.sort((a: Institutions, b: Institutions) => a.getName().localeCompare(b.getName())));
-            console.log(instlist);
+        async function getinstitutions() {
+            let inslist = await fetchInstitutions();
+            setInstitutions(inslist)
         }
-        fetchInstitutions();
+        getinstitutions()
     }, [])
 
     return (
