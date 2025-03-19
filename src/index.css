@@ -445,9 +445,8 @@ tr {
 
 .class-card {
     min-width: 5vw;
-    width: 10vw;
+    /* min-width: 10vw; */
     width: inherit;
-    /* min-height: fit-content; */
     height: inherit;
     overflow: hidden;
     max-width: 12.5vw;

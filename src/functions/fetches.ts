@@ -48,7 +48,7 @@ export async function fetchTimetables(selectedinstitution: Institutions) {
     // console.log(timetables)
     if (response.status === 403) {
         error = "You no not have permission to view this institution's timetables!";
-    } else {
+    } else if (response.status === 400) {
         error = "There was an error fetching timetables! Please try again.";
     }
     for (let i = 0; i < timetables.length; i++) {

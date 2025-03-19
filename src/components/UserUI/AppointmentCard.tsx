@@ -4,7 +4,6 @@ import { Presentators } from "../../shared/classes/presentators";
 import { AppointmentPopOver } from "../AppointmentPopOver";
 import ReactDOM from "react-dom";
 import { getTimeWithZeros } from "../../functions/getTimeWithZeros";
-import { getTokenUrl } from "../../functions/getTokenUrl";
 import { Subjects } from "../../shared/classes/subjects";
 import { Rooms } from "../../shared/classes/rooms";
 
@@ -26,10 +25,13 @@ export function AppointmentCard(props: Props) {
     const [ispart, setIsPart] = useState(false);
     const [position, setPosition] = useState({ x: 0, y: 0 });
     const [isHovered, setIsHovered] = useState(false);
+    const [_, setUpdate] = useState(false);
     const hoverTimeout = useRef<number | null>(null);
     const rootStyles = getComputedStyle(document.documentElement);
     const dark_text = rootStyles.getPropertyValue("--dark-text");
     const light_text = rootStyles.getPropertyValue("---light-text");
+
+    let token = localStorage.getItem('token');
 
     useEffect(() => {
         let ins = JSON.parse(localStorage.getItem("institutions")!);
@@ -59,6 +61,9 @@ export function AppointmentCard(props: Props) {
             setIsWaiting(true);
         } else {
             setIsWaiting(false);
+        }
+        if (iscancelled == true) {
+            setIsWaiting(false)
         }
     }, [props.appointment, issubstituted]);
 
@@ -137,10 +142,11 @@ export function AppointmentCard(props: Props) {
         var checkbox = document.getElementById(`checkbox-${props.appointment?.getId()}`) as HTMLInputElement;
         let origin = JSON.parse(props.appointment.getOrigin()!);
         if (checkbox.checked) {
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/${props.appointment.getInstitutionId()}/${origin.type}/${origin.id}/appointments/${props.appointment.getId()}/presentators/${localStorage.getItem("presentatorid")}/substitute/${getTokenUrl()}`, {
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/${props.appointment.getInstitutionId()}/${origin.type}/${origin.id}/appointments/${props.appointment.getId()}/presentators/${localStorage.getItem("presentatorid")}/substitute`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
                     isSubstituted: true,
@@ -157,12 +163,14 @@ export function AppointmentCard(props: Props) {
                 console.log(props.appointment?.getPresentators()?.find(pres => pres.getId() === localStorage.getItem("presentatorid"))?.getIsSubstituted());
                 props.appointment?.getPresentators()?.find(pres => pres.getId() === localStorage.getItem("presentatorid"))?.setIsSubstituted(true);
                 document.getElementById(`${localStorage.getItem("presentatorid")}`)?.setAttribute("style", "text-decoration: line-through;");
+                setUpdate(prev => !prev);
             }
         } else {
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/${props.appointment.getInstitutionId()}/${origin.type}/${origin.id}/appointments/${props.appointment.getId()}/presentators/${localStorage.getItem("presentatorid")}/substitute/${getTokenUrl()}`, {
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/${props.appointment.getInstitutionId()}/${origin.type}/${origin.id}/appointments/${props.appointment.getId()}/presentators/${localStorage.getItem("presentatorid")}/substitute`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
                     isSubstituted: false,
@@ -178,6 +186,7 @@ export function AppointmentCard(props: Props) {
                 checkbox.checked = true;
                 props.appointment?.getPresentators()?.find(pres => pres.getId() === localStorage.getItem("presentatorid"))?.setIsSubstituted(false);
                 document.getElementById(`${localStorage.getItem("presentatorid")}`)?.setAttribute("style", "text-decoration: none;");
+                setUpdate(prev => !prev);
             }
         }
     }
@@ -200,6 +209,14 @@ export function AppointmentCard(props: Props) {
                             <>
                                 <label>Cancelled? </label>
                                 <input id={`checkbox-${props.appointment?.getId()}`} onChange={handlesubstitution} checked={issubstituted} type="checkbox" />
+                            </>
+                        ) : null
+                    }
+                    {
+                        isdirector && iswaiting ? (
+                            <>
+                                <label>Cancel the appointment? </label>
+                                <input onChange={() => setIscancelled(!iscancelled)} checked={iscancelled} type="checkbox" />
                             </>
                         ) : null
                     }

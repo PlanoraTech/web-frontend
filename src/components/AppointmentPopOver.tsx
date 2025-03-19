@@ -26,6 +26,9 @@ export function AppointmentPopOver(props: Props) {
     const [end, setEnd] = useState<string>(props.appointment.getEnd().toISOString());
     const [presentators, setPresentators] = useState(props.appointment.getPresentators());
     const [selectedRooms, setSelectedRooms] = useState<{ id: string, element: JSX.Element }[]>([]);
+    const [selectedPresentators, setSelectedPresentators] = useState<{ id: string, element: JSX.Element }[]>([]);
+    const [_, setUpdate] = useState(false);
+
 
     useEffect(() => {
         console.log(props.show);
@@ -39,35 +42,69 @@ export function AppointmentPopOver(props: Props) {
         setSubject(subject!.getName());
     }
 
-    const deleteOption = (e: React.MouseEvent<HTMLButtonElement>) => {
-        const parent = e.currentTarget.parentElement?.parentElement;
+    const deleteOption = (id: string) => {
+        setSelectedRooms(selectedRooms.filter(room => room.id !== id));
+        setSelectedPresentators(selectedPresentators.filter(pres => pres.id !== id))
+    }
+
+    const deleteDefaults = (e: React.MouseEvent<HTMLButtonElement>) => {
         if (e.currentTarget.parentElement) {
             let id = e.currentTarget.parentElement.id;
+            if (!id) return;
             props.appointment.getRooms()?.map((room) => {
                 if (room.getId() === id) {
-                    props.appointment.getRooms()?.splice(props.appointment.getRooms()!.indexOf(room), 1);
+                    const updatedRooms = props.appointment.getRooms()?.filter(room => room.getId() !== id);
+                    props.appointment.setRooms(updatedRooms!);
                 }
             });
             props.appointment.getPresentators()?.map((pres) => {
                 if (pres.getId() === id) {
-                    props.appointment.getPresentators()?.splice(props.appointment.getPresentators()!.indexOf(pres), 1);
+                    const updatedPresentators = props.appointment.getPresentators()?.filter(pres => pres.getId() !== id)
+                    props.appointment.setPresentators(updatedPresentators!);
+
                 }
             });
-            // parent!.removeChild(e.currentTarget.parentElement);
-            setAddSelectPres(false);
-            setAddSelectRoom(false);
+            setUpdate(prev => !prev);
         }
     }
 
-    const addRoomSelect = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const addRoomSelect = () => {
         console.log('addRoomSelect');
-        setAddSelectRoom(true);
+        const id = `room_${selectedRooms.length + 1}`;
+        const newRoom = {
+            id,
+            element: (
+                <div key={id} id={id}>
+                    <select defaultValue={"default"}>
+                        <option value="default">Select a room</option>
+                        {props.roomlist.map((room: Rooms) => (
+                            <option key={room.getId()} value={room.getId()}>{room.getName()}</option>
+                        ))}
+                    </select>
+                    <button className="close" onClick={() => deleteOption(id)}><b>✕</b></button>
+                </div>
+            )
+        };
+        setSelectedRooms([...selectedRooms, newRoom]);
     }
 
-    const addPresentatorSelect = (e: React.MouseEvent<HTMLButtonElement>) => {
-        const parent = document.getElementById('popover_presentators');
-        const select = (<Select appointment={props.appointment} item={props.presentatorlist} type="add" deleteOption={deleteOption} list="presentator" />);
-        ReactDOM.createPortal(select, parent!);
+    const addPresentatorSelect = () => {
+        const id = `pres_${selectedPresentators.length + 1}`;
+        const newPresentator = {
+            id,
+            element: (
+                <div key={id} id={id}>
+                    <select defaultValue={"default"}>
+                        <option value="default">Select a presentator</option>
+                        {props.presentatorlist.map((pres: Presentators) => (
+                            <option key={pres.getId()} value={pres.getId()}>{pres.getName()}</option>
+                        ))}
+                    </select>
+                    <button className="close" onClick={() => deleteOption(id)}><b>✕</b></button>
+                </div>
+            )
+        };
+        setSelectedPresentators([...selectedPresentators, newPresentator]);
     }
 
     const formatDateForInput = (date: Date) => {
@@ -94,10 +131,31 @@ export function AppointmentPopOver(props: Props) {
         return formattedDate;
     }
 
+    const removeall = () => {
+        const room = document.getElementById('popover_rooms');
+        const pres = document.getElementById('popover_rooms');
+        if (room) {
+            while (room.firstChild) {
+                room.removeChild(room.firstChild);
+            }
+        }
+        if (pres) {
+            while (pres.firstChild) {
+                pres.removeChild(pres.firstChild);
+            }
+        }
+        setTimeout(() => setClose(false), 100); // 🔥 Most zárjuk be a Popovert
+    }
+
     return (
         <>
             <div className="popover" style={{ display: close ? "none" : "block", top: props.y, left: props.x }}>
-                <button className="close" onClick={() => { setClose(true) }}><b>✕</b></button>
+                <button className="close" onClick={() => {
+                    setClose(!close)
+                    setSelectedPresentators([])
+                    setSelectedRooms([])
+                    removeall
+                }}><b>✕</b></button>
                 {
                     props.type == 'main' ? (
                         <div className="popover_content">
@@ -126,13 +184,21 @@ export function AppointmentPopOver(props: Props) {
                                 <div className="popover_body">
                                     <div id="popover_rooms">
                                         <p>{props.appointment.getRooms()?.map(room => room.getName()).join(", ")}</p>
-                                        <Select appointment={props.appointment} item={props.roomlist} type="default" deleteOption={deleteOption} list="room" />
-                                        {addSelectRoom &&
-                                            ReactDOM.createPortal(
-                                                <Select appointment={props.appointment} item={props.roomlist} type="add" deleteOption={deleteOption} list="room" />,
-                                                document.getElementById('popover_rooms')!
-                                            )
+                                        {
+                                            props.appointment.getRooms()?.map(room => (
+                                                <div key={room.getId()} id={room.getId()}>
+                                                    <select key={room.getId()} value={room.getId()}>
+                                                        {props.roomlist.map((room: Rooms) => (
+                                                            <option key={room.getId()} value={room.getId()}>{room.getName()}</option>
+                                                        ))}
+                                                    </select>
+                                                    <button className="close" onClick={deleteDefaults}><b>✕</b></button>
+                                                </div>
+                                            ))
                                         }
+                                        {selectedRooms.map(room =>
+                                            ReactDOM.createPortal(room.element, document.getElementById("popover_rooms")!)
+                                        )}
                                     </div>
                                     <div>
                                         <button className="close" onClick={addRoomSelect}><b>╋</b></button>
@@ -143,7 +209,21 @@ export function AppointmentPopOver(props: Props) {
                                     <input type="datetime-local" onChange={(e) => setEnd(e.target.value)} value={formatDateForInput(props.appointment.getEnd())} />
                                     <div id="popover_presentators">
                                         <p>{props.appointment.getPresentators()?.map(pres => pres.getName()).join(", ")}</p>
-                                        <Select appointment={props.appointment} item={props.presentatorlist} type="default" deleteOption={deleteOption} list="presentator" />
+                                        {
+                                            props.appointment!.getPresentators()?.map(pres => (
+                                                <div key={pres.getId()} id={pres.getId()}>
+                                                    <select key={pres.getId()} value={pres.getId()}>
+                                                        {props.presentatorlist.map((pres: Presentators) => (
+                                                            <option key={pres.getId()} value={pres.getId()}>{pres.getName()}</option>
+                                                        ))}
+                                                    </select>
+                                                    <button className="close" onClick={deleteDefaults}><b>✕</b></button>
+                                                </div>
+                                            ))
+                                        }
+                                        {selectedPresentators.map(pres =>
+                                            ReactDOM.createPortal(pres.element, document.getElementById("popover_presentators")!)
+                                        )}
                                     </div>
                                     <div>
                                         <button className="close" onClick={addPresentatorSelect}><b>╋</b></button>
