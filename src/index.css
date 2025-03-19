@@ -9,6 +9,7 @@
     --dark06: #666;
     --dark-text: white;
     /*----------*/
+
     /*light colors*/
     --light00: #ffffff;
     --light20: #f0f0f0;
@@ -25,6 +26,7 @@
     --light10: #009dff;
     --light11: #0095ff;
     --light-text: black;
+
     /*-----------*/
 }
 
@@ -53,9 +55,7 @@
 
 .light-theme {
     --body-bg-color: var(--light00);
-    /*--light02*/
     --nav-bg-color: var(--light10);
-    /*--light07*/
     --body-color: var(--light-text);
     --links-color: var(--light-text);
     --links-hover-bg-color: var(--light11);
@@ -64,16 +64,11 @@
     --select-button-hover-bg-color: var(--light00);
     --select-button-active-bg-color: var(--light03);
     --select-button-disabled-bg-color: var(--light04);
-    /*--light01*/
     --schedule-bg-color: var(--light00);
-    /*--light03*/
     --day2-4-bg-color: var(--light20);
-    /*--light04*/
     --dayheader-bg-color: var(--light08);
-    /*--light07*/
     --class-event-card-bg-color: var(--light00);
     --form-input-bg-color: var(--light00);
-    /*--light01*/
     --form-profile-container-bg-color: var(--light00);
     --button-container-bg-color: var(--light00);
     --button-container-hover-bg-color: var(--light20);
@@ -449,9 +444,10 @@ tr {
 /*Cards*/
 
 .class-card {
+    min-width: 5vw;
     width: 10vw;
     width: inherit;
-    min-width: 5vw;
+    /* min-height: fit-content; */
     height: inherit;
     overflow: hidden;
     max-width: 12.5vw;
@@ -474,6 +470,10 @@ tr {
 .teacher-change {
     width: 10vw;
     margin: 0.8vh 0vh 0.8vh 0vh;
+}
+
+.class-card.expanded {
+    min-height: fit-content;
 }
 
 .class-card:hover {
@@ -587,13 +587,19 @@ tr {
     background-color: var(--form-profile-container-bg-color);
 }
 
+.profile-container {
+    min-width: 25vw;
+    width: fit-content;
+}
+
 .form-container h2,
 .profile-container h2 {
     margin-top: 1.3vh;
     text-align: center;
 }
 
-.form-div input:not([type="checkbox"]) {
+.form-div input:not([type="checkbox"]),
+.popover input {
     height: 3vh;
     border: none;
     width: 24.5vw;
@@ -647,7 +653,8 @@ tr {
     position: absolute;
     box-sizing: border-box;
     z-index: 9999;
-    width: 18vw;
+    width: fit-content;
+    max-width: 20vw;
     height: fit-content;
     background-color: var(--schedule-bg-color);
     box-shadow: 2px 8px 16px 2px rgba(0, 0, 0, 0.3);
@@ -669,6 +676,10 @@ tr {
     margin-left: 0.8vw;
 }
 
+.popover input {
+    width: 15vw;
+}
+
 .popover_body {
     margin-left: 1vw;
 }
@@ -678,4 +689,8 @@ tr {
     width: fit-content;
     background-color: transparent;
     box-shadow: none;
+}
+
+.popover_body .close {
+    float: none;
 }

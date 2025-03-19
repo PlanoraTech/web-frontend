@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Institutions } from "../../shared/classes/institutions";
 import { Subjects } from "../../shared/classes/subjects";
+import { getTokenUrl } from "../../functions/getTokenUrl";
 
 interface Props {
     institution: Institutions;
@@ -14,10 +15,6 @@ export function ManageSubject(props: Props) {
     const [action, setAction] = useState<"add" | "update">("add");
     const [error, setError] = useState<string>("");
 
-    let baseUrl = 'https://planora-dfce142fac4b.herokuapp.com/institutions';
-    let localUrl = 'http://localhost:3000/institutions';
-    let tokenUrl = `?token=${localStorage.getItem('token')}`;
-
     useEffect(() => {
         if (props.action === "update") {
             setAction("update");
@@ -26,10 +23,10 @@ export function ManageSubject(props: Props) {
 
     const handlechangesubject = async () => {
         let change = 'POST';
-        let url = `${baseUrl}/${props.institution.getId()}/subjects/${tokenUrl}`
+        let url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/subjects/${getTokenUrl()}`
         if (action === "update") {
             change = 'PATCH';
-            url = `${baseUrl}/${props.institution.getId()}/subjects/${subject?.getId()}/${tokenUrl}`
+            url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/subjects/${subject?.getId()}/${getTokenUrl()}`
         }
         if (subjectname === "" || subjectid === "") {
             setError("Please fill in all fields");

@@ -13,9 +13,6 @@ export function Login() {
     const [logpassword, setLogPassword] = useState("");
     const [rememberMe, setRememberMe] = useState(false);
 
-    let baseUrl = 'https://planora-dfce142fac4b.herokuapp.com';
-    let localUrl = 'http://localhost:3000';
-
     const navigate = useNavigate();
 
     const changeregister = () => {
@@ -32,7 +29,7 @@ export function Login() {
         if (!logemail || !logpassword) {
             setError("Please fill in all fields");
         } else {
-            const response = await fetch(`${baseUrl}/login`, {
+            const response = await fetch(`${import.meta.env.VITE_AUTH_URL}/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -78,7 +75,7 @@ export function Login() {
             console.log("invalid password");
             setError("Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number and one special character");
         } else {
-            const response = await fetch(`${baseUrl}/register`, {
+            const response = await fetch(`${import.meta.env.VITE_AUTH_URL}/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

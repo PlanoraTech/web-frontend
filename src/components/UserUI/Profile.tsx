@@ -1,39 +1,40 @@
 import { useEffect, useState } from "react";
 import { Nav } from "../Nav"
+import { getTokenUrl } from "../../functions/getTokenUrl";
 
 export function Profile() {
     const [email, setEmail] = useState("");
+    const [institutions, setInstitutions] = useState([]);
 
-    let baseUrl = 'https://planora-dfce142fac4b.herokuapp.com';
-    let localUrl = 'http://localhost:3000';
-    let tokenUrl = `?token=${localStorage.getItem('token')}`;
+    let token = localStorage.getItem('token');
+    const headers = { 'Authorization': `Bearer ${token}` };
 
-    const handlelogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('expiry');
-        localStorage.removeItem('role');
-        window.location.href = "/login";
-    }
-
-    const mockPresentator = {
-        institutionId: "14033494-a508-46f2-87d3-102da56519f0",
-        presentatorId: "a101e101-1954-47df-8d0b-c2836af4fc8b",
-        role: "PRESENTATOR"
+    const handlelogout = async () => {
+        const response = await fetch(`${import.meta.env.VITE_AUTH_URL}/logout`, { headers });
+        if (!response.ok) {
+            const data = await response.json();
+            console.log(data);
+        } else {
+            const data = await response.json();
+            console.log(data);
+            localStorage.removeItem('token');
+            localStorage.removeItem('expiry');
+            localStorage.removeItem('role');
+            window.location.href = "/login";
+        }
     }
 
     useEffect(() => {
         async function fetchProfile() {
-            const response = await fetch(`${baseUrl}/profile/${tokenUrl}`);
+            const response = await fetch(`${import.meta.env.VITE_AUTH_URL}/profile`, { headers });
             if (!response.ok) {
+                const data = await response.json();
+                console.log(data);
             } else {
                 const data = await response.json();
                 console.log(data);
-                if (data.email == 'test@presentator.hu') {
-                    localStorage.setItem('role', mockPresentator.role)
-                    localStorage.setItem('presentatorid', mockPresentator.presentatorId)
-                    localStorage.setItem('institution', '')
-                }
                 setEmail(data.email);
+                setInstitutions(data.institutions);
             }
         }
         fetchProfile();
@@ -45,8 +46,11 @@ export function Profile() {
             <div className="profile-container">
                 <div className="profile-div">
                     <h2>Profile</h2>
-                    <p>Email: {email}</p>
-                    <p>Role: {localStorage.getItem("role")}</p>
+                    <p><b>Email:</b> {email}</p>
+                    <p><b>Institutions: </b></p>
+                    {institutions.map((institution: any) => (
+                        <p style={{ marginLeft: '2vh' }} key={email}>{institution.institution.name} - {institution.role}</p>
+                    ))}
                 </div>
                 <div className="button-container">
                     <button onClick={handlelogout}>Logout</button>

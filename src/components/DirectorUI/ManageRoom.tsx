@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Institutions } from "../../shared/classes/institutions";
 import { Rooms } from "../../shared/classes/rooms";
+import { getTokenUrl } from "../../functions/getTokenUrl";
 
 interface Props {
     institution: Institutions;
@@ -13,9 +14,6 @@ export function ManageRoom(props: Props) {
     const [action, setAction] = useState<"add" | "update">("add");
     const [error, setError] = useState<string>("");
 
-    let baseUrl = 'https://planora-dfce142fac4b.herokuapp.com/institutions';
-    let localUrl = 'http://localhost:3000/institutions';
-    let tokenUrl = `?token=${localStorage.getItem('token')}`;
 
     useEffect(() => {
         if (props.action === "update") {
@@ -25,10 +23,10 @@ export function ManageRoom(props: Props) {
 
     const handlechangeroom = async () => {
         let change = 'POST';
-        let url = `${baseUrl}/${props.institution.getId()}/rooms/${tokenUrl}`
+        let url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/rooms/${getTokenUrl()}`
         if (action === "update") {
             change = 'PATCH';
-            url = `${baseUrl}/${props.institution.getId()}/rooms/${room?.getId()}/${tokenUrl}`
+            url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/rooms/${room?.getId()}/${getTokenUrl()}`
         }
         if (roomname === "") {
             setError("Please fill in all fields");

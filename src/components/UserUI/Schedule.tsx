@@ -21,7 +21,7 @@ export function Schedule(props: ScheduleProps) {
     const [selectedRoomlist, setSelectedRoomlist] = useState<Rooms[] | null>(null);
     const [selectedRoom, setSelectedRoom] = useState<Rooms | null>(null);
     const [selectedAppointments, setSelectedAppointments] = useState<Appointments[] | null>(null);
-    const [error, setError] = useState("");
+    const [error, setError] = useState<string[]>([]);
 
     const navigate = useNavigate();
 
@@ -45,19 +45,21 @@ export function Schedule(props: ScheduleProps) {
     }, [selectedRoomlist]);
 
     async function gettimetables(selectedinstitution: Institutions) {
-        let timetablelist = (await fetchTimetables(selectedinstitution)).timetablelist;
-        setError((await fetchTimetables(selectedinstitution)).error);
-        setSelectedTimetablelist(timetablelist);
+        let timetablelist = (await fetchTimetables(selectedinstitution));
+        error.push(timetablelist.error);
+        setSelectedTimetablelist(timetablelist.timetables);
     }
 
     async function getpresentators(selectedinstitution: Institutions) {
         let presentatorlist = await fetchPresentators(selectedinstitution);
-        setSelectedPresentatorlist(presentatorlist);
+        setSelectedPresentatorlist(presentatorlist!.presentators);
+        error.push(presentatorlist.error);
     }
 
     async function getrooms(selectedinstitution: Institutions) {
         let roomlist = await fetchRooms(selectedinstitution);
-        setSelectedRoomlist(roomlist);
+        setSelectedRoomlist(roomlist!.rooms);
+        error.push(roomlist.error);
     }
 
     const handleInstitutionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -72,6 +74,7 @@ export function Schedule(props: ScheduleProps) {
             setSelectedPresentator(null);
             setSelectedRoom(null);
             setSelectedAppointments([]);
+            setError([]);
         }
     };
 
@@ -121,9 +124,9 @@ export function Schedule(props: ScheduleProps) {
             {selectedInstitution && selectedRoom && (
                 <h3 className="choose">Room {selectedRoom.getName()}</h3>
             )}
-            {error && (
-                <h3 style={{ color: '#fc6464' }} className="choose">{error}</h3>
-            )}
+            {error && error.map((err, index) => (
+                <h3 key={index} style={{ color: '#fc6464' }} className="choose">{err}</h3>
+            ))}
             <div id="main">
                 <div className="sidebar">
                     <select onChange={handleInstitutionChange} value={selectedInstitution?.getId() || 'default'}>

@@ -7,15 +7,14 @@ import { Rooms } from "../shared/classes/rooms";
 import { Subjects } from "../shared/classes/subjects";
 import { Timetables } from "../shared/classes/timetables";
 
-let baseUrl = 'https://planora-dfce142fac4b.herokuapp.com/institutions';
-let localUrl = 'http://localhost:3000/institutions';
-let tokenUrl = `?token=${localStorage.getItem('token')}`;
+let token = localStorage.getItem('token') || "";
+const headers = { 'Authorization': `Bearer ${token}` };
 
 export async function fetchInstitutions() {
-    // console.log("institutions");
-    let instlist = [];
-    let url = `${baseUrl}`;
-    const response = await fetch(url)
+    let instlist: Institutions[] = [];
+    let url = `${import.meta.env.VITE_BASE_URL}`;
+    console.log(url);
+    const response = await fetch(url, { headers });
     const institutions = await response.json()
     for (let i = 0; i < institutions.length; i++) {
         let ins: Institutions = new Institutions(institutions[i].id, institutions[i].name, institutions[i].type, institutions[i].access, institutions[i].color, institutions[i].website);
@@ -29,11 +28,8 @@ export async function fetchManageInstitutions() {
     let ins = JSON.parse(localStorage.getItem("institutions")!);
     let instlist = [];
     for (let i = 0; i < ins.length; i++) {
-        let url = `${baseUrl}/${ins[i].institutionId}`;
-        if (localStorage.getItem('token')) {
-            url = `${baseUrl}/${ins[i].institutionId}/${tokenUrl}`
-        }
-        const response = await fetch(url);
+        let url = `${import.meta.env.VITE_BASE_URL}/${ins[i].institutionId}`;
+        const response = await fetch(url, { headers });
         const fetchedinstitution = await response.json();
         let institution: Institutions = new Institutions(fetchedinstitution.id, fetchedinstitution.name, fetchedinstitution.type, fetchedinstitution.access, fetchedinstitution.color, fetchedinstitution.website);
         instlist.push(institution);
@@ -46,17 +42,14 @@ export async function fetchTimetables(selectedinstitution: Institutions) {
     // console.log("timetables");
     let timetablelist = [];
     let error = "";
-    let url = `${baseUrl}/${selectedinstitution.getId()}/timetables`;
-    if (localStorage.getItem('token')) {
-        url = `${baseUrl}/${selectedinstitution.getId()}/timetables/${tokenUrl}`
-    }
-    const response = await fetch(url)
+    let url = `${import.meta.env.VITE_BASE_URL}/${selectedinstitution.getId()}/timetables`;
+    const response = await fetch(url, { headers })
     const timetables = await response.json()
     // console.log(timetables)
     if (response.status === 403) {
         error = "You no not have permission to view this institution's timetables!";
     } else {
-        error = "";
+        error = "There was an error fetching timetables! Please try again.";
     }
     for (let i = 0; i < timetables.length; i++) {
         let timetable: Timetables = new Timetables(timetables[i].id, timetables[i].name, selectedinstitution, selectedinstitution.getId());
@@ -65,7 +58,7 @@ export async function fetchTimetables(selectedinstitution: Institutions) {
     selectedinstitution.setTimetables(timetablelist);
     // console.log(timetablelist);
     const data = {
-        timetablelist: timetablelist.sort((a, b) => a.getName().localeCompare(b.getName())),
+        timetables: timetablelist.sort((a, b) => a.getName().localeCompare(b.getName())),
         error: error
     };
     return data;
@@ -74,11 +67,12 @@ export async function fetchTimetables(selectedinstitution: Institutions) {
 export async function fetchPresentators(selectedinstitution: Institutions) {
     // console.log("presentators");
     let presentatorlist = [];
-    let url = `${baseUrl}/${selectedinstitution.getId()}/presentators`
-    if (localStorage.getItem('token')) {
-        url = `${baseUrl}/${selectedinstitution.getId()}/presentators/${tokenUrl}`
+    let url = `${import.meta.env.VITE_BASE_URL}/${selectedinstitution.getId()}/presentators`
+    const response = await fetch(url, { headers })
+    let error = "";
+    if (!response.ok) {
+        error = "There was an error fetching presentators! Please try again.";
     }
-    const response = await fetch(url)
     const presentators = await response.json()
     // console.log(presentators)
     for (let i = 0; i < presentators.length; i++) {
@@ -86,17 +80,22 @@ export async function fetchPresentators(selectedinstitution: Institutions) {
     }
     // console.log(presentatorlist);
     selectedinstitution.setPresentators(presentatorlist);
-    return presentatorlist.sort((a, b) => a.getName().localeCompare(b.getName()));
+    const data = {
+        presentators: presentatorlist.sort((a, b) => a.getName().localeCompare(b.getName())),
+        error: error
+    };
+    return data;
 }
 
 export async function fetchRooms(selectedinstitution: Institutions) {
     // console.log("rooms");
     let roomlist = [];
-    let url = `${baseUrl}/${selectedinstitution.getId()}/rooms`
-    if (localStorage.getItem('token')) {
-        url = `${baseUrl}/${selectedinstitution.getId()}/rooms/${tokenUrl}`
+    let url = `${import.meta.env.VITE_BASE_URL}/${selectedinstitution.getId()}/rooms`
+    const response = await fetch(url, { headers })
+    let error = "";
+    if (!response.ok) {
+        error = "There was an error fetching rooms! Please try again.";
     }
-    const response = await fetch(url)
     const rooms = await response.json()
     // console.log(rooms)
     for (let i = 0; i < rooms.length; i++) {
@@ -104,65 +103,72 @@ export async function fetchRooms(selectedinstitution: Institutions) {
     }
     // console.log(roomlist);
     selectedinstitution.setRooms(roomlist);
-    return roomlist.sort((a, b) => a.getName().localeCompare(b.getName()))
+    const data = {
+        rooms: roomlist.sort((a, b) => a.getName().localeCompare(b.getName())),
+        error: error
+    };
+    return data;
 }
 
 export async function fetchEvents(selectedinstitution: Institutions) {
     // console.log("events");
     let eventlist = [];
-    let url = `${baseUrl}/${selectedinstitution.getId()}/events`
-    if (localStorage.getItem('token')) {
-        url = `${baseUrl}/${selectedinstitution.getId()}/events/${tokenUrl}`
+    let url = `${import.meta.env.VITE_BASE_URL}/${selectedinstitution.getId()}/events`
+    const response = await fetch(url, { headers })
+    let error = "";
+    if (!response.ok) {
+        error = "There was an error fetching events! Please try again.";
     }
-    const response = await fetch(url)
     const events = await response.json()
     // console.log(events)
     for (let i = 0; i < events.length; i++) {
         eventlist.push(new Events(events[i].id, events[i].title, events[i].date, selectedinstitution.getId()));
     }
     selectedinstitution.setEvents(eventlist.sort((a, b) => a.getDate().getTime() - b.getDate().getTime()));
+    return error;
 }
 
 export async function fetchSubjects(selectedinstitution: Institutions) {
     // console.log("subjects");
     let subjectlist = [];
-    let url = `${baseUrl}/${selectedinstitution.getId()}/subjects`
-    if (localStorage.getItem('token')) {
-        url = `${baseUrl}/${selectedinstitution.getId()}/subjects/${tokenUrl}`
+    let url = `${import.meta.env.VITE_BASE_URL}/${selectedinstitution.getId()}/subjects`
+    const response = await fetch(url, { headers })
+    let error = "";
+    if (!response.ok) {
+        error = "There was an error fetching subjects! Please try again.";
     }
-    const response = await fetch(url)
     const subjects = await response.json()
     // console.log(subjects)
     for (let i = 0; i < subjects.length; i++) {
         subjectlist.push(new Subjects(subjects[i].id, subjects[i].name, subjects[i].subjectId, selectedinstitution.getId()));
     }
     selectedinstitution.setSubjects(subjectlist);
+    return error;
 }
 
 export async function fetchUsers(selectedinstitution: Institutions) {
     // console.log("users");
     let userlist = [];
-    let url = `${baseUrl}/${selectedinstitution.getId()}/users`
-    if (localStorage.getItem('token')) {
-        url = `${baseUrl}/${selectedinstitution.getId()}/users/${tokenUrl}`
+    let url = `${import.meta.env.VITE_BASE_URL}/${selectedinstitution.getId()}/users`
+    const response = await fetch(url, { headers })
+    let error = "";
+    if (!response.ok) {
+        error = "There was an error fetching users! Please try again.";
     }
-    const response = await fetch(url)
     const users = await response.json()
     // console.log(users)
     for (let i = 0; i < users.length; i++) {
         userlist.push(new Users(users[i].email, users[i].role));
     }
     selectedinstitution.setUsers(userlist);
+    return error;
 }
 
 export async function fetchTimetableAppointments(selectedttablelist: Timetables[], selectedinstitution: Institutions) {
     // console.log("timetable appointments");
     for (let f = 0; f < selectedttablelist.length; f++) {
-        let url = `${baseUrl}/${selectedttablelist[f].getInstitutionId()}/timetables/${selectedttablelist[f].getId()}/appointments`
-        if (localStorage.getItem('token')) {
-            url = `${baseUrl}/${selectedttablelist[f].getInstitutionId()}/timetables/${selectedttablelist[f].getId()}/appointments/${tokenUrl}`
-        }
-        const response = await fetch(url)
+        let url = `${import.meta.env.VITE_BASE_URL}/${selectedttablelist[f].getInstitutionId()}/timetables/${selectedttablelist[f].getId()}/appointments`
+        const response = await fetch(url, { headers })
         const appointments = await response.json()
         // console.log(appointments)
         let oneapplist = [];
@@ -191,11 +197,9 @@ export async function fetchTimetableAppointments(selectedttablelist: Timetables[
 export async function fetchPresentatorAppointments(selectedpresentatorlist: Presentators[], selectedinstitution: Institutions) {
     // console.log("presentator appointments");
     for (let f = 0; f < selectedpresentatorlist.length; f++) {
-        let url = `${baseUrl}/${selectedpresentatorlist[f].getInstitutionId()}/presentators/${selectedpresentatorlist[f].getId()}/appointments`
-        if (localStorage.getItem('token')) {
-            url = `${baseUrl}/${selectedpresentatorlist[f].getInstitutionId()}/presentators/${selectedpresentatorlist[f].getId()}/appointments/?token=${localStorage.getItem('token')}`
-        }
-        const response = await fetch(url)
+        let url = `${import.meta.env.VITE_BASE_URL}/${selectedpresentatorlist[f].getInstitutionId()}/presentators/${selectedpresentatorlist[f].getId()}/appointments`
+        // console.log(url)
+        const response = await fetch(url, { headers })
         const appointments = await response.json()
         // console.log(appointments)
         let oneapplist = [];
@@ -224,11 +228,8 @@ export async function fetchPresentatorAppointments(selectedpresentatorlist: Pres
 export async function fetchRoomAppointments(selectedroomlist: Rooms[], selectedinstitution: Institutions) {
     // console.log("room appointments");
     for (let f = 0; f < selectedroomlist.length; f++) {
-        let url = `${baseUrl}/${selectedroomlist[f].getInstitutionId()}/rooms/${selectedroomlist[f].getId()}/appointments`
-        if (localStorage.getItem('token')) {
-            url = `${baseUrl}/${selectedroomlist[f].getInstitutionId()}/rooms/${selectedroomlist[f].getId()}/appointments/?token=${localStorage.getItem('token')}`
-        }
-        const response = await fetch(url)
+        let url = `${import.meta.env.VITE_BASE_URL}/${selectedroomlist[f].getInstitutionId()}/rooms/${selectedroomlist[f].getId()}/appointments`
+        const response = await fetch(url, { headers })
         const appointments = await response.json()
         // console.log(appointments)
         let oneapplist = [];

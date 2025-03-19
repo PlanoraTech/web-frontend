@@ -16,7 +16,7 @@ import { ManageUser } from "./ManageUser";
 
 export function Menu() {
     const [institutions, setInstitutions] = useState<Institutions[]>([]);
-    const [selectedinstitution, setSelectedInstitution] = useState<Institutions | null>(null);
+    const [selectedInstitution, setselectedInstitution] = useState<Institutions | null>(null);
     const [selectedTimetablelist, setSelectedTimetablelist] = useState<Timetables[]>([]);
     const [selectedTimetable, setSelectedTimetable] = useState<Timetables | null>(null);
     const [selectedPresentatorlist, setSelectedPresentatorlist] = useState<Presentators[] | null>(null);
@@ -27,58 +27,63 @@ export function Menu() {
     const [actiontype, setActiontype] = useState<string | null>(null);
     const [actionadd, setActionadd] = useState<string | null>(null);
     const [actionupdate, setActionupdate] = useState<string | null>(null);
+    const [error, setError] = useState<string[]>([]);
 
     useEffect(() => {
         getinstitutions();
     }, [])
 
     useEffect(() => {
-        gettimetables(selectedinstitution!);
-        getpresentators(selectedinstitution!);
-        fetchSubjects(selectedinstitution!);
-        getrooms(selectedinstitution!);
-        fetchUsers(selectedinstitution!);
-    }, [selectedinstitution])
+        gettimetables(selectedInstitution!);
+        getpresentators(selectedInstitution!);
+        fetchSubjects(selectedInstitution!);
+        getrooms(selectedInstitution!);
+        fetchUsers(selectedInstitution!);
+    }, [selectedInstitution])
 
     useEffect(() => {
-        fetchTimetableAppointments(selectedTimetablelist!, selectedinstitution!);
+        fetchTimetableAppointments(selectedTimetablelist!, selectedInstitution!);
     }, [selectedTimetablelist]);
 
     useEffect(() => {
-        fetchPresentatorAppointments(selectedPresentatorlist!, selectedinstitution!);
+        fetchPresentatorAppointments(selectedPresentatorlist!, selectedInstitution!);
     }, [selectedPresentatorlist]);
 
     useEffect(() => {
-        fetchRoomAppointments(selectedRoomlist!, selectedinstitution!);
+        fetchRoomAppointments(selectedRoomlist!, selectedInstitution!);
     }, [selectedRoomlist]);
 
     async function getinstitutions() {
         let instlist = await fetchManageInstitutions();
-        setInstitutions(instlist);
+        setInstitutions(instlist!);
     }
 
-    async function gettimetables(selectedinstitution: Institutions) {
-        let timetablelist = (await fetchTimetables(selectedinstitution)).timetablelist;
-        setSelectedTimetablelist(timetablelist);
+    async function gettimetables(selectedInstitution: Institutions) {
+        let timetablelist = (await fetchTimetables(selectedInstitution));
+        setSelectedTimetablelist(timetablelist!.timetables!);
+        // error.push(timetablelist!.error!);
     }
 
-    async function getpresentators(selectedinstitution: Institutions) {
-        let presentatorlist = await fetchPresentators(selectedinstitution);
-        setSelectedPresentatorlist(presentatorlist);
+    async function getpresentators(selectedInstitution: Institutions) {
+        let presentatorlist = await fetchPresentators(selectedInstitution);
+        setSelectedPresentatorlist(presentatorlist!.presentators);
+        error.push(presentatorlist!.error!);
     }
 
-    async function getrooms(selectedinstitution: Institutions) {
-        let roomlist = await fetchRooms(selectedinstitution);
-        setSelectedRoomlist(roomlist);
+    async function getrooms(selectedInstitution: Institutions) {
+        let roomlist = await fetchRooms(selectedInstitution);
+        setSelectedRoomlist(roomlist!.rooms);
+        error.push(roomlist!.error!);
     }
 
     const handleInstitutionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const institutionId = e.target.value;
         const institution = institutions!.find(inst => inst.getId() === institutionId) || null;
-        setSelectedInstitution(institution);
+        setselectedInstitution(institution);
         setActiontype("");
         setActionadd("");
         setActionupdate("");
+        setError([]);
     };
 
     const handleTimeTableChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -128,41 +133,41 @@ export function Menu() {
     }
 
     function manageAction() {
-        if (selectedinstitution && actionadd || actionupdate || actiontype) {
+        if (selectedInstitution && actionadd || actionupdate || actiontype) {
             switch (actionadd) {
                 case "Add Timetable":
-                    return <ManageTimetable institution={selectedinstitution!} action="add" />
+                    return <ManageTimetable institution={selectedInstitution!} action="add" />
                 case "Add Presentator":
-                    return <ManagePresentator institution={selectedinstitution!} action="add" />
+                    return <ManagePresentator institution={selectedInstitution!} action="add" />
                 case "Add Room":
-                    return <ManageRoom institution={selectedinstitution!} action="add" />
+                    return <ManageRoom institution={selectedInstitution!} action="add" />
                 case "Add Subject":
-                    return <ManageSubject institution={selectedinstitution!} action="add" />
+                    return <ManageSubject institution={selectedInstitution!} action="add" />
                 case "Add Appointment":
                     return <ManageAppointment timetables={selectedTimetablelist!} action="add" />
                 case "Add User":
-                    return <ManageUser institution={selectedinstitution!} action="add" />
+                    return <ManageUser institution={selectedInstitution!} action="add" />
                 default:
                     break;
             }
             switch (actionupdate) {
                 case "Update Timetable":
-                    return <ManageTimetable institution={selectedinstitution!} action="update" />
+                    return <ManageTimetable institution={selectedInstitution!} action="update" />
                 case "Update Presentator":
-                    return <ManagePresentator institution={selectedinstitution!} action="update" />
+                    return <ManagePresentator institution={selectedInstitution!} action="update" />
                 case "Update Room":
-                    return <ManageRoom institution={selectedinstitution!} action="update" />
+                    return <ManageRoom institution={selectedInstitution!} action="update" />
                 case "Update Subject":
-                    return <ManageSubject institution={selectedinstitution!} action="update" />
+                    return <ManageSubject institution={selectedInstitution!} action="update" />
                 case "Update User":
-                    return <ManageUser institution={selectedinstitution!} action="update" />
+                    return <ManageUser institution={selectedInstitution!} action="update" />
                 default:
                     break;
             }
             if (actiontype == "Manage Appointments") {
                 return (
                     <div className="calendar_div">
-                        <Testcalendar appointments={selectedAppointments!} presentatorlist={selectedinstitution?.getPresentators()!} institution={selectedinstitution!} type="manage" />
+                        <Testcalendar appointments={selectedAppointments!} presentatorlist={selectedInstitution?.getPresentators()!} institution={selectedInstitution!} roomlist={selectedInstitution?.getRooms()!} subjectlist={selectedInstitution?.getSubjects()!} type="manage" />
                     </div>
                 )
             }
@@ -172,16 +177,19 @@ export function Menu() {
     return (
         <div>
             <Nav />
+            {error && error.map((err, index) => (
+                <h3 key={index} style={{ color: '#fc6464' }} className="choose">{err}</h3>
+            ))}
             <h2 className="choose">Director's menu</h2>
             <div id="manage_main">
                 <div className="manage_sidebar">
-                    <select onChange={handleInstitutionChange} value={selectedinstitution?.getId() || 'default'}>
+                    <select onChange={handleInstitutionChange} value={selectedInstitution?.getId() || 'default'}>
                         <option value={"default"} disabled>Institutions</option>
-                        {institutions!.map((institution: Institutions) => (
+                        {institutions && institutions!.map((institution: Institutions) => (
                             <option key={institution.getId()} value={institution.getId()}>{institution.getName()}</option>
                         ))}
                     </select><br />
-                    {selectedinstitution ? (
+                    {selectedInstitution ? (
                         <>
                             <select onChange={handleactionchange} value={actiontype! || "default"}>
                                 <option value={"default"} disabled>Options</option>
@@ -213,7 +221,6 @@ export function Menu() {
                                         <option>Update Subject</option>
                                         <option>Update Event</option>
                                         <option>Update User</option>
-                                        {/* <option>Update Appointment</option> */}
                                     </select>
                                 </>
                             ) : null}

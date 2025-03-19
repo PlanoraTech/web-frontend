@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Institutions } from "../../shared/classes/institutions";
 import { Timetables } from "../../shared/classes/timetables";
+import { getTokenUrl } from "../../functions/getTokenUrl";
 
 interface Props {
     institution: Institutions;
@@ -13,10 +14,6 @@ export function ManageTimetable(props: Props) {
     const [action, setAction] = useState<"add" | "update">("add");
     const [error, setError] = useState<string>("");
 
-    let baseUrl = 'https://planora-dfce142fac4b.herokuapp.com/institutions';
-    let localUrl = 'http://localhost:3000/institutions';
-    let tokenUrl = `?token=${localStorage.getItem('token')}`;
-
     useEffect(() => {
         if (props.action === "update") {
             setAction("update");
@@ -25,10 +22,10 @@ export function ManageTimetable(props: Props) {
 
     const handlechangetimetable = async () => {
         let change = 'POST';
-        let url = `${baseUrl}/${props.institution.getId()}/timetables/${tokenUrl}`
+        let url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/timetables/${getTokenUrl()}`
         if (action === "update") {
             change = 'PATCH';
-            url = `${baseUrl}/${props.institution.getId()}/timetables/${timetable?.getId()}/${tokenUrl}`
+            url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/timetables/${timetable?.getId()}/${getTokenUrl()}`
         }
         if (ttname === "") {
             setError("Please fill in all fields");

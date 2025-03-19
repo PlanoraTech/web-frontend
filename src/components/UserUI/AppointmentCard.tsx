@@ -4,17 +4,20 @@ import { Presentators } from "../../shared/classes/presentators";
 import { AppointmentPopOver } from "../AppointmentPopOver";
 import ReactDOM from "react-dom";
 import { getTimeWithZeros } from "../../functions/getTimeWithZeros";
+import { getTokenUrl } from "../../functions/getTokenUrl";
+import { Subjects } from "../../shared/classes/subjects";
+import { Rooms } from "../../shared/classes/rooms";
 
 interface Props {
     appointment: Appointments;
     presentatorlist: Presentators[];
+    roomlist: Rooms[];
+    subjectlist: Subjects[];
     type: "main" | "manage";
 }
 
 export function AppointmentCard(props: Props) {
-    const [showedit, setShowedit] = useState(false);
     const [showpopover, setPopover] = useState(false);
-    const [manage, setManage] = useState(false);
     const [iscancelled, setIscancelled] = useState(false);
     const [iswaiting, setIsWaiting] = useState(props.appointment?.getIsCancelled() || false);
     const [issubstituted, setIsSubstituted] = useState(props.appointment?.getPresentators()?.find(pres => pres.getId() === localStorage.getItem("presentatorid"))?.getIsSubstituted()! || false);
@@ -22,19 +25,21 @@ export function AppointmentCard(props: Props) {
     const [isdirector, setIsDirector] = useState(false);
     const [ispart, setIsPart] = useState(false);
     const [position, setPosition] = useState({ x: 0, y: 0 });
+    const [isHovered, setIsHovered] = useState(false);
+    const hoverTimeout = useRef<number | null>(null);
+    const rootStyles = getComputedStyle(document.documentElement);
+    const dark_text = rootStyles.getPropertyValue("--dark-text");
+    const light_text = rootStyles.getPropertyValue("---light-text");
 
     useEffect(() => {
-        if (props.type == "manage") {
-            setManage(true);
-        }
         let ins = JSON.parse(localStorage.getItem("institutions")!);
         if (ins) {
             for (let i = 0; i < ins.length; i++) {
-                if (ins[i].id === props.appointment?.getInstitutionId()) {
+                if (ins[i].institutionId === props.appointment?.getInstitutionId()) {
                     setIsPart(true);
                     localStorage.setItem("role", ins[i].role);
                     console.log(ins[i].role)
-                    localStorage.setItem("presentatorid", ins[i].presentatorid);
+                    localStorage.setItem("presentatorid", ins[i].presentatorId);
                 }
             }
         }
@@ -57,6 +62,25 @@ export function AppointmentCard(props: Props) {
         }
     }, [props.appointment, issubstituted]);
 
+    const handleMouseEnter = () => {
+        if (hoverTimeout.current !== null) {
+            clearTimeout(hoverTimeout.current);
+        }
+        hoverTimeout.current = window.setTimeout(() => {
+            setIsHovered(true);
+        }, 500);
+    };
+
+    const handleMouseLeave = () => {
+        if (hoverTimeout.current !== null) {
+            clearTimeout(hoverTimeout.current);
+        }
+        hoverTimeout.current = window.setTimeout(() => {
+            setIsHovered(false);
+        }, 5000);
+
+    };
+
     function getallrooms(): string {
         const rooms = props.appointment?.getRooms();
         if (!rooms || rooms.length === 0) {
@@ -75,9 +99,14 @@ export function AppointmentCard(props: Props) {
     function cancelledcolor() {
         if (iswaiting) {
             return "#fc6464";
-        }
-        if (props.appointment?.getPresentators()?.find(pres => pres.getIsSubstituted() === true)) {
+        } else if (props.appointment?.getPresentators()?.find(pres => pres.getIsSubstituted() === true)) {
             return "#fc9764";
+        } else {
+            if (localStorage.getItem("theme") === "dark") {
+                return `${dark_text}`;
+            } else {
+                return `${light_text}`;
+            }
         }
     }
 
@@ -90,15 +119,12 @@ export function AppointmentCard(props: Props) {
         }
     }
 
-    const handleshowedit = () => {
-        console.log(showedit)
-        setShowedit(!showedit);
-    }
-
     const handleshowpopover = (event: React.MouseEvent<HTMLDivElement>) => {
-        let x = event.clientX - 70; 
-        let y = event.clientY + 10; 
-        const popoverHeight = 250; 
+        console.log(props.appointment);
+        let x = event.clientX - 70;
+        let y = event.clientY + 10;
+        let popoverHeight;
+        props.type === "main" ? popoverHeight = 300 : popoverHeight = 500;
         const screenHeight = window.innerHeight;
         if (y + popoverHeight > screenHeight) {
             y = screenHeight - popoverHeight - 10;
@@ -107,23 +133,57 @@ export function AppointmentCard(props: Props) {
         setPopover((prev) => !prev);
     }
 
-    const handlesubstitution = () => {
+    const handlesubstitution = async () => {
         var checkbox = document.getElementById(`checkbox-${props.appointment?.getId()}`) as HTMLInputElement;
+        let origin = JSON.parse(props.appointment.getOrigin()!);
         if (checkbox.checked) {
-            setIsSubstituted(true);
-            checkbox.checked = false;
-            props.appointment?.getPresentators()?.find(pres => pres.getId() === localStorage.getItem("presentatorid"))?.setIsSubstituted(true);
-            document.getElementById(`${localStorage.getItem("presentatorid")}`)?.setAttribute("style", "text-decoration: line-through;");
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/${props.appointment.getInstitutionId()}/${origin.type}/${origin.id}/appointments/${props.appointment.getId()}/presentators/${localStorage.getItem("presentatorid")}/substitute/${getTokenUrl()}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    isSubstituted: true,
+                }),
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                console.log(data);
+            } else {
+                const data = await response.json();
+                console.log(data);
+                setIsSubstituted(true);
+                checkbox.checked = false;
+                console.log(props.appointment?.getPresentators()?.find(pres => pres.getId() === localStorage.getItem("presentatorid"))?.getIsSubstituted());
+                props.appointment?.getPresentators()?.find(pres => pres.getId() === localStorage.getItem("presentatorid"))?.setIsSubstituted(true);
+                document.getElementById(`${localStorage.getItem("presentatorid")}`)?.setAttribute("style", "text-decoration: line-through;");
+            }
         } else {
-            setIsSubstituted(false);
-            checkbox.checked = true;
-            props.appointment?.getPresentators()?.find(pres => pres.getId() === localStorage.getItem("presentatorid"))?.setIsSubstituted(false);
-            document.getElementById(`${localStorage.getItem("presentatorid")}`)?.setAttribute("style", "text-decoration: none;");
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/${props.appointment.getInstitutionId()}/${origin.type}/${origin.id}/appointments/${props.appointment.getId()}/presentators/${localStorage.getItem("presentatorid")}/substitute/${getTokenUrl()}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    isSubstituted: false,
+                }),
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                console.log(data);
+            } else {
+                const data = await response.json();
+                console.log(data);
+                setIsSubstituted(false);
+                checkbox.checked = true;
+                props.appointment?.getPresentators()?.find(pres => pres.getId() === localStorage.getItem("presentatorid"))?.setIsSubstituted(false);
+                document.getElementById(`${localStorage.getItem("presentatorid")}`)?.setAttribute("style", "text-decoration: none;");
+            }
         }
     }
 
     return (
-        <div title={`${props.appointment?.getSubject()?.getName()} - ${getTimeWithZeros(props.appointment?.getStart())} - ${getTimeWithZeros(props.appointment?.getEnd())}`} className={`class-card`} onClick={handleshowedit} onDoubleClick={handleshowpopover}>
+        <div title={`${props.appointment?.getSubject()?.getName()} - ${getTimeWithZeros(props.appointment?.getStart())} - ${getTimeWithZeros(props.appointment?.getEnd())}`} className={`class-card ${isHovered ? "expanded" : ""}`} onDoubleClick={handleshowpopover} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
             <h3 style={{ color: `${cancelledcolor()}`, textDecoration: `${crossed()}` }}><b>{props.appointment?.getSubject()?.getName()}</b></h3>
             <div className="class-container" style={{ color: `${cancelledcolor()}`, textDecoration: `${crossed()}` }}>
                 <p className="rooms">{getallrooms()} - {getTimeWithZeros(props.appointment?.getStart())} - {getTimeWithZeros(props.appointment?.getEnd())}</p>
@@ -136,7 +196,7 @@ export function AppointmentCard(props: Props) {
                         {iscancelled ? <p style={{ color: `${cancelledcolor()}` }}><b>Cancelled!</b></p> : null}
                     </div>
                     {
-                        ispresentatorsappointment && ispart && showedit ? (
+                        ispresentatorsappointment && ispart ? (
                             <>
                                 <label>Cancelled? </label>
                                 <input id={`checkbox-${props.appointment?.getId()}`} onChange={handlesubstitution} checked={issubstituted} type="checkbox" />
@@ -151,6 +211,8 @@ export function AppointmentCard(props: Props) {
                         <AppointmentPopOver
                             appointment={props.appointment}
                             presentatorlist={props.presentatorlist}
+                            roomlist={props.roomlist}
+                            subjectlist={props.subjectlist}
                             show={showpopover}
                             type={props.type}
                             x={position.x}

@@ -11,20 +11,21 @@ import { Events } from '../shared/classes/events'
 import { Institutions } from '../shared/classes/institutions'
 import { EventDay } from './UserUI/EventDay'
 import { getTestDataForAppointments } from '../functions/getTestDataForAppointments'
+import { getTokenUrl } from '../functions/getTokenUrl'
+import { Rooms } from '../shared/classes/rooms'
+import { Subjects } from '../shared/classes/subjects'
 
 interface Props {
     institution?: Institutions,
     appointments?: Appointments[],
     presentatorlist?: Presentators[],
+    roomlist?: Rooms[],
+    subjectlist?: Subjects[],
     type: "main" | "manage"
 }
 
 export function Testcalendar(props: Props) {
     const [events, setEvents] = useState<EventInput[]>([]);
-
-    let baseUrl = 'https://planora-dfce142fac4b.herokuapp.com/institutions';
-    // let localUrl = 'http://localhost:3000/institutions';
-    let tokenUrl = `?token=${localStorage.getItem('token')}`;
 
     useEffect(() => {
         setEvents(convertAppointmentsToEvents(props.appointments! || [], props.institution?.getEvents() || []));
@@ -88,6 +89,8 @@ export function Testcalendar(props: Props) {
                 <AppointmentCard
                     appointment={eventInfo.event.extendedProps.appointment}
                     presentatorlist={props.presentatorlist!}
+                    roomlist={props.roomlist!}
+                    subjectlist={props.subjectlist!}
                     type={props.type}
                 />
             )
@@ -103,7 +106,7 @@ export function Testcalendar(props: Props) {
         console.log(app);
         JSON.parse(app!.getOrigin()!).type;
         if (app) {
-            let url = `${baseUrl}/${app.getInstitutionId()!}/${JSON.parse(app!.getOrigin()!).type!}/${JSON.parse(app!.getOrigin()!).id!}/appointments/${app!.getId()!}/${tokenUrl}`;
+            let url = `${import.meta.env.VITE_BASE_URL}/${app.getInstitutionId()!}/${JSON.parse(app!.getOrigin()!).type!}/${JSON.parse(app!.getOrigin()!).id!}/appointments/${app!.getId()!}/${getTokenUrl()}`;
             const response = await fetch(url, {
                 method: 'PATCH',
                 headers: {

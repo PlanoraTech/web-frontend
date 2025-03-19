@@ -14,9 +14,6 @@ export function ManageAppointment(props: Props) {
     const [subjectid, setSubjectid] = useState<string>("");
     const [error, setError] = useState<string>("");
 
-    let baseUrl = 'https://planora-dfce142fac4b.herokuapp.com/institutions';
-    let localUrl = 'http://localhost:3000/institutions';
-
     const handleTimeTableChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const timetable = props.timetables.find((tt: Timetables) => tt.getId() === e.target.value);
         setSelectedTimetable(timetable!);
@@ -35,7 +32,7 @@ export function ManageAppointment(props: Props) {
             let cancel: boolean;
             iscancelled === "yes" ? cancel = true : cancel = false;
             console.log({ start: start, end: end, iscancelled: cancel, subjectid: subjectid })
-            const response = await fetch(`${baseUrl}/${selectedTimetable!.getInstitutionId()}/timetables/${selectedTimetable!.getId()}/appointments/?token=${localStorage.getItem("token")}`, {
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/${selectedTimetable!.getInstitutionId()}/timetables/${selectedTimetable!.getId()}/appointments/?token=${localStorage.getItem("token")}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
