@@ -4,7 +4,6 @@ import { Presentators } from "../shared/classes/presentators";
 import { Rooms } from "../shared/classes/rooms";
 import { getTimeWithZeros } from "../functions/getTimeWithZeros";
 import { Subjects } from "../shared/classes/subjects";
-import { Select } from "./Select";
 import ReactDOM from "react-dom";
 
 interface Props {
@@ -20,21 +19,23 @@ interface Props {
 
 export function AppointmentPopOver(props: Props) {
     const [close, setClose] = useState(false);
-    const [subject, setSubject] = useState(props.appointment.getSubject()?.getName());
-    const [rooms, setRooms] = useState(props.appointment.getRooms());
+    const [subject, setSubject] = useState(props.appointment.getSubject()?.getName() || "");
+    const [rooms, setRooms] = useState<Rooms[]>([]);
     const [start, setStart] = useState<string>(props.appointment.getStart().toISOString());
     const [end, setEnd] = useState<string>(props.appointment.getEnd().toISOString());
-    const [presentators, setPresentators] = useState(props.appointment.getPresentators());
+    const [presentators, setPresentators] = useState<Presentators[]>([]);
     const [selectedRooms, setSelectedRooms] = useState<{ id: string, element: JSX.Element }[]>([]);
     const [selectedPresentators, setSelectedPresentators] = useState<{ id: string, element: JSX.Element }[]>([]);
     const [_, setUpdate] = useState(false);
+    const [error, setError] = useState<string[]>([]);
 
 
     useEffect(() => {
-        console.log(props.show);
         if (props.show) {
             setClose(false);
         }
+        setSelectedPresentators([])
+        setSelectedRooms([])
     }, []);
 
     const handleSubjectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -45,6 +46,9 @@ export function AppointmentPopOver(props: Props) {
     const deleteOption = (id: string) => {
         setSelectedRooms(selectedRooms.filter(room => room.id !== id));
         setSelectedPresentators(selectedPresentators.filter(pres => pres.id !== id))
+        setPresentators(presentators.filter(pres => pres.getId() !== id));
+        setRooms(rooms.filter(room => room.getId() !== id));
+        setError([]);
     }
 
     const deleteDefaults = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -65,17 +69,24 @@ export function AppointmentPopOver(props: Props) {
                 }
             });
             setUpdate(prev => !prev);
+            setError([]);
         }
     }
 
     const addRoomSelect = () => {
-        console.log('addRoomSelect');
         const id = `room_${selectedRooms.length + 1}`;
         const newRoom = {
             id,
             element: (
                 <div key={id} id={id}>
-                    <select defaultValue={"default"}>
+                    <select defaultValue={"default"} onChange={(e) => {
+                        if (props.appointment.getRooms()!.find(room => room.getId() === e.target.value) || rooms.find(room => room.getId() === e.target.value)) {
+                            setError(["Room already added"]);
+                        } else {
+                            setError([]);
+                            rooms.push(props.roomlist.find(room => room.getId() === e.target.value)!);
+                        }
+                    }}>
                         <option value="default">Select a room</option>
                         {props.roomlist.map((room: Rooms) => (
                             <option key={room.getId()} value={room.getId()}>{room.getName()}</option>
@@ -94,7 +105,14 @@ export function AppointmentPopOver(props: Props) {
             id,
             element: (
                 <div key={id} id={id}>
-                    <select defaultValue={"default"}>
+                    <select defaultValue={"default"} onChange={(e) => {
+                        if (props.appointment.getPresentators()!.find(pres => pres.getId() === e.target.value) || presentators.find(pres => pres.getId() === e.target.value)) {
+                            setError(["Presentator already added"]);
+                        } else {
+                            setError([]);
+                            presentators.push(props.presentatorlist.find(pres => pres.getId() === e.target.value)!);
+                        }
+                    }}>
                         <option value="default">Select a presentator</option>
                         {props.presentatorlist.map((pres: Presentators) => (
                             <option key={pres.getId()} value={pres.getId()}>{pres.getName()}</option>
@@ -113,13 +131,14 @@ export function AppointmentPopOver(props: Props) {
         const year = date.getFullYear();
         const month = pad(date.getMonth() + 1);
         const day = pad(date.getDate());
-        const hours = pad(date.getHours());
+        const hours = pad(date.getHours() - 1);
         const minutes = pad(date.getMinutes());
         return `${year}-${month}-${day}T${hours}:${minutes}`;
     };
 
     const prettyDate = (date: Date) => {
-        const formattedDate = date.toLocaleString("en-GB", {
+        const utcDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000); // UTC-re állítás
+        return new Intl.DateTimeFormat("hu-HU", {
             weekday: "short",
             year: "numeric",
             month: "short",
@@ -127,9 +146,11 @@ export function AppointmentPopOver(props: Props) {
             hour: "2-digit",
             minute: "2-digit",
             hour12: false,
-        });
-        return formattedDate;
-    }
+            timeZone: "Europe/Budapest"
+        }).format(utcDate);
+    };
+
+
 
     const removeall = () => {
         const room = document.getElementById('popover_rooms');
@@ -144,16 +165,32 @@ export function AppointmentPopOver(props: Props) {
                 pres.removeChild(pres.firstChild);
             }
         }
-        setTimeout(() => setClose(false), 100); // 🔥 Most zárjuk be a Popovert
+        setTimeout(() => setClose(false), 100);
+    }
+
+    const saveAppointment = () => {
+        console.log(presentators)
+        console.log(rooms)
+        console.log(start)
+        console.log(end)
     }
 
     return (
         <>
-            <div className="popover" style={{ display: close ? "none" : "block", top: props.y, left: props.x }}>
+            <div className="popover" style={{ display: close ? "none" : "block", top: props.y, left: props.x }} onDoubleClick={() => {
+                setClose(!close)
+                setSelectedPresentators([])
+                setSelectedRooms([])
+                setPresentators([])
+                setRooms([])
+                removeall
+            }}>
                 <button className="close" onClick={() => {
                     setClose(!close)
                     setSelectedPresentators([])
                     setSelectedRooms([])
+                    setPresentators([])
+                    setRooms([])
                     removeall
                 }}><b>✕</b></button>
                 {
@@ -187,7 +224,7 @@ export function AppointmentPopOver(props: Props) {
                                         {
                                             props.appointment.getRooms()?.map(room => (
                                                 <div key={room.getId()} id={room.getId()}>
-                                                    <select key={room.getId()} value={room.getId()}>
+                                                    <select key={room.getId()} value={room.getId()} defaultValue={room.getId()}>
                                                         {props.roomlist.map((room: Rooms) => (
                                                             <option key={room.getId()} value={room.getId()}>{room.getName()}</option>
                                                         ))}
@@ -212,7 +249,7 @@ export function AppointmentPopOver(props: Props) {
                                         {
                                             props.appointment!.getPresentators()?.map(pres => (
                                                 <div key={pres.getId()} id={pres.getId()}>
-                                                    <select key={pres.getId()} value={pres.getId()}>
+                                                    <select key={pres.getId()} value={pres.getId()} defaultValue={pres.getId()}>
                                                         {props.presentatorlist.map((pres: Presentators) => (
                                                             <option key={pres.getId()} value={pres.getId()}>{pres.getName()}</option>
                                                         ))}
@@ -228,15 +265,17 @@ export function AppointmentPopOver(props: Props) {
                                     <div>
                                         <button className="close" onClick={addPresentatorSelect}><b>╋</b></button>
                                     </div>
+                                    {error.map((err, index) => (
+                                        <p key={index} id="errors">{err}</p>
+                                    ))}
                                     <div className="button-container">
-                                        <button>Save</button>
+                                        <button onClick={saveAppointment}>Save</button>
                                     </div>
                                 </div>
                             </div>
                         </>
                     )
                 }
-
             </div>
         </>
     )

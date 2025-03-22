@@ -24,20 +24,24 @@ export function Menu() {
     const [selectedRoomlist, setSelectedRoomlist] = useState<Rooms[] | null>(null);
     const [selectedRoom, setSelectedRoom] = useState<Rooms | null>(null);
     const [selectedAppointments, setSelectedAppointments] = useState<Appointments[] | null>(null);
+    const [showAppointments, setShowAppointments] = useState<boolean>(false);
     const [actiontype, setActiontype] = useState<string | null>(null);
     const [actionadd, setActionadd] = useState<string | null>(null);
     const [actionupdate, setActionupdate] = useState<string | null>(null);
     const [error, setError] = useState<string[]>([]);
 
     useEffect(() => {
-        getinstitutions();
+        getInstitutions();
+        if (localStorage.getItem('role') !== "DIRECTOR") {
+            window.location.href = "/timetables";
+        }
     }, [])
 
     useEffect(() => {
-        gettimetables(selectedInstitution!);
-        getpresentators(selectedInstitution!);
+        getTimetables(selectedInstitution!);
+        getPresentators(selectedInstitution!);
         fetchSubjects(selectedInstitution!);
-        getrooms(selectedInstitution!);
+        getRooms(selectedInstitution!);
         fetchUsers(selectedInstitution!);
     }, [selectedInstitution])
 
@@ -53,24 +57,24 @@ export function Menu() {
         fetchRoomAppointments(selectedRoomlist!, selectedInstitution!);
     }, [selectedRoomlist]);
 
-    async function getinstitutions() {
+    async function getInstitutions() {
         let instlist = await fetchManageInstitutions();
         setInstitutions(instlist!);
     }
 
-    async function gettimetables(selectedInstitution: Institutions) {
+    async function getTimetables(selectedInstitution: Institutions) {
         let timetablelist = (await fetchTimetables(selectedInstitution));
         setSelectedTimetablelist(timetablelist!.timetables!);
         // error.push(timetablelist!.error!);
     }
 
-    async function getpresentators(selectedInstitution: Institutions) {
+    async function getPresentators(selectedInstitution: Institutions) {
         let presentatorlist = await fetchPresentators(selectedInstitution);
         setSelectedPresentatorlist(presentatorlist!.presentators);
         error.push(presentatorlist!.error!);
     }
 
-    async function getrooms(selectedInstitution: Institutions) {
+    async function getRooms(selectedInstitution: Institutions) {
         let roomlist = await fetchRooms(selectedInstitution);
         setSelectedRoomlist(roomlist!.rooms);
         error.push(roomlist!.error!);
@@ -115,21 +119,24 @@ export function Menu() {
         setSelectedAppointments(room!.getAppointments()!);
     }
 
-    const handleactionchange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const handleActionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const action = e.target.value;
         setActiontype(action);
         setActionadd("");
         setActionupdate("");
+        setShowAppointments(false);
     }
 
-    const handleaddactionchange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const handleAddActionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const action = e.target.value;
         setActionadd(action);
+        setShowAppointments(false);
     }
 
-    const handleupdateactionchange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const handleUpdateActionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const action = e.target.value;
         setActionupdate(action);
+        setShowAppointments(false);
     }
 
     function manageAction() {
@@ -164,14 +171,14 @@ export function Menu() {
                 default:
                     break;
             }
-            if (actiontype == "Manage Appointments") {
-                return (
-                    <div className="calendar_div">
-                        <Testcalendar appointments={selectedAppointments!} presentatorlist={selectedInstitution?.getPresentators()!} institution={selectedInstitution!} roomlist={selectedInstitution?.getRooms()!} subjectlist={selectedInstitution?.getSubjects()!} type="manage" />
-                    </div>
-                )
-            }
         }
+    }
+
+    const showManageAppointments = () => {
+        setShowAppointments(!showAppointments);
+        setActiontype("");
+        setActionadd("");
+        setActionupdate("");
     }
 
     return (
@@ -191,40 +198,8 @@ export function Menu() {
                     </select><br />
                     {selectedInstitution ? (
                         <>
-                            <select onChange={handleactionchange} value={actiontype! || "default"}>
-                                <option value={"default"} disabled>Options</option>
-                                <option>Add</option>
-                                <option>Update</option>
-                                <option>Manage Appointments</option>
-                            </select>
-                            {actiontype === "Add" ? (
-                                <>
-                                    <select onChange={handleaddactionchange} value={actionadd! || "default"}>
-                                        <option value={"default"} disabled>Add Actions</option>
-                                        <option>Add Timetable</option>
-                                        <option>Add Presentator</option>
-                                        <option>Add Room</option>
-                                        <option>Add Subject</option>
-                                        <option>Add Event</option>
-                                        <option>Add Appointment</option>
-                                        <option>Add User</option>
-                                    </select>
-                                </>
-                            ) : null}
-                            {actiontype === "Update" ? (
-                                <>
-                                    <select onChange={handleupdateactionchange} value={actionupdate! || "default"}>
-                                        <option value={"default"} disabled>Update Actions</option>
-                                        <option>Update Timetable</option>
-                                        <option>Update Presentator</option>
-                                        <option>Update Room</option>
-                                        <option>Update Subject</option>
-                                        <option>Update Event</option>
-                                        <option>Update User</option>
-                                    </select>
-                                </>
-                            ) : null}
-                            {actiontype === "Manage Appointments" ?
+                            <button onClick={showManageAppointments}>Appointments</button>
+                            {showAppointments ?
                                 <>
                                     <select onChange={handleTimeTableChange} value={selectedTimetable?.getId() || 'default'}>
                                         <option value="default" disabled>TimeTables</option>
@@ -246,10 +221,47 @@ export function Menu() {
                                     </select>
                                 </>
                                 : null}
+                            <select onChange={handleActionChange} value={actiontype! || "default"}>
+                                <option value={"default"} disabled>Options</option>
+                                <option>Add</option>
+                                <option>Update</option>
+                            </select>
+                            {actiontype === "Add" ? (
+                                <>
+                                    <select onChange={handleAddActionChange} value={actionadd! || "default"}>
+                                        <option value={"default"} disabled>Add Actions</option>
+                                        <option>Add Timetable</option>
+                                        <option>Add Presentator</option>
+                                        <option>Add Room</option>
+                                        <option>Add Subject</option>
+                                        <option>Add Event</option>
+                                        <option>Add Appointment</option>
+                                        <option>Add User</option>
+                                    </select>
+                                </>
+                            ) : null}
+                            {actiontype === "Update" ? (
+                                <>
+                                    <select onChange={handleUpdateActionChange} value={actionupdate! || "default"}>
+                                        <option value={"default"} disabled>Update Actions</option>
+                                        <option>Update Timetable</option>
+                                        <option>Update Presentator</option>
+                                        <option>Update Room</option>
+                                        <option>Update Subject</option>
+                                        <option>Update Event</option>
+                                        <option>Update User</option>
+                                    </select>
+                                </>
+                            ) : null}
                         </>
                     ) : null}
                 </div>
                 <div id="manage_schedule">
+                    {showAppointments ? (
+                        <div className="calendar_div">
+                            <Testcalendar appointments={selectedAppointments!} presentatorlist={selectedInstitution?.getPresentators()!} institution={selectedInstitution!} roomlist={selectedInstitution?.getRooms()!} subjectlist={selectedInstitution?.getSubjects()!} type="manage" />
+                        </div>
+                    ) : null}
                     {manageAction()}
                 </div>
                 <div className="manage_sidebar" id="manage_sidebar_2">

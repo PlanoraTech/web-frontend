@@ -1,22 +1,32 @@
 import { useEffect, useState } from "react";
 import { Nav } from "../Nav"
-import { getTokenUrl } from "../../functions/getTokenUrl";
 
 export function Profile() {
     const [email, setEmail] = useState("");
     const [institutions, setInstitutions] = useState([]);
 
+    useEffect(() => {
+        if (!localStorage.getItem('token')) {
+            window.location.href = "/login";
+        }
+    }, []);
+
     let token = localStorage.getItem('token');
     const headers = { 'Authorization': `Bearer ${token}` };
 
     const handlelogout = async () => {
-        const response = await fetch(`${import.meta.env.VITE_AUTH_URL}/logout`, { headers });
+        const response = await fetch(`${import.meta.env.VITE_AUTH_URL}/logout`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ token: localStorage.getItem('token') }),
+        })
         if (!response.ok) {
-            const data = await response.json();
-            console.log(data);
+            console.log(response.status);
         } else {
-            const data = await response.json();
-            console.log(data);
+            console.log(response.status);
             localStorage.removeItem('token');
             localStorage.removeItem('expiry');
             localStorage.removeItem('role');

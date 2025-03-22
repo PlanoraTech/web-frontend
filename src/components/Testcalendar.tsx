@@ -26,6 +26,7 @@ interface Props {
 
 export function Testcalendar(props: Props) {
     const [events, setEvents] = useState<EventInput[]>([]);
+    let token = localStorage.getItem('token');
 
     useEffect(() => {
         setEvents(convertAppointmentsToEvents(props.appointments! || [], props.institution?.getEvents() || []));
@@ -65,15 +66,15 @@ export function Testcalendar(props: Props) {
     }
 
     // Új esemény hozzáadása
-    const handleDateClick = (info: { dateStr: string }) => {
-        // const newEvent: EventInput = {
-        //     id: String(events.length + 1),
-        //     title: "New Event",
-        //     start: info.dateStr,
-        //     allDay: true,
-        // };
-        // setEvents([...events, newEvent]);
-    };
+    // const handleDateClick = (info: { dateStr: string }) => {
+    //     const newEvent: EventInput = {
+    //         id: String(events.length + 1),
+    //         title: "New Event",
+    //         start: info.dateStr,
+    //         allDay: true,
+    //     };
+    //     setEvents([...events, newEvent]);
+    // };
 
     const handleEdit = (): boolean => {
         if (localStorage.getItem("role") === "DIRECTOR" && props.type === "manage") {
@@ -106,11 +107,12 @@ export function Testcalendar(props: Props) {
         console.log(app);
         JSON.parse(app!.getOrigin()!).type;
         if (app) {
-            let url = `${import.meta.env.VITE_BASE_URL}/${app.getInstitutionId()!}/${JSON.parse(app!.getOrigin()!).type!}/${JSON.parse(app!.getOrigin()!).id!}/appointments/${app!.getId()!}/${getTokenUrl()}`;
+            let url = `${import.meta.env.VITE_BASE_URL}/${app.getInstitutionId()!}/${JSON.parse(app!.getOrigin()!).type!}/${JSON.parse(app!.getOrigin()!).id!}/appointments/${app!.getId()!}`;
             const response = await fetch(url, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ start: start, end: end }),
             });
@@ -135,7 +137,7 @@ export function Testcalendar(props: Props) {
             initialView="timeGridWeek"
             dayMaxEventRows={2}
             events={events}
-            dateClick={handleDateClick} // Új esemény létrehozás
+            // dateClick={handleDateClick} // Új esemény létrehozás
             weekends={false} // Hétvége megjelenítése
             editable={handleEdit()} // Húzással módosítható események
             eventResizableFromStart={true} // Esemény módosítható a kezdő időpontjától

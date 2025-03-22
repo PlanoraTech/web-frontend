@@ -153,11 +153,9 @@ export function AppointmentCard(props: Props) {
                 }),
             });
             if (!response.ok) {
-                const data = await response.json();
-                console.log(data);
+                console.log(response);
             } else {
-                const data = await response.json();
-                console.log(data);
+                console.log(response);
                 setIsSubstituted(true);
                 checkbox.checked = false;
                 console.log(props.appointment?.getPresentators()?.find(pres => pres.getId() === localStorage.getItem("presentatorid"))?.getIsSubstituted());
@@ -177,11 +175,9 @@ export function AppointmentCard(props: Props) {
                 }),
             });
             if (!response.ok) {
-                const data = await response.json();
-                console.log(data);
+                console.log(response);
             } else {
-                const data = await response.json();
-                console.log(data);
+                console.log(response);
                 setIsSubstituted(false);
                 checkbox.checked = true;
                 props.appointment?.getPresentators()?.find(pres => pres.getId() === localStorage.getItem("presentatorid"))?.setIsSubstituted(false);

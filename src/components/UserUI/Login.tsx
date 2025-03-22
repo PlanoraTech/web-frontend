@@ -133,7 +133,10 @@ export function Login() {
                             <label htmlFor="log-password">Password</label><br />
                             <input type="password" id="log-password" name="log-password" placeholder="Password" value={logpassword} onChange={(e) => setLogPassword(e.target.value)} required /><br />
                             <p id="errors">{error}</p>
-                            <label htmlFor="remember-me"><input onChange={() => setRememberMe(!rememberMe)} type="checkbox" id="remember-me" name="remember-me" checked={rememberMe} /> Remember Me? </label>
+                            <div id="remember-me-container">
+                                <input onChange={() => setRememberMe(!rememberMe)} type="checkbox" id="remember-me" name="remember-me" checked={rememberMe} />
+                                <label htmlFor="remember-me"> Remember Me? </label>
+                            </div>
                             <div className="button-container">
                                 <button className="submit-button" type="button" onClick={handlelogin}>Login</button><br />
                             </div>

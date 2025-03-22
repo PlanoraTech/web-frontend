@@ -63,8 +63,7 @@ export function Schedule(props: ScheduleProps) {
     }
 
     const handleInstitutionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const institutionId = e.target.value;
-        const institution = props.institution.find(inst => inst.getId() === institutionId) || null;
+        const institution = props.institution.find(inst => inst.getId() === e.target.value) || null;
         console.log(institution)
         if (institution?.getAccess() === "PRIVATE" && !localStorage.getItem('token')) {
             navigate("/login");
@@ -80,8 +79,7 @@ export function Schedule(props: ScheduleProps) {
 
     const handleTimeTableChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedAppointments([]);
-        const ttId = e.target.value;
-        const timetable = selectedTimetablelist?.find(t => t.getId() === ttId) || null;
+        const timetable = selectedTimetablelist?.find(t => t.getId() === e.target.value) || null;
         setSelectedPresentator(null);
         setSelectedRoom(null);
         setSelectedTimetable(timetable);
@@ -90,8 +88,7 @@ export function Schedule(props: ScheduleProps) {
 
     const handlePresentatorChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedAppointments([]);
-        const presId = e.target.value;
-        const presentator = selectedPresentatorlist?.find(p => p.getId() === presId) || null;
+        const presentator = selectedPresentatorlist?.find(p => p.getId() === e.target.value) || null;
         setSelectedTimetable(null);
         setSelectedRoom(null);
         setSelectedPresentator(presentator);
@@ -99,8 +96,8 @@ export function Schedule(props: ScheduleProps) {
     };
 
     const handleRoomChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const roomId = e.target.value;
-        const room = selectedRoomlist?.find(r => r.getId() === roomId) || null;
+        setSelectedAppointments([]);
+        const room = selectedRoomlist?.find(r => r.getId() === e.target.value) || null;
         setSelectedTimetable(null);
         setSelectedPresentator(null);
         setSelectedRoom(room);
@@ -112,7 +109,7 @@ export function Schedule(props: ScheduleProps) {
             {!selectedInstitution && (
                 <h3 className="choose">Choose an institution!</h3>
             )}
-            {selectedInstitution && !error && !selectedTimetable && !selectedPresentator && !selectedRoom && (
+            {selectedInstitution && error.length == 0 && !selectedTimetable && !selectedPresentator && !selectedRoom && (
                 <h3 className="choose">Choose a timetable or presentator or a room!</h3>
             )}
             {selectedInstitution && selectedTimetable && (

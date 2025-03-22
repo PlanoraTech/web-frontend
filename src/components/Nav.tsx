@@ -1,18 +1,16 @@
-// import square_logo from '../assets/square_logo.png';
 import { useEffect, useState } from 'react';
 import { useTheme } from "../ThemeContext";
-import { useNavigate } from 'react-router';
 
 export function Nav() {
     const [loggedin, setLoggedin] = useState('Sign up/Login');
     const [loggedinlink, setLoggedinLink] = useState('login');
     const { theme, toggleTheme } = useTheme();
 
-    const navigate = useNavigate();
-    const header = { ' Authorization': `Bearer ${localStorage.getItem('token')}` }
+    ;
 
     useEffect(() => {
         if (localStorage.getItem('token')) {
+            let token = localStorage.getItem('token')
             const expiry: Date = new Date(localStorage.getItem('expiry')!);
             if (expiry < new Date(Date.now())) {
                 localStorage.removeItem('token');
@@ -20,13 +18,12 @@ export function Nav() {
                 localStorage.removeItem('role');
             } else {
                 async function autologin() {
-                    const response = await fetch(`${import.meta.env.VITE_AUTH_URL}/login`, {
+                    const response = await fetch(`${import.meta.env.VITE_AUTH_URL}/login/auto`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
-                            
-                        },
-                        body: JSON.stringify({ token: localStorage.getItem('token') }),
+                            'Authorization': `Bearer ${token}`
+                        }
                     })
                     if (!response.ok) {
                         localStorage.removeItem('token');
@@ -61,7 +58,6 @@ export function Nav() {
             localStorage.removeItem('presentatorid');
             setLoggedin('Sign up/Login');
             setLoggedinLink('login');
-            // navigate('/timetables');
         }
     }, [])
 
