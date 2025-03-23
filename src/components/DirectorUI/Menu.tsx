@@ -9,7 +9,7 @@ import { ManageSubject } from "./ManageSubject";
 import { fetchManageInstitutions, fetchTimetables, fetchPresentators, fetchSubjects, fetchRooms, fetchPresentatorAppointments, fetchTimetableAppointments, fetchRoomAppointments, fetchUsers } from "../../functions/fetches";
 import { Timetables } from "../../shared/classes/timetables";
 import { Presentators } from "../../shared/classes/presentators";
-import { Testcalendar } from "../Testcalendar";
+import { Calendar } from "../Calendar";
 import { Appointments } from "../../shared/classes/appointments";
 import { Rooms } from "../../shared/classes/rooms";
 import { ManageUser } from "./ManageUser";
@@ -259,7 +259,7 @@ export function Menu() {
                 <div id="manage_schedule">
                     {showAppointments ? (
                         <div className="calendar_div">
-                            <Testcalendar appointments={selectedAppointments!} presentatorlist={selectedInstitution?.getPresentators()!} institution={selectedInstitution!} roomlist={selectedInstitution?.getRooms()!} subjectlist={selectedInstitution?.getSubjects()!} type="manage" />
+                            <Calendar appointments={selectedAppointments!} presentatorlist={selectedInstitution?.getPresentators()!} institution={selectedInstitution!} roomlist={selectedInstitution?.getRooms()!} subjectlist={selectedInstitution?.getSubjects()!} type="manage" />
                         </div>
                     ) : null}
                     {manageAction()}

@@ -19,15 +19,16 @@ interface Props {
 
 export function AppointmentPopOver(props: Props) {
     const [close, setClose] = useState(false);
-    const [subject, setSubject] = useState(props.appointment.getSubject()?.getName() || "");
+    const [subject, setSubject] = useState<Subjects>(props.appointment.getSubject()!);
     const [rooms, setRooms] = useState<Rooms[]>([]);
+    const [presentators, setPresentators] = useState<Presentators[]>([]);
     const [start, setStart] = useState<string>(props.appointment.getStart().toISOString());
     const [end, setEnd] = useState<string>(props.appointment.getEnd().toISOString());
-    const [presentators, setPresentators] = useState<Presentators[]>([]);
     const [selectedRooms, setSelectedRooms] = useState<{ id: string, element: JSX.Element }[]>([]);
     const [selectedPresentators, setSelectedPresentators] = useState<{ id: string, element: JSX.Element }[]>([]);
     const [_, setUpdate] = useState(false);
     const [error, setError] = useState<string[]>([]);
+    let token = localStorage.getItem('token');
 
 
     useEffect(() => {
@@ -39,8 +40,7 @@ export function AppointmentPopOver(props: Props) {
     }, []);
 
     const handleSubjectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const subject = props.subjectlist?.find((subject: Subjects) => subject.getId() === e.target.value);
-        setSubject(subject!.getName());
+        setSubject(props.subjectlist?.find((subject: Subjects) => subject.getId() === e.target.value)!);
     }
 
     const deleteOption = (id: string) => {
@@ -74,6 +74,7 @@ export function AppointmentPopOver(props: Props) {
     }
 
     const addRoomSelect = () => {
+        console.log('ads')
         const id = `room_${selectedRooms.length + 1}`;
         const newRoom = {
             id,
@@ -131,14 +132,13 @@ export function AppointmentPopOver(props: Props) {
         const year = date.getFullYear();
         const month = pad(date.getMonth() + 1);
         const day = pad(date.getDate());
-        const hours = pad(date.getHours() - 1);
+        const hours = pad(date.getHours());
         const minutes = pad(date.getMinutes());
         return `${year}-${month}-${day}T${hours}:${minutes}`;
     };
 
     const prettyDate = (date: Date) => {
-        const utcDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000); // UTC-re állítás
-        return new Intl.DateTimeFormat("hu-HU", {
+        return new Intl.DateTimeFormat("en-HU", {
             weekday: "short",
             year: "numeric",
             month: "short",
@@ -146,8 +146,7 @@ export function AppointmentPopOver(props: Props) {
             hour: "2-digit",
             minute: "2-digit",
             hour12: false,
-            timeZone: "Europe/Budapest"
-        }).format(utcDate);
+        }).format(date);
     };
 
 
@@ -168,11 +167,50 @@ export function AppointmentPopOver(props: Props) {
         setTimeout(() => setClose(false), 100);
     }
 
-    const saveAppointment = () => {
+    const saveAppointment = async () => {
+        console.log(props.appointment)
         console.log(presentators)
+        console.log(subject)
         console.log(rooms)
         console.log(start)
         console.log(end)
+        let existing_presentators: Presentators[] = props.appointment.getPresentators()!
+        for (let i = 0; i < presentators.length; i++) {
+            existing_presentators.push(presentators[i])
+        }
+        let existing_rooms: Rooms[] = props.appointment.getRooms()!
+        for (let i = 0; i < rooms.length; i++) {
+            existing_rooms.push(rooms[i])
+        }
+        console.log(existing_presentators)
+        console.log(existing_rooms)
+        let url = `${import.meta.env.VITE_BASE_URL}/${props.appointment.getInstitutionId()!}/${JSON.parse(props.appointment!.getOrigin()!).type!}/${JSON.parse(props.appointment!.getOrigin()!).id!}/appointments/${props.appointment!.getId()!}`;
+        const response = await fetch(url, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ start: start, end: end, presentators: existing_presentators, rooms: existing_rooms, subject: subject }),
+        });
+        if (!response.ok) {
+            const data = await response.json();
+            console.log(data);
+        }
+        else {
+            console.log(response);
+            props.appointment.setStart(start)
+            props.appointment.setEnd(end)
+            props.appointment.setSubject(subject)
+            props.appointment.setRooms(existing_rooms)
+            props.appointment.setPresentators(existing_presentators)
+            console.log(props.appointment)
+            setSelectedPresentators([])
+            setSelectedRooms([])
+            setPresentators([])
+            setSubject(props.appointment.getSubject()!)
+            setRooms([])
+        }
     }
 
     return (
@@ -212,7 +250,7 @@ export function AppointmentPopOver(props: Props) {
                             <div className="popover_content">
                                 <div className="popover_header">
                                     <h3>{props.appointment.getSubject()?.getName()}</h3>
-                                    <select onChange={handleSubjectChange} value={props.appointment.getSubject()?.getId() || subject}>
+                                    <select onChange={handleSubjectChange} value={subject.getId()}>
                                         {props.subjectlist?.map((subject: Subjects) => (
                                             <option key={subject.getId()} value={subject.getId()}>{subject.getName()}</option>
                                         ))}
@@ -224,7 +262,7 @@ export function AppointmentPopOver(props: Props) {
                                         {
                                             props.appointment.getRooms()?.map(room => (
                                                 <div key={room.getId()} id={room.getId()}>
-                                                    <select key={room.getId()} value={room.getId()} defaultValue={room.getId()}>
+                                                    <select key={room.getId()} value={room.getId()} defaultValue={room.getId()} disabled>
                                                         {props.roomlist.map((room: Rooms) => (
                                                             <option key={room.getId()} value={room.getId()}>{room.getName()}</option>
                                                         ))}
@@ -241,15 +279,15 @@ export function AppointmentPopOver(props: Props) {
                                         <button className="close" onClick={addRoomSelect}><b>╋</b></button>
                                     </div>
                                     <p>{prettyDate(props.appointment.getStart())}</p>
-                                    <input type="datetime-local" onChange={(e) => setStart(e.target.value)} value={formatDateForInput(props.appointment.getStart())} />
+                                    <input type="datetime-local" onChange={(e) => setStart(e.target.value)} value={formatDateForInput(new Date(start))} />
                                     <p>{prettyDate(props.appointment.getEnd())}</p>
-                                    <input type="datetime-local" onChange={(e) => setEnd(e.target.value)} value={formatDateForInput(props.appointment.getEnd())} />
+                                    <input type="datetime-local" onChange={(e) => setEnd(e.target.value)} value={formatDateForInput(new Date(end))} />
                                     <div id="popover_presentators">
                                         <p>{props.appointment.getPresentators()?.map(pres => pres.getName()).join(", ")}</p>
                                         {
                                             props.appointment!.getPresentators()?.map(pres => (
                                                 <div key={pres.getId()} id={pres.getId()}>
-                                                    <select key={pres.getId()} value={pres.getId()} defaultValue={pres.getId()}>
+                                                    <select key={pres.getId()} value={pres.getId()} defaultValue={pres.getId()} disabled>
                                                         {props.presentatorlist.map((pres: Presentators) => (
                                                             <option key={pres.getId()} value={pres.getId()}>{pres.getName()}</option>
                                                         ))}

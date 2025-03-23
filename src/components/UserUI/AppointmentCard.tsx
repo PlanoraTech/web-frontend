@@ -125,11 +125,11 @@ export function AppointmentCard(props: Props) {
     }
 
     const handleshowpopover = (event: React.MouseEvent<HTMLDivElement>) => {
-        console.log(props.appointment);
+        console.log(props.appointment)
         let x = event.clientX - 70;
         let y = event.clientY + 10;
         let popoverHeight;
-        props.type === "main" ? popoverHeight = 300 : popoverHeight = 500;
+        props.type === "main" ? popoverHeight = 300 : popoverHeight = 600;
         const screenHeight = window.innerHeight;
         if (y + popoverHeight > screenHeight) {
             y = screenHeight - popoverHeight - 10;

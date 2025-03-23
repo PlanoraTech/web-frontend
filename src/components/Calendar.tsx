@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { EventInput, formatDate } from '@fullcalendar/core'
+import { EventInput } from '@fullcalendar/core'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
@@ -10,8 +10,6 @@ import { AppointmentCard } from './UserUI/AppointmentCard'
 import { Events } from '../shared/classes/events'
 import { Institutions } from '../shared/classes/institutions'
 import { EventDay } from './UserUI/EventDay'
-import { getTestDataForAppointments } from '../functions/getTestDataForAppointments'
-import { getTokenUrl } from '../functions/getTokenUrl'
 import { Rooms } from '../shared/classes/rooms'
 import { Subjects } from '../shared/classes/subjects'
 
@@ -24,7 +22,7 @@ interface Props {
     type: "main" | "manage"
 }
 
-export function Testcalendar(props: Props) {
+export function Calendar(props: Props) {
     const [events, setEvents] = useState<EventInput[]>([]);
     let token = localStorage.getItem('token');
 

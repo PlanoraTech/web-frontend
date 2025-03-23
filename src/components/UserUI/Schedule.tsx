@@ -6,7 +6,7 @@ import { Rooms } from "../../shared/classes/rooms";
 import { Timetables } from "../../shared/classes/timetables";
 import { Appointments } from "../../shared/classes/appointments";
 import { fetchTimetables, fetchPresentators, fetchRooms, fetchEvents, fetchTimetableAppointments, fetchPresentatorAppointments, fetchRoomAppointments } from "../../functions/fetches";
-import { Testcalendar } from "../Testcalendar";
+import { Calendar } from "../Calendar";
 
 interface ScheduleProps {
     institution: Institutions[];
@@ -156,7 +156,7 @@ export function Schedule(props: ScheduleProps) {
                         : null}
                 </div>
                 <div id="schedule">
-                    <Testcalendar appointments={selectedAppointments!} presentatorlist={selectedInstitution?.getPresentators()!} institution={selectedInstitution!} type="main" />
+                    <Calendar appointments={selectedAppointments!} presentatorlist={selectedInstitution?.getPresentators()!} institution={selectedInstitution!} type="main" />
                 </div>
                 <div className="sidebar" id="sidebar_2"></div>
             </div>

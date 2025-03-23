@@ -12,13 +12,17 @@ export class Appointments {
     private isCancelled: boolean;
     private institutionId?: string;
     private origin?: string;
-    constructor(id: string, subject: Subjects, presentators: Presentators[], rooms: Rooms[], start: Date, end: Date, isCancelled: boolean) {
+    constructor(id: string, subject: Subjects, presentators: Presentators[], rooms: Rooms[], start: string, end: string, isCancelled: boolean) {
         this.id = id;
         this.subject = subject;
         this.presentators = presentators;
         this.rooms = rooms;
-        this.start = start;
-        this.end = end;
+        let default_start = new Date(start)
+        const utcStart = new Date(default_start.getTime() + default_start.getTimezoneOffset() * 60000);
+        this.start = utcStart;
+        let default_end = new Date(end)
+        const utcEnd = new Date(default_end.getTime() + default_end.getTimezoneOffset() * 60000);
+        this.end = utcEnd;
         this.isCancelled = isCancelled;
     }
 
@@ -54,20 +58,26 @@ export class Appointments {
         return this.rooms;
     }
 
-    setStart(start: Date) {
-        this.start = start;
+    setStart(start: string) {
+        let default_start = new Date(start)
+        const utcStart = new Date(default_start.getTime() + default_start.getTimezoneOffset() * 60000);
+        // this.start = utcStart;
+        this.start = new Date(start);
     }
 
     getStart() {
-        return new Date(this.start)
+        return this.start;
     }
 
-    setEnd(end: Date) {
-        this.end = end;
+    setEnd(end: string) {
+        let default_end = new Date(end)
+        const utcEnd = new Date(default_end.getTime() + default_end.getTimezoneOffset() * 60000);
+        // this.end = utcEnd;
+        this.end = new Date(end);
     }
 
     getEnd() {
-        return new Date(this.end);
+        return this.end;
     }
 
     setIsCancelled(isCancelled: boolean) {
