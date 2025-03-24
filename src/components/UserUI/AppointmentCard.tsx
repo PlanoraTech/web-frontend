@@ -40,7 +40,7 @@ export function AppointmentCard(props: Props) {
                 if (ins[i].institutionId === props.appointment?.getInstitutionId()) {
                     setIsPart(true);
                     localStorage.setItem("role", ins[i].role);
-                    console.log(ins[i].role)
+                    // console.log(ins[i].role)
                     localStorage.setItem("presentatorid", ins[i].presentatorId);
                 }
             }
@@ -86,14 +86,6 @@ export function AppointmentCard(props: Props) {
 
     };
 
-    function getallrooms(): string {
-        const rooms = props.appointment?.getRooms();
-        if (!rooms || rooms.length === 0) {
-            return "";
-        }
-        return rooms.map(room => room.getName()).join(" ");
-    }
-
     function crossed(): string {
         if (iscancelled) {
             return "line-through";
@@ -125,7 +117,7 @@ export function AppointmentCard(props: Props) {
     }
 
     const handleshowpopover = (event: React.MouseEvent<HTMLDivElement>) => {
-        console.log(props.appointment)
+        // console.log(props.appointment)
         let x = event.clientX - 70;
         let y = event.clientY + 10;
         let popoverHeight;
@@ -135,8 +127,13 @@ export function AppointmentCard(props: Props) {
             y = screenHeight - popoverHeight - 10;
         }
         setPosition({ x, y });
-        setPopover((prev) => !prev);
+        setPopover(true);
     }
+
+    const handleClosePopover = () => {
+        setPopover(false);
+    };
+
 
     const handlesubstitution = async () => {
         var checkbox = document.getElementById(`checkbox-${props.appointment?.getId()}`) as HTMLInputElement;
@@ -191,7 +188,7 @@ export function AppointmentCard(props: Props) {
         <div title={`${props.appointment?.getSubject()?.getName()} - ${getTimeWithZeros(props.appointment?.getStart())} - ${getTimeWithZeros(props.appointment?.getEnd())}`} className={`class-card ${isHovered ? "expanded" : ""}`} onDoubleClick={handleshowpopover} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
             <h3 style={{ color: `${cancelledcolor()}`, textDecoration: `${crossed()}` }}><b>{props.appointment?.getSubject()?.getName()}</b></h3>
             <div className="class-container" style={{ color: `${cancelledcolor()}`, textDecoration: `${crossed()}` }}>
-                <p className="rooms">{getallrooms()} - {getTimeWithZeros(props.appointment?.getStart())} - {getTimeWithZeros(props.appointment?.getEnd())}</p>
+                <p className="rooms">{props.appointment.getRooms()!.map(room => room.getName()).join(" - ")} - {getTimeWithZeros(props.appointment?.getStart())} - {getTimeWithZeros(props.appointment?.getEnd())}</p>
                 <>
                     <div className="extra-content">
                         {props.appointment?.getPresentators()?.map((pres, index) => (
@@ -230,6 +227,7 @@ export function AppointmentCard(props: Props) {
                             type={props.type}
                             x={position.x}
                             y={position.y}
+                            onClose={handleClosePopover}
                         />,
                         document.getElementById(`${props.type == "main" ? "sidebar_2" : "manage_sidebar_2"}`)!
                     )}

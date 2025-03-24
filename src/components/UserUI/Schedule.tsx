@@ -46,20 +46,26 @@ export function Schedule(props: ScheduleProps) {
 
     async function gettimetables(selectedinstitution: Institutions) {
         let timetablelist = (await fetchTimetables(selectedinstitution));
-        error.push(timetablelist.error);
-        setSelectedTimetablelist(timetablelist.timetables);
+        try {
+            error.push(timetablelist!.error);
+            setSelectedTimetablelist(timetablelist!.timetables);
+        } catch (error) { }
     }
 
     async function getpresentators(selectedinstitution: Institutions) {
         let presentatorlist = await fetchPresentators(selectedinstitution);
-        setSelectedPresentatorlist(presentatorlist!.presentators);
-        error.push(presentatorlist.error);
+        try {
+            setSelectedPresentatorlist(presentatorlist!.presentators);
+            error.push(presentatorlist!.error);
+        } catch (error) { }
     }
 
     async function getrooms(selectedinstitution: Institutions) {
         let roomlist = await fetchRooms(selectedinstitution);
-        setSelectedRoomlist(roomlist!.rooms);
-        error.push(roomlist.error);
+        try {
+            setSelectedRoomlist(roomlist!.rooms);
+            error.push(roomlist!.error);
+        } catch (error) { }
     }
 
     const handleInstitutionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {

@@ -31,7 +31,10 @@ export function Menu() {
     const [error, setError] = useState<string[]>([]);
 
     useEffect(() => {
-        getInstitutions();
+        async function load() {
+            await getInstitutions();
+        }
+        load();
         if (localStorage.getItem('role') !== "DIRECTOR") {
             window.location.href = "/timetables";
         }
@@ -63,21 +66,26 @@ export function Menu() {
     }
 
     async function getTimetables(selectedInstitution: Institutions) {
-        let timetablelist = (await fetchTimetables(selectedInstitution));
-        setSelectedTimetablelist(timetablelist!.timetables!);
-        // error.push(timetablelist!.error!);
+        let timetablelist = await fetchTimetables(selectedInstitution);
+        try {
+            setSelectedTimetablelist(timetablelist!.timetables!);
+        } catch (error) { }
     }
 
     async function getPresentators(selectedInstitution: Institutions) {
         let presentatorlist = await fetchPresentators(selectedInstitution);
-        setSelectedPresentatorlist(presentatorlist!.presentators);
-        error.push(presentatorlist!.error!);
+        try {
+            setSelectedPresentatorlist(presentatorlist!.presentators);
+            error.push(presentatorlist!.error!);
+        } catch (error) { }
     }
 
     async function getRooms(selectedInstitution: Institutions) {
         let roomlist = await fetchRooms(selectedInstitution);
-        setSelectedRoomlist(roomlist!.rooms);
-        error.push(roomlist!.error!);
+        try {
+            setSelectedRoomlist(roomlist!.rooms);
+            error.push(roomlist!.error!);
+        } catch (error) { }
     }
 
     const handleInstitutionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {

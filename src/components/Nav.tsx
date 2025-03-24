@@ -6,8 +6,6 @@ export function Nav() {
     const [loggedinlink, setLoggedinLink] = useState('login');
     const { theme, toggleTheme } = useTheme();
 
-    ;
-
     useEffect(() => {
         if (localStorage.getItem('token')) {
             let token = localStorage.getItem('token')
@@ -31,9 +29,9 @@ export function Nav() {
                         localStorage.removeItem('role');
                     } else {
                         const data = await response.json();
-                        console.log(data);
+                        // console.log(data);
                         localStorage.setItem('expiry', data.expiry);
-                        console.log(data.user.institutions)
+                        // console.log(data.user.institutions)
                         localStorage.setItem('institutions', JSON.stringify(data.user.institutions));
                         for (let i = 0; i < data.user.institutions.length; i++) {
                             if (data.user.institutions[i].role === 'DIRECTOR') {
@@ -43,7 +41,7 @@ export function Nav() {
                         if (data.user.institutions.length === 0) {
                             localStorage.setItem('role', "USER");
                         }
-                        console.log(localStorage.getItem('institutions'));
+                        // console.log(localStorage.getItem('institutions'));
                         setLoggedin('Profile');
                         setLoggedinLink('profile');
                     }
