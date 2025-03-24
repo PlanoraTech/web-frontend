@@ -32,6 +32,7 @@ export function AppointmentPopOver(props: Props) {
     const [error, setError] = useState<string[]>([]);
     let token = localStorage.getItem('token');
 
+    console.log('reloaded?')
 
     function removeall() {
         setSelectedRooms([]);
@@ -49,28 +50,14 @@ export function AppointmentPopOver(props: Props) {
     const deleteOption = (id: string) => {
         setSelectedRooms(selectedRooms.filter(room => room.id !== id));
         setSelectedPresentators(selectedPresentators.filter(pres => pres.id !== id));
-        const updatedRooms = [...rooms];
-        const updatedPresentators = [...presentators];
-        rooms.forEach((room) => {
-            console.log('asd1')
-            if (room.getId() === id) {
-                const index = updatedRooms.indexOf(room);
-                if (index > -1) {
-                    console.log('asd')
-                    updatedRooms.splice(index, 1);
-                }
-            }
-        });
-        presentators.forEach((pres) => {
-            if (pres.getId() === id) {
-                const index = updatedPresentators.indexOf(pres);
-                if (index > -1) {
-                    updatedPresentators.splice(index, 1);
-                }
-            }
-        });
-        setRooms(updatedRooms);
-        setPresentators(updatedPresentators);
+        let deleteroom = rooms.find(room => room.getId() == id)
+        let deletepres = presentators.find(pres => pres.getId() == id)
+        if (deleteroom) {
+            setRooms(rooms.filter(room => room !== deleteroom));
+        }
+        if (deletepres) {
+            setPresentators(presentators.filter(pres => pres !== deletepres));
+        }
         setError([]);
     };
 

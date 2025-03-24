@@ -206,7 +206,7 @@ export function AppointmentCard(props: Props) {
                         ) : null
                     }
                     {
-                        isdirector && iswaiting ? (
+                        props.type == 'manage' && isdirector && iswaiting ? (
                             <>
                                 <label>Cancel the appointment? </label>
                                 <input onChange={() => setIscancelled(!iscancelled)} checked={iscancelled} type="checkbox" />
