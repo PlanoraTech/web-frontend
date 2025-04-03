@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Institutions } from "../../shared/classes/institutions";
 import { Users } from "../../shared/classes/users";
-import { getTokenUrl } from "../../functions/getTokenUrl";
 
 interface Props {
     institution: Institutions;
@@ -14,6 +13,7 @@ export function ManageUser(props: Props) {
     const [user, setUser] = useState<Users | null>(null);
     const [action, setAction] = useState<"add" | "update">("add");
     const [error, setError] = useState<string>("");
+    let token = localStorage.getItem('token');
 
     useEffect(() => {
         if (props.action === "update") {
@@ -23,10 +23,10 @@ export function ManageUser(props: Props) {
 
     const handlechangeuser = async () => {
         let change = 'POST';
-        let url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/users/${getTokenUrl()}`
+        let url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/users`
         if (action === "update") {
             change = 'PATCH';
-            url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/users/${user?.getId()}/${getTokenUrl()}`
+            url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/users/${user?.getId()}`
         }
         if (email === "" || role === "") {
             setError("Email and role must be filled out");
@@ -35,6 +35,7 @@ export function ManageUser(props: Props) {
                 method: change,
                 headers: {
                     "Content-Type": "application/json",
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ email: email, role: role }),
             });

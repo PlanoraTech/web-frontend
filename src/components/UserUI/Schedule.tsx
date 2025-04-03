@@ -47,7 +47,9 @@ export function Schedule(props: ScheduleProps) {
     async function gettimetables(selectedinstitution: Institutions) {
         let timetablelist = (await fetchTimetables(selectedinstitution));
         try {
-            error.push(timetablelist!.error);
+            for (let i = 0; i < timetablelist!.error.length; i++) {
+                error.push(timetablelist!.error[i]);
+            }
             setSelectedTimetablelist(timetablelist!.timetables);
         } catch (error) { }
     }
@@ -55,16 +57,20 @@ export function Schedule(props: ScheduleProps) {
     async function getpresentators(selectedinstitution: Institutions) {
         let presentatorlist = await fetchPresentators(selectedinstitution);
         try {
+            for (let i = 0; i < presentatorlist!.error.length; i++) {
+                error.push(presentatorlist!.error[i]);
+            }
             setSelectedPresentatorlist(presentatorlist!.presentators);
-            error.push(presentatorlist!.error);
         } catch (error) { }
     }
 
     async function getrooms(selectedinstitution: Institutions) {
         let roomlist = await fetchRooms(selectedinstitution);
         try {
+            for (let i = 0; i < roomlist!.error.length; i++) {
+                error.push(roomlist!.error[i]);
+            }
             setSelectedRoomlist(roomlist!.rooms);
-            error.push(roomlist!.error);
         } catch (error) { }
     }
 
@@ -115,7 +121,7 @@ export function Schedule(props: ScheduleProps) {
             {!selectedInstitution && (
                 <h3 className="choose">Choose an institution!</h3>
             )}
-            {selectedInstitution && error.length == 0 && !selectedTimetable && !selectedPresentator && !selectedRoom && (
+            {(error.length == 0 || !error) && selectedInstitution && selectedTimetable == null && selectedPresentator == null && selectedRoom == null && (
                 <h3 className="choose">Choose a timetable or presentator or a room!</h3>
             )}
             {selectedInstitution && selectedTimetable && (

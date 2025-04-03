@@ -9,45 +9,33 @@ export function Nav() {
     useEffect(() => {
         if (localStorage.getItem('token')) {
             let token = localStorage.getItem('token')
-            const expiry: Date = new Date(localStorage.getItem('expiry')!);
-            if (expiry < new Date(Date.now())) {
-                localStorage.removeItem('token');
-                localStorage.removeItem('expiry');
-                localStorage.removeItem('role');
-            } else {
-                async function autologin() {
-                    const response = await fetch(`${import.meta.env.VITE_AUTH_URL}/login/auto`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        }
-                    })
-                    if (!response.ok) {
-                        localStorage.removeItem('token');
-                        localStorage.removeItem('expiry');
-                        localStorage.removeItem('role');
-                    } else {
-                        const data = await response.json();
-                        // console.log(data);
-                        localStorage.setItem('expiry', data.expiry);
-                        // console.log(data.user.institutions)
-                        localStorage.setItem('institutions', JSON.stringify(data.user.institutions));
-                        for (let i = 0; i < data.user.institutions.length; i++) {
-                            if (data.user.institutions[i].role === 'DIRECTOR') {
-                                localStorage.setItem('role', "DIRECTOR");
-                            }
-                        }
-                        if (data.user.institutions.length === 0) {
-                            localStorage.setItem('role', "USER");
-                        }
-                        // console.log(localStorage.getItem('institutions'));
-                        setLoggedin('Profile');
-                        setLoggedinLink('profile');
+            async function autologin() {
+                const response = await fetch(`${import.meta.env.VITE_AUTH_URL}/login/auto`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
                     }
+                })
+                if (!response.ok) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('role');
+                } else {
+                    const data = await response.json();
+                    localStorage.setItem('institutions', JSON.stringify(data.user.institutions));
+                    for (let i = 0; i < data.user.institutions.length; i++) {
+                        if (data.user.institutions[i].role === 'DIRECTOR') {
+                            localStorage.setItem('role', "DIRECTOR");
+                        }
+                    }
+                    if (data.user.institutions.length === 0) {
+                        localStorage.setItem('role', "USER");
+                    }
+                    setLoggedin('Profile');
+                    setLoggedinLink('profile');
                 }
-                autologin();
             }
+            autologin();
         } else {
             localStorage.removeItem('token');
             localStorage.removeItem('expiry');

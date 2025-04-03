@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Institutions } from "../../shared/classes/institutions";
 import { Rooms } from "../../shared/classes/rooms";
-import { getTokenUrl } from "../../functions/getTokenUrl";
 
 interface Props {
     institution: Institutions;
@@ -13,7 +12,7 @@ export function ManageRoom(props: Props) {
     const [room, setRoom] = useState<Rooms | null>(null);
     const [action, setAction] = useState<"add" | "update">("add");
     const [error, setError] = useState<string>("");
-
+    let token = localStorage.getItem('token');
 
     useEffect(() => {
         if (props.action === "update") {
@@ -23,10 +22,10 @@ export function ManageRoom(props: Props) {
 
     const handlechangeroom = async () => {
         let change = 'POST';
-        let url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/rooms/${getTokenUrl()}`
+        let url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/rooms`
         if (action === "update") {
             change = 'PATCH';
-            url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/rooms/${room?.getId()}/${getTokenUrl()}`
+            url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/rooms/${room?.getId()}`
         }
         if (roomname === "") {
             setError("Please fill in all fields");
@@ -35,6 +34,7 @@ export function ManageRoom(props: Props) {
                 method: change,
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ name: roomname }),
             });

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Institutions } from "../../shared/classes/institutions";
 import { Subjects } from "../../shared/classes/subjects";
-import { getTokenUrl } from "../../functions/getTokenUrl";
 
 interface Props {
     institution: Institutions;
@@ -14,6 +13,7 @@ export function ManageSubject(props: Props) {
     const [subject, setSubject] = useState<Subjects | null>(null);
     const [action, setAction] = useState<"add" | "update">("add");
     const [error, setError] = useState<string>("");
+    let token = localStorage.getItem('token');
 
     useEffect(() => {
         if (props.action === "update") {
@@ -23,10 +23,10 @@ export function ManageSubject(props: Props) {
 
     const handlechangesubject = async () => {
         let change = 'POST';
-        let url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/subjects/${getTokenUrl()}`
+        let url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/subjects`
         if (action === "update") {
             change = 'PATCH';
-            url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/subjects/${subject?.getId()}/${getTokenUrl()}`
+            url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/subjects/${subject?.getId()}`
         }
         if (subjectname === "" || subjectid === "") {
             setError("Please fill in all fields");
@@ -35,6 +35,7 @@ export function ManageSubject(props: Props) {
                 method: change,
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ name: subjectid, subjectname: subjectname }),
             });

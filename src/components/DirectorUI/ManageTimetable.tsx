@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Institutions } from "../../shared/classes/institutions";
 import { Timetables } from "../../shared/classes/timetables";
-import { getTokenUrl } from "../../functions/getTokenUrl";
 
 interface Props {
     institution: Institutions;
@@ -13,6 +12,7 @@ export function ManageTimetable(props: Props) {
     const [timetable, setTimetable] = useState<Timetables | null>(null);
     const [action, setAction] = useState<"add" | "update">("add");
     const [error, setError] = useState<string>("");
+    let token = localStorage.getItem('token');
 
     useEffect(() => {
         if (props.action === "update") {
@@ -22,10 +22,10 @@ export function ManageTimetable(props: Props) {
 
     const handlechangetimetable = async () => {
         let change = 'POST';
-        let url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/timetables/${getTokenUrl()}`
+        let url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/timetables`
         if (action === "update") {
             change = 'PATCH';
-            url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/timetables/${timetable?.getId()}/${getTokenUrl()}`
+            url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/timetables/${timetable?.getId()}`
         }
         if (ttname === "") {
             setError("Please fill in all fields");
@@ -34,6 +34,7 @@ export function ManageTimetable(props: Props) {
                 method: change,
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ name: ttname }),
             });

@@ -137,6 +137,7 @@ export function Calendar(props: Props) {
             events={events}
             // dateClick={handleDateClick} // Új esemény létrehozás
             weekends={false} // Hétvége megjelenítése
+            nowIndicator={true} // Jelenlegi idő jelzése
             editable={handleEdit()} // Húzással módosítható események
             eventResizableFromStart={true} // Esemény módosítható a kezdő időpontjától
             selectable={true} // Kattintásra kijelölhető napok

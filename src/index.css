@@ -1,5 +1,6 @@
 :root {
 	/*dark colors*/
+	--dark00: #000;
 	--dark01: #121212;
 	--dark02: #1E1E1E;
 	--dark03: #232323;
@@ -7,40 +8,54 @@
 	--dark04: #272727;
 	--dark05: #2C2C2C;
 	--dark06: #2E2E2E;
-	--dark06: #333333;
-	--dark06: #363636;
-	--dark06: #383838;
+	--dark07: #333333;
+	--dark08: #363636;
+	--dark09: #383838;
+	/* --dark01: #111;
+	--dark02: #222;
+	--dark03: #333;
+	--dark39: #393939;
+	--dark04: #444;
+	--dark05: #555;
+	--dark06: #666; */
 	--dark-text: white;
 	/*----------*/
 
+	/* new colors */
+	--light: #FDFAF6;
+	--beige: #FAF1E6;
+	--light_greenish: #E4EFE7;
+	--green: #99BC85;
+	/*------------*/
+
 	/*light colors*/
-	--light00: #ffffff;  /* Alap háttér */
-    --light20: #f8f9fa;  /* Enyhén szürkésebb fehér */
-    --light21: #e9ecef;  /* Halvány szürke */
-    --light01: #ffe8e8;  /* Világos lazac */
-    --light22: #ffe2e2;  /* Halvány lazac */
-    --light02: #ffc1c1;  /* Halvány lazac */
-    --light03: #ff8f8f;  /* Közepes lazac */
-    --light04: #ff6b6b;  /* Élénk lazac */
-    --light05: #ffa07a;  /* Pasztellesebb lazac */
-    --light06: #56b7ff;  /* Lágyabb világoskék */
-    --light07: #3fa4e8;  /* Közepes kék */
-    --light08: #0084cc;  /* Erőteljesebb kék */
-    --light09: #0073b5;  /* Mélyebb kék */
-    --light10: #005fa3;  /* Sötétkék (navbar háttér) */
-    --light11: #004c8c;  /* Még sötétebb kék (hover szín) */
+	--light00: #ffffff;
+	--light20: #FDFAF6;
+	--light21: #f9efe3;
+	--light01: #ebe2d6;
+	--light22: #dac7b0;
+	--light02: #e3cd83;
+	--light03: #d9c78c;
+	--light04: #c9d29d;
+	--light05: #c0d29d;
+	--light06: #b0d29d;
+	--light07: #a9ca96;
+	--light08: #a4c492;
+	--light09: #9bba8a;
+	--light10: #99BC85;
+	--light11: #8baa78;
 	--light-text: black;
-	
+
 
 	/*-----------*/
 }
 
 .dark-theme {
 	--body-bg-color: var(--dark03);
-	--nav-bg-color: var(--dark02);
+	--nav-bg-color: var(--dark01);
 	--body-color: var(--dark-text);
 	--links-color: var(--dark-text);
-	--links-hover-bg-color: var(--dark01);
+	--links-hover-bg-color: var(--dark00);
 	--select-button-bg-color: var(--dark05);
 	--select-button-color: var(--dark-text);
 	--select-button-hover-bg-color: var(--dark06);
@@ -48,14 +63,15 @@
 	--select-button-disabled-bg-color: var(--dark03);
 	--schedule-bg-color: var(--dark04);
 	--day2-4-bg-color: var(--dark39);
-	--dayheader-bg-color: var(--dark02);
-	--class-event-card-bg-color: var(--dark05);
-	--form-input-bg-color: var(--dark05);
+	--dayheader-bg-color: var(--dark01);
+	--class-event-card-bg-color: var(--dark06);
+	--form-input-bg-color: var(--dark06);
 	--form-input-color: var(--dark-text);
 	--form-profile-container-bg-color: var(--dark04);
 	--button-container-bg-color: var(--dark05);
 	--button-container-hover-bg-color: var(--dark04);
 	--button-container-active-bg-color: var(--dark03);
+	--checkbox-checked-bg-color: var(--dark01);
 }
 
 .light-theme {
@@ -70,14 +86,15 @@
 	--select-button-active-bg-color: var(--light08);
 	--select-button-disabled-bg-color: var(--light02);
 	--schedule-bg-color: var(--light21);
-	--day2-4-bg-color: var(--light22);
+	--day2-4-bg-color: var(--light01);
 	--dayheader-bg-color: var(--light09);
-	--class-event-card-bg-color: var(--light21);
+	--class-event-card-bg-color: var(--light20);
 	--form-input-bg-color: var(--light00);
-	--form-profile-container-bg-color: var(--light00);
-	--button-container-bg-color: var(--light00);
-	--button-container-hover-bg-color: var(--light20);
-	--button-container-active-bg-color: var(--light21);
+	--form-profile-container-bg-color: var(--light21);
+	--button-container-bg-color: var(--light02);
+	--button-container-hover-bg-color: var(--light03);
+	--button-container-active-bg-color: var(--light08);
+	--checkbox-checked-bg-color: var(--light10);
 }
 
 #root {
@@ -102,6 +119,7 @@ ul {
 	overflow: hidden;
 	list-style-type: none;
 	background-color: var(--nav-bg-color);
+	text-overflow: ellipsis;
 }
 
 li {
@@ -176,7 +194,7 @@ li {
 	width: 70vw;
 	text-align: center;
 	padding: 6vh 4vw;
-	background: var(--dark04);
+	background: var(--schedule-bg-color);
 	border-radius: 15px;
 	margin-top: 5vh;
 	box-shadow: 2px 8px 16px 2px rgba(0, 0, 0, 0.3);
@@ -210,7 +228,7 @@ li {
 }
 
 .feature {
-	background: var(--dark04);
+	background: var(--schedule-bg-color);
 	padding: 3vh 2vw;
 	border-radius: 10px;
 	width: 25vw;
@@ -232,7 +250,7 @@ li {
 
 /* Hover effect */
 .feature:hover {
-	background: var(--dark04);
+	background: var(--day2-4-bg-color);
 	transform: scale(1.05);
 }
 
@@ -315,7 +333,7 @@ select:focus {
 }
 
 #manage_schedule {
-	max-height: 83vh;
+	height: 83vh;
 	overflow-y: auto;
 	border-radius: 7px;
 	min-width: fit-content;
@@ -363,26 +381,27 @@ tr {
 	text-align: center;
 	padding: 5px 10px;
 	border-radius: 5px;
+	color: var(--body-text);
 }
 
 .fc-toolbar .fc-button:hover {
 	background-color: var(--select-button-hover-bg-color) !important;
-	color: var(--light-text);
+	color: var(--body-text);
 }
 
 .fc-toolbar .fc-button:disabled {
 	background-color: var(--select-button-disabled-bg-color) !important;
-	color: var(--dark-text);
+	color: var(--body-text);
 }
 
 .fc-toolbar .fc-button-active {
 	background-color: var(--select-button-active-bg-color) !important;
-	color: var(--light-text) !important;
+	color: var(--body-text) !important;
 }
 
 .fc-toolbar .fc-button-active:hover {
 	background-color: var(--select-button-hover-bg-color) !important;
-	color: var(--light-text) !important;
+	color: var(--body-text) !important;
 }
 
 .fc-col-header-cell {
@@ -703,6 +722,7 @@ tr {
 .button-container {
 	display: flex;
 	justify-content: center;
+	gap: 0.5vw;
 }
 
 .button-container button {
@@ -723,10 +743,40 @@ tr {
 	background-color: var(--button-container-active-bg-color);
 }
 
-#remember-me-container {
+.costum_checkbox_container {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
+}
+
+.costum_checkbox_container input[type="checkbox"] {
+	appearance: none;
+	width: 14px;
+	height: 14px;
+	border-radius: 3px;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
+	margin-right: 0.5vw;
+	background-color: var(--form-input-bg-color);
+	transition: background-color 0.2s, border-color 0.2s;
+}
+
+.costum_checkbox_container input[type="checkbox"]:checked {
+	background-color: var(--checkbox-checked-bg-color);
+}
+
+.costum_checkbox_container input[type="checkbox"]:checked:hover {
+	accent-color: var(--links-hover-bg-color);
+}
+
+.costum_checkbox_container input[type="checkbox"]:checked::after {
+	display: flex;
+	align-items: center;
+	justify-items: center;
+	padding-left: 1.5px;
+	content: "✔";
+	width: 13px;
+	height: 13px;
+	color: var(--dark-text);
 }
 
 #errors {
@@ -748,8 +798,6 @@ tr {
 	box-shadow: 2px 8px 16px 2px rgba(0, 0, 0, 0.3);
 	border-radius: 7px;
 	padding: 10px;
-	/* top: 40%;
-    left: 40%; */
 }
 
 .popover h3 {

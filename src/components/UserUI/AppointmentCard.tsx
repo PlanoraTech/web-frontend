@@ -6,6 +6,7 @@ import ReactDOM from "react-dom";
 import { getTimeWithZeros } from "../../functions/getTimeWithZeros";
 import { Subjects } from "../../shared/classes/subjects";
 import { Rooms } from "../../shared/classes/rooms";
+import { CostumCheckbox } from "../CostumCheckbox";
 
 interface Props {
     appointment: Appointments;
@@ -19,7 +20,7 @@ export function AppointmentCard(props: Props) {
     const [showpopover, setPopover] = useState(false);
     const [iscancelled, setIscancelled] = useState(false);
     const [iswaiting, setIsWaiting] = useState(props.appointment?.getIsCancelled() || false);
-    const [issubstituted, setIsSubstituted] = useState(props.appointment?.getPresentators()?.find(pres => pres.getId() === localStorage.getItem("presentatorid"))?.getIsSubstituted()! || false);
+    const [issubstituted, setIsSubstituted] = useState(props.appointment?.getPresentators()?.find(pres => pres.getId() === localStorage.getItem("presentatorid"))?.getIsSubstituted()!);
     const [ispresentatorsappointment, setIsPresentatorsAppointment] = useState(false);
     const [isdirector, setIsDirector] = useState(false);
     const [ispart, setIsPart] = useState(false);
@@ -40,7 +41,6 @@ export function AppointmentCard(props: Props) {
                 if (ins[i].institutionId === props.appointment?.getInstitutionId()) {
                     setIsPart(true);
                     localStorage.setItem("role", ins[i].role);
-                    // console.log(ins[i].role)
                     localStorage.setItem("presentatorid", ins[i].presentatorId);
                 }
             }
@@ -96,6 +96,8 @@ export function AppointmentCard(props: Props) {
     function cancelledcolor() {
         if (iswaiting) {
             return "#fc6464";
+        } else if (iscancelled) {
+            return "#fc6464";
         } else if (props.appointment?.getPresentators()?.find(pres => pres.getIsSubstituted() === true)) {
             return "#fc9764";
         } else {
@@ -137,8 +139,9 @@ export function AppointmentCard(props: Props) {
 
     const handlesubstitution = async () => {
         var checkbox = document.getElementById(`checkbox-${props.appointment?.getId()}`) as HTMLInputElement;
+        console.log(checkbox);
         let origin = JSON.parse(props.appointment.getOrigin()!);
-        if (checkbox.checked) {
+        if (checkbox!.checked) {
             const response = await fetch(`${import.meta.env.VITE_BASE_URL}/${props.appointment.getInstitutionId()}/${origin.type}/${origin.id}/appointments/${props.appointment.getId()}/presentators/${localStorage.getItem("presentatorid")}/substitute`, {
                 method: 'PATCH',
                 headers: {
@@ -155,7 +158,6 @@ export function AppointmentCard(props: Props) {
                 console.log(response);
                 setIsSubstituted(true);
                 checkbox.checked = false;
-                console.log(props.appointment?.getPresentators()?.find(pres => pres.getId() === localStorage.getItem("presentatorid"))?.getIsSubstituted());
                 props.appointment?.getPresentators()?.find(pres => pres.getId() === localStorage.getItem("presentatorid"))?.setIsSubstituted(true);
                 document.getElementById(`${localStorage.getItem("presentatorid")}`)?.setAttribute("style", "text-decoration: line-through;");
                 setUpdate(prev => !prev);
@@ -184,6 +186,28 @@ export function AppointmentCard(props: Props) {
         }
     }
 
+    const cancelAppointment = async () => {
+        let origin = JSON.parse(props.appointment.getOrigin()!);
+        const response = await fetch(`${import.meta.env.VITE_BASE_URL}/${props.appointment.getInstitutionId()}/${origin.type}/${origin.id}/appointments/${props.appointment.getId()}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                isCancelled: true,
+            }),
+        });
+        if (!response.ok) {
+            console.log(response);
+        } else {
+            console.log(response);
+            setIscancelled(true);
+            setIsWaiting(false);
+            setUpdate(prev => !prev);
+        }
+    }
+
     return (
         <div title={`${props.appointment?.getSubject()?.getName()} - ${getTimeWithZeros(props.appointment?.getStart())} - ${getTimeWithZeros(props.appointment?.getEnd())}`} className={`class-card ${isHovered ? "expanded" : ""}`} onDoubleClick={handleshowpopover} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
             <h3 style={{ color: `${cancelledcolor()}`, textDecoration: `${crossed()}` }}><b>{props.appointment?.getSubject()?.getName()}</b></h3>
@@ -199,23 +223,68 @@ export function AppointmentCard(props: Props) {
                     </div>
                     {
                         ispresentatorsappointment && ispart ? (
-                            <>
-                                <label>Cancelled? </label>
-                                <input id={`checkbox-${props.appointment?.getId()}`} onChange={handlesubstitution} checked={issubstituted} type="checkbox" />
-                            </>
+                            <CostumCheckbox where="top" id={`checkbox-${props.appointment?.getId()}`} checked={issubstituted} onChange={handlesubstitution} labelText="Substitute? " />
                         ) : null
                     }
                     {
                         props.type == 'manage' && isdirector && iswaiting ? (
-                            <>
-                                <label>Cancel the appointment? </label>
-                                <input onChange={() => setIscancelled(!iscancelled)} checked={iscancelled} type="checkbox" />
-                            </>
+                            <CostumCheckbox where="top" onChange={cancelAppointment} checked={iscancelled} labelText="Cancel the appointment? " />
+                        ) : null
+                    }
+                    {
+                        props.type == 'manage' && isdirector && iscancelled ? (
+                            <CostumCheckbox where="top" onChange={cancelAppointment} checked={iscancelled} labelText="Uncancel? " style={{ textDecoration: "none" }} />
                         ) : null
                     }
                 </>
             </div>
-            {showpopover &&
+            {
+                props.type == "main" ?
+                    <>
+                        {showpopover &&
+                            <>
+                                {ReactDOM.createPortal(
+                                    <AppointmentPopOver
+                                        appointment={props.appointment}
+                                        presentatorlist={props.presentatorlist}
+                                        roomlist={props.roomlist}
+                                        subjectlist={props.subjectlist}
+                                        show={showpopover}
+                                        type={"main"}
+                                        x={position.x}
+                                        y={position.y}
+                                        onClose={handleClosePopover}
+                                    />,
+                                    document.getElementById("sidebar_2")!
+                                )}
+                            </>}
+                    </>
+                    : null
+            }
+            {
+                props.type == "manage" ?
+                    <>
+                        {showpopover &&
+                            <>
+                                {ReactDOM.createPortal(
+                                    <AppointmentPopOver
+                                        appointment={props.appointment}
+                                        presentatorlist={props.presentatorlist}
+                                        roomlist={props.roomlist}
+                                        subjectlist={props.subjectlist}
+                                        show={showpopover}
+                                        type={"manage"}
+                                        x={position.x}
+                                        y={position.y}
+                                        onClose={handleClosePopover}
+                                    />,
+                                    document.getElementById("manage_sidebar_2")!
+                                )}
+                            </>}
+                    </>
+                    : null
+            }
+            {showpopover && ispresentatorsappointment && ispart ?
                 <>
                     {ReactDOM.createPortal(
                         <AppointmentPopOver
@@ -224,14 +293,15 @@ export function AppointmentCard(props: Props) {
                             roomlist={props.roomlist}
                             subjectlist={props.subjectlist}
                             show={showpopover}
-                            type={props.type}
+                            type={"presentator"}
                             x={position.x}
                             y={position.y}
                             onClose={handleClosePopover}
                         />,
-                        document.getElementById(`${props.type == "main" ? "sidebar_2" : "manage_sidebar_2"}`)!
+                        document.getElementById("sidebar_2")!
                     )}
-                </>}
+                </>
+                : null}
         </div>
     )
 }

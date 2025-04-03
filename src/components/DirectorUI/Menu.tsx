@@ -6,13 +6,14 @@ import { ManagePresentator } from "./ManagePresentator";
 import { ManageRoom } from "./ManageRoom";
 import { ManageAppointment } from "./ManageAppointment";
 import { ManageSubject } from "./ManageSubject";
-import { fetchManageInstitutions, fetchTimetables, fetchPresentators, fetchSubjects, fetchRooms, fetchPresentatorAppointments, fetchTimetableAppointments, fetchRoomAppointments, fetchUsers } from "../../functions/fetches";
+import { fetchManageInstitutions, fetchTimetables, fetchPresentators, fetchSubjects, fetchRooms, fetchPresentatorAppointments, fetchTimetableAppointments, fetchRoomAppointments, fetchUsers, fetchEvents } from "../../functions/fetches";
 import { Timetables } from "../../shared/classes/timetables";
 import { Presentators } from "../../shared/classes/presentators";
 import { Calendar } from "../Calendar";
 import { Appointments } from "../../shared/classes/appointments";
 import { Rooms } from "../../shared/classes/rooms";
 import { ManageUser } from "./ManageUser";
+import { ManageEvent } from "./ManageEvent";
 
 export function Menu() {
     const [institutions, setInstitutions] = useState<Institutions[]>([]);
@@ -46,6 +47,7 @@ export function Menu() {
         fetchSubjects(selectedInstitution!);
         getRooms(selectedInstitution!);
         fetchUsers(selectedInstitution!);
+        fetchEvents(selectedInstitution!);
     }, [selectedInstitution])
 
     useEffect(() => {
@@ -76,7 +78,9 @@ export function Menu() {
         let presentatorlist = await fetchPresentators(selectedInstitution);
         try {
             setSelectedPresentatorlist(presentatorlist!.presentators);
-            error.push(presentatorlist!.error!);
+            for (let i = 0; i < presentatorlist!.error.length; i++) {
+                error.push(presentatorlist!.error[i]);
+            }
         } catch (error) { }
     }
 
@@ -84,7 +88,9 @@ export function Menu() {
         let roomlist = await fetchRooms(selectedInstitution);
         try {
             setSelectedRoomlist(roomlist!.rooms);
-            error.push(roomlist!.error!);
+            for (let i = 0; i < roomlist!.error.length; i++) {
+                error.push(roomlist!.error[i]);
+            }
         } catch (error) { }
     }
 
@@ -153,7 +159,7 @@ export function Menu() {
                 case "Add Timetable":
                     return <ManageTimetable institution={selectedInstitution!} action="add" />
                 case "Add Presentator":
-                    return <ManagePresentator institution={selectedInstitution!} action="add" />
+                    return <ManagePresentator institution={selectedInstitution!} />
                 case "Add Room":
                     return <ManageRoom institution={selectedInstitution!} action="add" />
                 case "Add Subject":
@@ -162,20 +168,22 @@ export function Menu() {
                     return <ManageAppointment timetables={selectedTimetablelist!} action="add" />
                 case "Add User":
                     return <ManageUser institution={selectedInstitution!} action="add" />
+                case "Add Event":
+                    return <ManageEvent institution={selectedInstitution!} action="add" />
                 default:
                     break;
             }
             switch (actionupdate) {
                 case "Update Timetable":
                     return <ManageTimetable institution={selectedInstitution!} action="update" />
-                case "Update Presentator":
-                    return <ManagePresentator institution={selectedInstitution!} action="update" />
                 case "Update Room":
                     return <ManageRoom institution={selectedInstitution!} action="update" />
                 case "Update Subject":
                     return <ManageSubject institution={selectedInstitution!} action="update" />
                 case "Update User":
                     return <ManageUser institution={selectedInstitution!} action="update" />
+                case "Update Event":
+                    return <ManageEvent institution={selectedInstitution!} action="update" />
                 default:
                     break;
             }
@@ -253,7 +261,6 @@ export function Menu() {
                                     <select onChange={handleUpdateActionChange} value={actionupdate! || "default"}>
                                         <option value={"default"} disabled>Update Actions</option>
                                         <option>Update Timetable</option>
-                                        <option>Update Presentator</option>
                                         <option>Update Room</option>
                                         <option>Update Subject</option>
                                         <option>Update Event</option>
