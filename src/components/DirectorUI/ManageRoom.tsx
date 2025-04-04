@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Institutions } from "../../shared/classes/institutions";
 import { Rooms } from "../../shared/classes/rooms";
 
@@ -10,20 +10,13 @@ interface Props {
 export function ManageRoom(props: Props) {
     const [roomname, setRoomname] = useState<string>("");
     const [room, setRoom] = useState<Rooms | null>(null);
-    const [action, setAction] = useState<"add" | "update">("add");
     const [error, setError] = useState<string>("");
     let token = localStorage.getItem('token');
-
-    useEffect(() => {
-        if (props.action === "update") {
-            setAction("update");
-        }
-    }, [room])
 
     const handlechangeroom = async () => {
         let change = 'POST';
         let url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/rooms`
-        if (action === "update") {
+        if (props.action === "update") {
             change = 'PATCH';
             url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/rooms/${room?.getId()}`
         }
@@ -44,9 +37,29 @@ export function ManageRoom(props: Props) {
             }
             else {
                 console.log(response);
-                setError("");
+                setError("Room added successfully");
                 setRoomname("");
             }
+        }
+    }
+
+    const handleRoomDelete = async () => {
+        const url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/rooms/${room?.getId()}`
+        const response = await fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+        });
+        if (!response.ok) {
+            const data = await response.json();
+            setError(data.message);
+        }
+        else {
+            console.log(response);
+            setError("Room deleted successfully");
+            setRoomname("");
         }
     }
 
@@ -58,10 +71,10 @@ export function ManageRoom(props: Props) {
 
     return (
         <div className="form-container">
-            <h2>{action === "update" ? "Update" : "Add"} Room</h2>
+            <h2>{props.action === "update" ? "Update" : "Add"} Room</h2>
             <div className="form-div">
                 {
-                    action === "update" ? <>
+                    props.action === "update" ? <>
                         <select onChange={handleroomchange} value={room?.getId() || 'default'}>
                             <option value="default" disabled>Rooms</option>
                             {props.institution.getRooms()?.map((room) => (
@@ -77,7 +90,8 @@ export function ManageRoom(props: Props) {
                 }
                 <p id="errors">{error}</p>
                 <div className="button-container">
-                    <button onClick={handlechangeroom}>{action === "update" ? "Save" : "Create New "} Room</button>
+                    <button onClick={handlechangeroom}>{props.action === "update" ? "Save" : "Create New "} Room</button>
+                    {props.action === "update" && <button onClick={handleRoomDelete}>Delete Event</button>}
                 </div>
             </div>
         </div>

@@ -12,7 +12,7 @@ export function ManageEvent(props: Props) {
     const [event, setEvent] = useState<Events | null>(null);
     const [selectedEvent, setSelectedEvent] = useState<Events | null>(null);
     const [eventtitle, setEventtitle] = useState<string>("");
-    const [eventdate, setEventdate] = useState<string>("");
+    const [eventdate, setEventdate] = useState<string>(new Date(Date.now()).toISOString()!);
     const [selectedEventtitle, setSelectedEventtitle] = useState<string>(selectedEvent?.getTitle()!);
     const [selectedEventdate, setSelectedEventdate] = useState<string>(selectedEvent?.getDate().toISOString()!);
     const [action, setAction] = useState<"add" | "update">("add");
@@ -34,13 +34,18 @@ export function ManageEvent(props: Props) {
             url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/events/${event?.getId()}`
         }
         if (action == "add") {
-            console.log('asds')
             if (eventtitle === "" || eventdate === "") {
                 setError("Please fill in all fields");
+            }
+            if (eventdate < new Date(Date.now()).toISOString()) {
+                setError("Please select a valid date");
             }
         } else {
             if (selectedEventtitle === "" || selectedEventdate === "") {
                 setError("Please fill in all fields");
+            }
+            if (selectedEventdate < new Date(Date.now()).toISOString()) {
+                setError("Please select a valid date");
             }
         }
         if (error == "") {

@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Institutions } from "../../shared/classes/institutions";
-import { Presentators } from "../../shared/classes/presentators";
 import { Users } from "../../shared/classes/users";
 
 interface Props {
@@ -9,14 +8,9 @@ interface Props {
 
 export function ManagePresentator(props: Props) {
     const [presname, setPresname] = useState<string>("");
-    const [presentator, setpresentator] = useState<Presentators | null>(null);
-    const [user, setUser] = useState<Users | null>(null);
+    const [selecteduser, setSelectedUser] = useState<Users | null>(null);
     const [error, setError] = useState<string>("");
     let token = localStorage.getItem('token');
-
-    useEffect(() => {
-        console.log('asd');
-    }, [user])
 
     const handlechangepresentator = async () => {
         let url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/presentators`
@@ -29,7 +23,7 @@ export function ManagePresentator(props: Props) {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ name: presname }),
+                body: JSON.stringify({ name: presname }), //userid vagy email ???
             });
             if (!response.ok) {
                 const data = await response.json();
@@ -44,10 +38,8 @@ export function ManagePresentator(props: Props) {
     }
 
     const handleUserchange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        console.log(e.target.value)
         const chosenuser = props.institution.getUsers()?.find((user: Users) => user.getEmail() === e.target.value);
-        console.log(chosenuser!)
-        setUser(chosenuser!)
+        setSelectedUser(chosenuser!)
     }
 
     return (
@@ -57,10 +49,10 @@ export function ManagePresentator(props: Props) {
                 <label>Presentator Name: </label><br />
                 <input placeholder="Name:" type="text" value={presname} onChange={(e) => setPresname(e.target.value)} /><br />
                 <label>Add user to presentator: </label><br />
-                <select value={user?.getId() || "default"} onChange={handleUserchange}>
-                    <option value="default">Select User</option>
+                <select onChange={handleUserchange} value={selecteduser?.getEmail() || "default"}>
+                    <option value="default" disabled>Select User</option>
                     {props.institution.getUsers()?.map((user: Users) => (
-                        <option key={user.getId()} value={user.getId()}>{user.getEmail()}</option>
+                        <option key={user.getId()} value={user.getEmail()}>{user.getEmail()}</option>
                     ))}
                 </select><br />
                 <p id="errors">{error}</p>

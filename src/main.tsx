@@ -8,6 +8,7 @@ import { Login } from './components/UserUI/Login'
 import { Profile } from './components/UserUI/Profile'
 import { ThemeProvider } from './ThemeContext'
 import { Menu } from './components/DirectorUI/Menu'
+import { Main } from './components/Main'
 
 const router = createBrowserRouter([
     {
@@ -22,7 +23,8 @@ const router = createBrowserRouter([
     },
     {
         path: "/timetables",
-        element: <UserPage />,
+        // element: <UserPage />,
+        element: <Main type='main' />,
     },
     {
         path: "/login",
@@ -34,7 +36,8 @@ const router = createBrowserRouter([
     },
     {
         path: "/manage",
-        element: <Menu />,
+        // element: <Menu />,
+        element: <Main type='manage' />,
     }
 ]);
 

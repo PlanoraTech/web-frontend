@@ -1,18 +1,15 @@
 import { Institutions } from './institutions';
-import { Tokens } from './tokens';
 
 export class Users {
     private id?: string;
     private email: string;
-    private password?: string;
-    private role: string;
+    private role?: string;
     private institutions?: Institutions[];
     private presentatorId?: string;
-    private tokens?: Tokens;
 
-    constructor(email: string, role: string) {
+    constructor(id: string, email: string) {
+        this.id = id;
         this.email = email;
-        this.role = role;
     }
 
     getId() {
@@ -29,14 +26,6 @@ export class Users {
 
     setEmail(email: string) {
         this.email = email;
-    }
-
-    getPassword() {
-        return this.password;
-    }
-
-    setPassword(password: string) {
-        this.password = password;
     }
 
     getRole() {
@@ -62,13 +51,4 @@ export class Users {
     setPresentatorId(presentatorId: string) {
         this.presentatorId = presentatorId;
     }
-
-    getTokens() {
-        return this.tokens;
-    }
-
-    setTokens(tokens: Tokens) {
-        this.tokens = tokens;
-    }
-
 }

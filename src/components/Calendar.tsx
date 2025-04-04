@@ -12,6 +12,7 @@ import { Institutions } from '../shared/classes/institutions'
 import { EventDay } from './UserUI/EventDay'
 import { Rooms } from '../shared/classes/rooms'
 import { Subjects } from '../shared/classes/subjects'
+import ReactDOM from 'react-dom'
 
 interface Props {
     institution?: Institutions,
@@ -62,17 +63,6 @@ export function Calendar(props: Props) {
         ));
         return eventlist;
     }
-
-    // Új esemény hozzáadása
-    // const handleDateClick = (info: { dateStr: string }) => {
-    //     const newEvent: EventInput = {
-    //         id: String(events.length + 1),
-    //         title: "New Event",
-    //         start: info.dateStr,
-    //         allDay: true,
-    //     };
-    //     setEvents([...events, newEvent]);
-    // };
 
     const handleEdit = (): boolean => {
         if (localStorage.getItem("role") === "DIRECTOR" && props.type === "manage") {
@@ -135,12 +125,11 @@ export function Calendar(props: Props) {
             initialView="timeGridWeek"
             dayMaxEventRows={2}
             events={events}
-            // dateClick={handleDateClick} // Új esemény létrehozás
-            weekends={false} // Hétvége megjelenítése
-            nowIndicator={true} // Jelenlegi idő jelzése
-            editable={handleEdit()} // Húzással módosítható események
-            eventResizableFromStart={true} // Esemény módosítható a kezdő időpontjától
-            selectable={true} // Kattintásra kijelölhető napok
+            weekends={false} 
+            nowIndicator={true} 
+            editable={handleEdit()} 
+            eventResizableFromStart={true} 
+            selectable={true} 
             eventContent={renderEventContent}
             allDayText="All-day"
             slotLabelFormat={{

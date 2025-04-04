@@ -1,3 +1,4 @@
+// Import necessary classes
 import { Users } from "../shared/classes/users";
 import { Appointments } from "../shared/classes/appointments";
 import { Events } from "../shared/classes/events";
@@ -7,282 +8,179 @@ import { Rooms } from "../shared/classes/rooms";
 import { Subjects } from "../shared/classes/subjects";
 import { Timetables } from "../shared/classes/timetables";
 
+// Handle token from local storage
 let token = localStorage.getItem('token') || "";
 const headers = { 'Authorization': `Bearer ${token}` };
 
+// Fetch institutions
 export async function fetchInstitutions() {
-    let instlist: Institutions[] = [];
-    let url = `${import.meta.env.VITE_BASE_URL}`;
+    const url = `${import.meta.env.VITE_BASE_URL}`;
     const response = await fetch(url, { headers });
-    const institutions = await response.json()
-    for (let i = 0; i < institutions.length; i++) {
-        let ins: Institutions = new Institutions(institutions[i].id, institutions[i].name, institutions[i].type, institutions[i].access, institutions[i].color, institutions[i].website);
-        instlist.push(ins);
-    }
+    const institutions = await response.json();
+    const instlist = institutions.map((institution: any) =>
+        new Institutions(institution.id, institution.name, institution.type, institution.access, institution.color, institution.website)
+    );
     console.log(instlist);
-    return instlist.sort((a: Institutions, b: Institutions) => a.getName().localeCompare(b.getName()));
+    return (instlist as Institutions[]).sort((a, b) => a.getName().localeCompare(b.getName()));
 }
 
+// Fetch institutions for management
 export async function fetchManageInstitutions() {
-    let ins = JSON.parse(localStorage.getItem("institutions")!);
-    let instlist = [];
-    for (let i = 0; i < ins.length; i++) {
-        let url = `${import.meta.env.VITE_BASE_URL}/${ins[i].institutionId}`;
+    const ins = JSON.parse(localStorage.getItem("institutions")!);
+    const instlist = await Promise.all(ins.map(async (institutionData: any) => {
+        const url = `${import.meta.env.VITE_BASE_URL}/${institutionData.institutionId}`;
         const response = await fetch(url, { headers });
         const fetchedinstitution = await response.json();
-        let institution: Institutions = new Institutions(fetchedinstitution.id, fetchedinstitution.name, fetchedinstitution.type, fetchedinstitution.access, fetchedinstitution.color, fetchedinstitution.website);
-        instlist.push(institution);
-    }
+        return new Institutions(fetchedinstitution.id, fetchedinstitution.name, fetchedinstitution.type, fetchedinstitution.access, fetchedinstitution.color, fetchedinstitution.website);
+    }));
     console.log(instlist);
-    return instlist.sort((a: Institutions, b: Institutions) => a.getName().localeCompare(b.getName()));
+    return instlist.sort((a, b) => a.getName().localeCompare(b.getName()));
 }
 
+// Fetch timetables for a selected institution
 export async function fetchTimetables(selectedinstitution: Institutions) {
-    try {
-        let timetablelist = [];
-        let error = [];
-        let url = `${import.meta.env.VITE_BASE_URL}/${selectedinstitution.getId()}/timetables`;
-        const response = await fetch(url, { headers })
-        const timetables = await response.json()
-        if (response.status === 403) {
-            error.push("You no not have permission to view this institution's timetables!");
-        } else if (response.status === 400) {
-            error.push("There was an error fetching timetables! Please try again.")
-        }
-        for (let i = 0; i < timetables.length; i++) {
-            let timetable: Timetables = new Timetables(timetables[i].id, timetables[i].name, selectedinstitution, selectedinstitution.getId());
-            timetablelist.push(timetable)
-        }
-        selectedinstitution.setTimetables(timetablelist);
-        const data = {
-            timetables: timetablelist.sort((a, b) => a.getName().localeCompare(b.getName())),
-            error: error
-        };
-        return data;
-    } catch (error) { }
+    return fetchData(selectedinstitution, "timetables", (item, institutionId) => new Timetables(item.id, item.name, selectedinstitution, institutionId), (items) => selectedinstitution.setTimetables(items));
 }
 
+// Fetch presentators for a selected institution
 export async function fetchPresentators(selectedinstitution: Institutions) {
-    try {
-        let presentatorlist = [];
-        let url = `${import.meta.env.VITE_BASE_URL}/${selectedinstitution.getId()}/presentators`
-        const response = await fetch(url, { headers })
-        let error = [];
-        if (!response.ok) {
-            error.push("There was an error fetching presentators! Please try again.")
-        }
-        const presentators = await response.json()
-        for (let i = 0; i < presentators.length; i++) {
-            presentatorlist.push(new Presentators(presentators[i].id, presentators[i].name, selectedinstitution.getId()));
-        }
-        selectedinstitution.setPresentators(presentatorlist);
-        const data = {
-            presentators: presentatorlist.sort((a, b) => a.getName().localeCompare(b.getName())),
-            error: error
-        };
-        return data;
-    } catch (error) { }
+    return fetchData(selectedinstitution, "presentators", (item, institutionId) => new Presentators(item.id, item.name, institutionId), (items) => selectedinstitution.setPresentators(items));
 }
 
+// Fetch rooms for a selected institution
 export async function fetchRooms(selectedinstitution: Institutions) {
-    try {
-        let roomlist = [];
-        let url = `${import.meta.env.VITE_BASE_URL}/${selectedinstitution.getId()}/rooms`
-        const response = await fetch(url, { headers })
-        let error = [];
-        if (!response.ok) {
-            error.push("There was an error fetching rooms! Please try again.")
-        }
-        const rooms = await response.json()
-        for (let i = 0; i < rooms.length; i++) {
-            roomlist.push(new Rooms(rooms[i].id, rooms[i].name, rooms[i].isAvailable, selectedinstitution.getId()));
-        }
-        selectedinstitution.setRooms(roomlist);
-        const data = {
-            rooms: roomlist.sort((a, b) => a.getName().localeCompare(b.getName())),
-            error: error
-        };
-        return data;
-    } catch (error) { }
+    return fetchData(selectedinstitution, "rooms", (item, institutionId) => new Rooms(item.id, item.name, item.isAvailable, institutionId), (items) => selectedinstitution.setRooms(items));
 }
 
+// Fetch events for a selected institution
 export async function fetchEvents(selectedinstitution: Institutions) {
-    try {
-        let eventlist = [];
-        let url = `${import.meta.env.VITE_BASE_URL}/${selectedinstitution.getId()}/events`
-        const response = await fetch(url, { headers })
-        let error = [];
-        if (!response.ok) {
-            error.push("There was an error fetching events! Please try again.")
-        }
-        const events = await response.json()
-        for (let i = 0; i < events.length; i++) {
-            eventlist.push(new Events(events[i].id, events[i].title, events[i].date, selectedinstitution.getId()));
-        }
-        selectedinstitution.setEvents(eventlist.sort((a, b) => a.getDate().getTime() - b.getDate().getTime()));
-        return error;
-    } catch (error) { }
+    return fetchData(selectedinstitution, "events", (item, institutionId) => new Events(item.id, item.title, item.date, institutionId), (items) => selectedinstitution.setEvents(items));
 }
 
+// Fetch subjects for a selected institution
 export async function fetchSubjects(selectedinstitution: Institutions) {
-    try {
-        let subjectlist = [];
-        let url = `${import.meta.env.VITE_BASE_URL}/${selectedinstitution.getId()}/subjects`
-        const response = await fetch(url, { headers })
-        let error = [];
-        if (!response.ok) {
-            error.push("There was an error fetching subjects! Please try again.");
-        }
-        const subjects = await response.json()
-        for (let i = 0; i < subjects.length; i++) {
-            subjectlist.push(new Subjects(subjects[i].id, subjects[i].name, subjects[i].subjectId, selectedinstitution.getId()));
-        }
-        selectedinstitution.setSubjects(subjectlist);
-        return error;
-    } catch (error) { }
+    return fetchData(selectedinstitution, "subjects", (item, institutionId) => new Subjects(item.id, item.name, item.subjectId, institutionId), (items) => selectedinstitution.setSubjects(items));
 }
 
+// Fetch users for a selected institution
 export async function fetchUsers(selectedinstitution: Institutions) {
-    try {
-        let userlist = [];
-        let url = `${import.meta.env.VITE_BASE_URL}/${selectedinstitution.getId()}/users`
-        const response = await fetch(url, { headers })
-        let error = [];
-        if (!response.ok) {
-            error.push("There was an error fetching users! Please try again.")
-        }
-        const users = await response.json()
-        console.log(users)
-        for (let i = 0; i < users.length; i++) {
-            userlist.push(new Users(users[i].email, users[i].role));
-        }
-        selectedinstitution.setUsers(userlist);
-        return error;
-    } catch (error) { }
+    return fetchData(selectedinstitution, "users", (item) => new Users(item.id, item.email), (items) => selectedinstitution.setUsers(items));
 }
 
-export async function fetchTimetableAppointments(selectedttablelist: Timetables[], selectedinstitution: Institutions) {
-    try {
-        for (let f = 0; f < selectedttablelist.length; f++) {
-            let url = `${import.meta.env.VITE_BASE_URL}/${selectedttablelist[f].getInstitutionId()}/timetables/${selectedttablelist[f].getId()}/appointments`
-            const response = await fetch(url, { headers })
-            const appointments = await response.json()
-            let oneapplist = [];
-            for (let i = 0; i < appointments.length; i++) {
-                let oneroomlist = [];
-                let onepreslist = [];
-                for (let j = 0; j < appointments[i].rooms.length; j++) {
-                    oneroomlist.push(new Rooms(appointments[i].rooms[j].id, appointments[i].rooms[j].name, appointments[i].rooms[j].isAvailable, appointments[i].rooms[j].institutionId));
-                }
-                for (let j = 0; j < appointments[i].presentators.length; j++) {
-                    let pres: Presentators = new Presentators(appointments[i].presentators[j].id, appointments[i].presentators[j].name, appointments[i].presentators[j].institutionId);
-                    pres.setIsSubstituted(appointments[i].presentators[j].isSubstituted);
-                    onepreslist.push(pres);
-                }
-                let subject: Subjects = new Subjects(appointments[i].subject.id, appointments[i].subject.name, appointments[i].subject.subjectId, appointments[i].subject.institutionId);
-                let appointment: Appointments = new Appointments(appointments[i].id, subject, onepreslist, oneroomlist, appointments[i].start, appointments[i].end, appointments[i].isCancelled)
-                appointment.setOrigin(JSON.stringify({ type: "timetables", id: selectedttablelist[f].getId()! }))
-                appointment.setInstitutionId(selectedinstitution.getId()!)
-                oneapplist.push(appointment);
-            }
-            selectedttablelist[f].setAppointments(oneapplist)
-        }
-    } catch (error) { }
+// Fetch timetable appointments for a selected timetable and institution
+export async function fetchTimetableAppointments(selectedttable: Timetables, selectedinstitution: Institutions) {
+    return await fetchAppointmentsData(selectedttable, `timetables/${selectedttable.getId()}/appointments`,
+        (appointments) => appointments.map(appointment => {
+            let appt = makeAppointments(appointment);
+            appt.setOrigin(JSON.stringify({ type: "timetables", id: selectedttable.getId() }));
+            appt.setInstitutionId(selectedinstitution.getId()!);
+            return appt;
+        }), (items) => selectedttable.setAppointments(items));
 }
 
-export async function fetchPresentatorAppointments(selectedpresentatorlist: Presentators[], selectedinstitution: Institutions) {
-    try {
-        for (let f = 0; f < selectedpresentatorlist.length; f++) {
-            let url = `${import.meta.env.VITE_BASE_URL}/${selectedpresentatorlist[f].getInstitutionId()}/presentators/${selectedpresentatorlist[f].getId()}/appointments`
-            const response = await fetch(url, { headers })
-            const appointments = await response.json()
-            let oneapplist = [];
-            for (let i = 0; i < appointments.length; i++) {
-                let oneroomlist = [];
-                let onepreslist = [];
-                for (let j = 0; j < appointments[i].rooms.length; j++) {
-                    oneroomlist.push(new Rooms(appointments[i].rooms[j].id, appointments[i].rooms[j].name, appointments[i].rooms[j].isAvailable, appointments[i].rooms[j].institutionId));
-                }
-                for (let j = 0; j < appointments[i].presentators.length; j++) {
-                    let pres: Presentators = new Presentators(appointments[i].presentators[j].id, appointments[i].presentators[j].name, appointments[i].presentators[j].institutionId);
-                    pres.setIsSubstituted(appointments[i].presentators[j].isSubstituted);
-                    onepreslist.push(pres);
-                }
-                let subject: Subjects = new Subjects(appointments[i].subject.id, appointments[i].subject.name, appointments[i].subject.subjectId, appointments[i].subject.institutionId);
-                let appointment: Appointments = new Appointments(appointments[i].id, subject, onepreslist, oneroomlist, appointments[i].start, appointments[i].end, appointments[i].isCancelled)
-                appointment.setOrigin(JSON.stringify({ type: "presentators", id: selectedpresentatorlist[f].getId() }))
-                appointment.setInstitutionId(selectedinstitution.getId()!)
-                oneapplist.push(appointment);
-            }
-            selectedpresentatorlist[f].setAppointments(oneapplist)
-        }
-    } catch (error) { }
+// Fetch presentator appointments for a selected presentator and institution
+export async function fetchPresentatorAppointments(selectedpresentator: Presentators, selectedinstitution: Institutions) {
+    return await fetchAppointmentsData(selectedpresentator, `presentators/${selectedpresentator.getId()}/appointments`,
+        (appointments) => appointments.map(appointment => {
+            let appt = makeAppointments(appointment);
+            appt.setOrigin(JSON.stringify({ type: "presentators", id: selectedpresentator.getId() }));
+            appt.setInstitutionId(selectedinstitution.getId()!);
+            return appt;
+        }), (items) => selectedpresentator.setAppointments(items));
 }
 
-export async function fetchRoomAppointments(selectedroomlist: Rooms[], selectedinstitution: Institutions) {
-    try {
-        for (let f = 0; f < selectedroomlist.length; f++) {
-            let url = `${import.meta.env.VITE_BASE_URL}/${selectedroomlist[f].getInstitutionId()}/rooms/${selectedroomlist[f].getId()}/appointments`
-            const response = await fetch(url, { headers })
-            const appointments = await response.json()
-            let oneapplist = [];
-            for (let i = 0; i < appointments.length; i++) {
-                let oneroomlist = [];
-                let onepreslist = [];
-                for (let j = 0; j < appointments[i].rooms.length; j++) {
-                    oneroomlist.push(new Rooms(appointments[i].rooms[j].id, appointments[i].rooms[j].name, appointments[i].rooms[j].isAvailable, appointments[i].rooms[j].institutionId));
-                }
-                for (let j = 0; j < appointments[i].presentators.length; j++) {
-                    let pres: Presentators = new Presentators(appointments[i].presentators[j].id, appointments[i].presentators[j].name, appointments[i].presentators[j].institutionId);
-                    pres.setIsSubstituted(appointments[i].presentators[j].isSubstituted);
-                    onepreslist.push(pres);
-                }
-                let subject: Subjects = new Subjects(appointments[i].subject.id, appointments[i].subject.name, appointments[i].subject.subjectId, appointments[i].subject.institutionId);
-                let appointment: Appointments = new Appointments(appointments[i].id, subject, onepreslist, oneroomlist, appointments[i].start, appointments[i].end, appointments[i].isCancelled)
-                appointment.setOrigin(JSON.stringify({ type: "rooms", id: selectedroomlist[f].getId() }))
-                appointment.setInstitutionId(selectedinstitution.getId()!)
-                oneapplist.push(appointment);
-            }
-            selectedroomlist[f].setAppointments(oneapplist)
-        }
-    } catch (error) { }
+// Fetch room appointments for a selected room and institution
+export async function fetchRoomAppointments(selectedroom: Rooms, selectedinstitution: Institutions) {
+    return await fetchAppointmentsData(selectedroom, `rooms/${selectedroom.getId()}/appointments`,
+        (appointments) => appointments.map(appointment => {
+            let appt = makeAppointments(appointment);
+            appt.setOrigin(JSON.stringify({ type: "rooms", id: selectedroom.getId() }));
+            appt.setInstitutionId(selectedinstitution.getId()!);
+            return appt;
+        }), (items) => selectedroom.setAppointments(items));
 }
 
+// Fetch available rooms for a specific appointment
 export async function fetchAvailableRooms(appointment: Appointments, institutionId: string) {
     try {
-        let roomlist = [];
-        let url = `${import.meta.env.VITE_BASE_URL}/${institutionId}/${JSON.parse(appointment!.getOrigin()!).type!}/${JSON.parse(appointment!.getOrigin()!).id!}/appointments/${appointment!.getId()!}/rooms/available`
+        const url = `${import.meta.env.VITE_BASE_URL}/${institutionId}/${JSON.parse(appointment!.getOrigin()!).type!}/${JSON.parse(appointment!.getOrigin()!).id!}/appointments/${appointment!.getId()!}/rooms/available`;
         const response = await fetch(url, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
                 ...headers
             },
-        })
-        const rooms = await response.json()
-        for (let i = 0; i < rooms.length; i++) {
-            let room: Rooms = new Rooms(rooms[i].id, rooms[i].name, rooms[i].isAvailable, rooms[i].institutionId);
-            roomlist.push(room);
-        }
-        return roomlist.sort((a, b) => a.getName().localeCompare(b.getName()));
+        });
+        const rooms = await response.json();
+        const roomlist = rooms.map((room: any) => new Rooms(room.id, room.name, room.isAvailable, room.institutionId));
+        return (roomlist as Rooms[]).sort((a, b) => a.getName().localeCompare(b.getName()));
     } catch (error) { }
 }
 
+// Fetch available presentators for a specific appointment
 export async function fetchAvailablePresentators(appointment: Appointments, institutionId: string) {
     try {
-        let presentatorlist = [];
-        let url = `${import.meta.env.VITE_BASE_URL}/${institutionId}/${JSON.parse(appointment!.getOrigin()!).type!}/${JSON.parse(appointment!.getOrigin()!).id!}/appointments/${appointment!.getId()!}/presentators/available`
+        const url = `${import.meta.env.VITE_BASE_URL}/${institutionId}/${JSON.parse(appointment!.getOrigin()!).type!}/${JSON.parse(appointment!.getOrigin()!).id!}/appointments/${appointment!.getId()!}/presentators/available`;
         const response = await fetch(url, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
                 ...headers
             },
-        })
-        const presentators = await response.json()
-        for (let i = 0; i < presentators.length; i++) {
-            presentatorlist.push(new Presentators(presentators[i].id, presentators[i].name, presentators[i].institutionId));
-        }
-        return presentatorlist.sort((a, b) => a.getName().localeCompare(b.getName()));
+        });
+        const presentators = await response.json();
+        const presentatorlist = presentators.map((presentator: any) =>
+            new Presentators(presentator.id, presentator.name, presentator.institutionId)
+        );
+        return (presentatorlist as Presentators[]).sort((a, b) => a.getName().localeCompare(b.getName()));
     } catch (error) { }
+}
+
+// Helper function to create appointments from raw data
+function makeAppointments(appointment: any) {
+    let oneroomlist = [];
+    let onepreslist = [];
+    for (let j = 0; j < appointment.rooms.length; j++) {
+        oneroomlist.push(new Rooms(appointment.rooms[j].id, appointment.rooms[j].name, appointment.rooms[j].isAvailable, appointment.rooms[j].institutionId));
+    }
+    for (let j = 0; j < appointment.presentators.length; j++) {
+        let pres: Presentators = new Presentators(appointment.presentators[j].id, appointment.presentators[j].name, appointment.presentators[j].institutionId);
+        pres.setIsSubstituted(appointment.presentators[j].isSubstituted);
+        onepreslist.push(pres);
+    }
+    let subject: Subjects = new Subjects(appointment.subject.id, appointment.subject.name, appointment.subject.subjectId, appointment.subject.institutionId);
+    return new Appointments(appointment.id, subject, onepreslist, oneroomlist, appointment.start, appointment.end, appointment.isCancelled)
+}
+
+// Fetch general data for selected institution and endpoint
+export async function fetchData<T>(selectedinstitution: Institutions, endpoint: string, mapFunction: (item: any, institutionId: string) => T, setter: (items: T[]) => void) {
+    try {
+        const url = `${import.meta.env.VITE_BASE_URL}/${selectedinstitution.getId()}/${endpoint}`;
+        const response = await fetch(url, { headers });
+        let error: string[] = [];
+        if (response.status === 403) {
+            error.push("You do not have permission to view this institution's timetables!");
+        }
+        if (!response.ok) {
+            error.push(`There was an error fetching ${endpoint}! Please try again.`);
+        }
+        const data = await response.json();
+        const itemList = data.map((item: any) => mapFunction(item, selectedinstitution.getId()));
+        setter(itemList);
+        return { items: itemList, error };
+    } catch (err) { }
+}
+
+// Fetch appointments data for a specific entity (timetables, presentators, rooms)
+async function fetchAppointmentsData<T extends { getInstitutionId: () => string }>(entity: T, endpoint: string, makeAppointmentFn: (appointments: any[]) => Appointments[], setAppointmentsFn: (items: Appointments[]) => void) {
+    try {
+        const url = `${import.meta.env.VITE_BASE_URL}/${entity.getInstitutionId()!}/${endpoint}`;
+        const response = await fetch(url, { headers });
+        const appointmentsData = await response.json();
+        const appointments = makeAppointmentFn(appointmentsData);
+        setAppointmentsFn(appointments);
+        return appointments;
+    } catch (error) {
+        console.log("Error fetching appointments:", error);
+    }
 }
