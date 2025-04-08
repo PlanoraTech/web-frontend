@@ -18,7 +18,6 @@ export function ManageEvent(props: Props) {
     const [action, setAction] = useState<"add" | "update">("add");
     const [error, setError] = useState<string>("");
     let token = localStorage.getItem('token');
-    //'Authorization': `Bearer ${token}`
 
     useEffect(() => {
         if (props.action === "update") {

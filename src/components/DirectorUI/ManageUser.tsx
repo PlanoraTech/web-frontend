@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Institutions } from "../../shared/classes/institutions";
 import { Users } from "../../shared/classes/users";
 
@@ -9,26 +9,18 @@ interface Props {
 
 export function ManageUser(props: Props) {
     const [email, setEmail] = useState<string>("");
-    const [role, setRole] = useState<string>("");
     const [user, setUser] = useState<Users | null>(null);
-    const [action, setAction] = useState<"add" | "update">("add");
     const [error, setError] = useState<string>("");
     let token = localStorage.getItem('token');
-
-    useEffect(() => {
-        if (props.action === "update") {
-            setAction("update");
-        }
-    }, [user])
 
     const handlechangeuser = async () => {
         let change = 'POST';
         let url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/users`
-        if (action === "update") {
+        if (props.action === "update") {
             change = 'PATCH';
             url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/users/${user?.getId()}`
         }
-        if (email === "" || role === "") {
+        if (email === "") {
             setError("Email and role must be filled out");
         } else {
             const response = await fetch(url, {
@@ -37,7 +29,7 @@ export function ManageUser(props: Props) {
                     "Content-Type": "application/json",
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ email: email, role: role }),
+                body: JSON.stringify({ email: email }),
             });
             if (!response.ok) {
                 const data = await response.json();
@@ -45,9 +37,8 @@ export function ManageUser(props: Props) {
             }
             else {
                 console.log(response);
-                setError("");
+                props.action === "update" ? setError("User updated successfully") : setError("User created successfully");
                 setEmail("");
-                setRole("");
             }
         }
     }
@@ -55,46 +46,53 @@ export function ManageUser(props: Props) {
     const handleuserchange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const user = props.institution.getUsers()?.find((user: Users) => user.getEmail() === e.target.value);
         setEmail(user!.getEmail());
-        setRole(user!.getRole());
         setUser(user!);
+    }
+
+    const handledeleteUser = async () => {
+        const response = await fetch(`${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/users/${user?.getId()}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        if (!response.ok) {
+            const data = await response.json();
+            setError(data.message);
+        }
+        else {
+            console.log(response);
+            setError("User deleted successfully");
+            setEmail("");
+        }
     }
 
     return (
         <div className="form-container">
-            <h2>{action === "update" ? "Update" : "Add"} User</h2>
+            <h2>{props.action === "update" ? "Update" : "Add"} User</h2>
             <div className="form-div">
                 {
-                    action === "update" ? <>
+                    props.action === "update" ? <>
                         <select onChange={handleuserchange} value={user?.getEmail() || 'default'}>
                             <option value="default" disabled>Users</option>
                             {props.institution.getUsers()?.map((user: Users) => (
                                 <option key={user.getEmail()} value={user.getEmail()}>{user.getEmail()}</option>
                             ))}
                         </select><br />
-                        <label>User Email: </label><br />
-                        <input placeholder="Email:" type="text" value={email} onChange={(e) => setEmail(e.target.value)} /><br />
-                        <label>User Role: </label><br />
-                        <select value={role} onChange={(e) => setRole(e.target.value)}>
-                            <option value="default" disabled>Role</option>
-                            <option value="USER">User</option>
-                            <option value="PRESENTATOR">Presentator</option>
-                            <option value="DIRECTOR">Director</option>
-                        </select><br />
+                        {user ? <>
+                            <label>User Email: </label><br />
+                            <input placeholder="Email:" type="text" value={email} onChange={(e) => setEmail(e.target.value)} /><br />
+                        </> : null}
                     </> : <>
                         <label>User Email: </label><br />
                         <input placeholder="Email:" type="text" value={email} onChange={(e) => setEmail(e.target.value)} /><br />
-                        <label>User Role: </label><br />
-                        <select value={role || "default"} onChange={(e) => setRole(e.target.value)}>
-                            <option value="default" disabled>Role</option>
-                            <option value="USER">User</option>
-                            <option value="PRESENTATOR">Presentator</option>
-                            <option value="DIRECTOR">Director</option>
-                        </select><br />
                     </>
                 }
                 <p id="errors">{error}</p>
                 <div className="button-container">
-                    <button onClick={handlechangeuser}>{action === "update" ? "Update" : "Add"} User</button>
+                    <button onClick={handlechangeuser}>{props.action === "update" ? "Update" : "Add"} User</button>
+                    {props.action === "update" ? <button onClick={handledeleteUser}>Delete User</button> : null}
                 </div>
             </div>
         </div>

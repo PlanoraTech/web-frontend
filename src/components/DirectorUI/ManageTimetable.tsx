@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Institutions } from "../../shared/classes/institutions";
 import { Timetables } from "../../shared/classes/timetables";
 
@@ -10,20 +10,14 @@ interface Props {
 export function ManageTimetable(props: Props) {
     const [ttname, setTtname] = useState<string>("");
     const [timetable, setTimetable] = useState<Timetables | null>(null);
-    const [action, setAction] = useState<"add" | "update">("add");
     const [error, setError] = useState<string>("");
     let token = localStorage.getItem('token');
 
-    useEffect(() => {
-        if (props.action === "update") {
-            setAction("update");
-        }
-    }, [timetable])
 
     const handlechangetimetable = async () => {
         let change = 'POST';
         let url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/timetables`
-        if (action === "update") {
+        if (props.action === "update") {
             change = 'PATCH';
             url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/timetables/${timetable?.getId()}`
         }
@@ -44,7 +38,7 @@ export function ManageTimetable(props: Props) {
             }
             else {
                 console.log(response);
-                setError("");
+                props.action === "update" ? setError("Timetable updated successfully") : setError("Timetable created successfully");
                 setTtname("");
             }
         }
@@ -56,12 +50,31 @@ export function ManageTimetable(props: Props) {
         setTimetable(timetable!);
     }
 
+    const handleDeleteTimetable = async () => {
+        const response = await fetch(`${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/timetables/${timetable?.getId()}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+        });
+        if (!response.ok) {
+            const data = await response.json();
+            setError(data.message);
+        }
+        else {
+            console.log(response);
+            setError("Timetable deleted successfully");
+            setTtname("");
+        }
+    }
+
     return (
         <div className="form-container">
-            <h2>{action === "update" ? "Update" : "Add"} Timetable</h2>
+            <h2>{props.action === "update" ? "Update" : "Add"} Timetable</h2>
             <div className="form-div">
                 {
-                    action === "update" ?
+                    props.action === "update" ?
                         <>
                             <select onChange={handletimetablechange} value={timetable?.getId() || 'default'}>
                                 <option value="default" disabled>Timetables</option>
@@ -69,8 +82,10 @@ export function ManageTimetable(props: Props) {
                                     <option key={tt.getId()} value={tt.getId()}>{tt.getName()}</option>
                                 ))}
                             </select><br />
-                            <label>Timetable Name: </label><br />
-                            <input placeholder="Name:" type="text" value={ttname} onChange={(e) => setTtname(e.target.value)} /><br />
+                            {
+                                timetable ? <><label>Timetable Name: </label><br />
+                                    <input placeholder="Name:" type="text" value={ttname} onChange={(e) => setTtname(e.target.value)} /><br /></> : null
+                            }
                         </> : <>
                             <label>Timetable Name: </label><br />
                             <input placeholder="Name:" type="text" value={ttname} onChange={(e) => setTtname(e.target.value)} /><br />
@@ -78,7 +93,8 @@ export function ManageTimetable(props: Props) {
                 }
                 <p id="errors">{error}</p>
                 <div className="button-container">
-                    <button onClick={handlechangetimetable}>{action === "update" ? "Save" : "Create New"} Timetable</button>
+                    <button onClick={handlechangetimetable}>{props.action === "update" ? "Save" : "Create New"} Timetable</button>
+                    {props.action === "update" ? <button onClick={handleDeleteTimetable}>Delete Timetable</button> : null}
                 </div>
             </div>
         </div>

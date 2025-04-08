@@ -713,6 +713,16 @@ tr {
 	background-color: var(--form-profile-container-bg-color);
 }
 
+.input-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.input-container input {
+	max-width: 20vw;
+}
+
 .profile-container {
 	min-width: 25vw;
 	width: fit-content;
@@ -735,7 +745,6 @@ tr {
 	color: var(--form-input-color);
 	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
 	background-color: var(--form-input-bg-color);
-
 }
 
 .button-container {

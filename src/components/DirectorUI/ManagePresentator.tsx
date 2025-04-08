@@ -13,7 +13,7 @@ export function ManagePresentator(props: Props) {
     let token = localStorage.getItem('token');
 
     const handlechangepresentator = async () => {
-        let url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/presentators`
+        let url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/presentators/${selecteduser?.getId()}`;
         if (presname === "") {
             setError("Please fill in all fields");
         } else {
@@ -23,7 +23,7 @@ export function ManagePresentator(props: Props) {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ name: presname }), //userid vagy email ???
+                body: JSON.stringify({ name: presname }), 
             });
             if (!response.ok) {
                 const data = await response.json();

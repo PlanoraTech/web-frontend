@@ -37,7 +37,7 @@ export function ManageSubject(props: Props) {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ name: subjectid, subjectname: subjectname }),
+                body: JSON.stringify({ name: subjectname, subjectId: subjectid }),
             });
             if (!response.ok) {
                 const data = await response.json();
@@ -45,10 +45,31 @@ export function ManageSubject(props: Props) {
             }
             else {
                 console.log(response);
-                setError("");
+                props.action === "update" ? setError("Subject updated successfully") : setError("Subject created successfully");
                 setSubjectname("");
                 setSubjectid("");
             }
+        }
+    }
+
+    const handleDeleteSubject = async () => {
+        const response = await fetch(`${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/subjects/${subject?.getId()}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+        });
+        if (!response.ok) {
+            const data = await response.json();
+            setError(data.message);
+        }
+        else {
+            console.log(response);
+            setSubjectname("");
+            setSubjectid("");
+            setSubject(null);
+            setError("Subject deleted successfully");
         }
     }
 
@@ -73,10 +94,12 @@ export function ManageSubject(props: Props) {
                                 ))
                             }
                         </select><br />
-                        <label>Subject Name: </label><br />
-                        <input placeholder="Name:" type="text" value={subjectname} onChange={(e) => setSubjectname(e.target.value)} /><br />
-                        <label>Subject Id: </label><br />
-                        <input placeholder="Id:" type="text" value={subjectid} onChange={(e) => setSubjectid(e.target.value)} /><br />
+                        {subject ? <>
+                            <label>Subject Name: </label><br />
+                            <input placeholder="Name:" type="text" value={subjectname} onChange={(e) => setSubjectname(e.target.value)} /><br />
+                            <label>Subject Id: </label><br />
+                            <input placeholder="Id:" type="text" value={subjectid} onChange={(e) => setSubjectid(e.target.value)} /><br />
+                        </> : null}
                     </> : <>
                         <label>Subject Name: </label><br />
                         <input placeholder="Name:" type="text" value={subjectname} onChange={(e) => setSubjectname(e.target.value)} /><br />
@@ -87,6 +110,7 @@ export function ManageSubject(props: Props) {
                 <p id="errors">{error}</p>
                 <div className="button-container">
                     <button onClick={handlechangesubject}>{action === "update" ? "Save" : "Create New"} Subject</button>
+                    {action === "update" && <button onClick={handleDeleteSubject}>Delete Subject</button>}
                 </div>
             </div>
         </div>

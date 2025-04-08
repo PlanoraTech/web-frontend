@@ -81,8 +81,10 @@ export function ManageRoom(props: Props) {
                                 <option key={room.getId()} value={room.getId()}>{room.getName()}</option>
                             ))}
                         </select><br />
-                        <label>Room Name: </label><br />
-                        <input placeholder="Name:" type="text" value={roomname} onChange={(e) => setRoomname(e.target.value)} /><br />
+                        {room ? <>
+                            <label>Room Name: </label><br />
+                            <input placeholder="Name:" type="text" value={roomname} onChange={(e) => setRoomname(e.target.value)} /><br />
+                        </> : null}
                     </> : <>
                         <label>Room Name: </label><br />
                         <input placeholder="Name:" type="text" value={roomname} onChange={(e) => setRoomname(e.target.value)} /><br />

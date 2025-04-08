@@ -222,6 +222,30 @@ export function AppointmentPopOver(props: Props) {
         }
     };
 
+    const handledeleteappointment = async () => {
+        console.log('delete');
+        let url = `${import.meta.env.VITE_BASE_URL}/${props.appointment.getInstitutionId()!}/${JSON.parse(props.appointment!.getOrigin()!).type!}/${JSON.parse(props.appointment!.getOrigin()!).id!}/appointments/${props.appointment!.getId()!}`;
+        const response = await fetch(url, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+        });
+        if (!response.ok) {
+            const data = await response.json();
+            setError([`${data.message}`]);
+        }
+        else {
+            setError(["Appointment deleted successfully!"]);
+            console.log(response);
+            setTimeout(() => {
+                removeall();
+                props.onClose();
+            }, 3000);
+        }
+    }
+
     return (
         <>
             <div className="popover" style={{ top: props.y, left: props.x }} onDoubleClick={() => {
@@ -312,6 +336,7 @@ export function AppointmentPopOver(props: Props) {
                                     ))}
                                     <div className="button-container">
                                         <button onClick={saveAppointment}>Save</button>
+                                        <button onClick={handledeleteappointment}>Delete</button>
                                     </div>
                                 </div>
                             </div>
