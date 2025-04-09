@@ -182,7 +182,6 @@ export function Main(props: Props) {
             "Add Appointment": <ManageAppointment timetables={selectedTimetablelist!} subjectlist={selectedInstitution.getSubjects()!} action="add" />,
             "Add User": <ManageUser institution={selectedInstitution!} action="add" />,
             "Add Event": <ManageEvent institution={selectedInstitution!} action="add" />,
-            // Update Actions
             "Update Timetable": <ManageTimetable institution={selectedInstitution!} action="update" />,
             "Update Room": <ManageRoom institution={selectedInstitution!} action="update" />,
             "Update Subject": <ManageSubject institution={selectedInstitution!} action="update" />,
