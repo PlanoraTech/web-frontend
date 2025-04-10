@@ -1,41 +1,29 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Institutions } from "../../shared/classes/institutions";
-import { Presentators } from "../../shared/classes/presentators";
-import { getTokenUrl } from "../../functions/getTokenUrl";
+import { Users } from "../../shared/classes/users";
 
 interface Props {
     institution: Institutions;
-    action: "add" | "update";
 }
 
 export function ManagePresentator(props: Props) {
     const [presname, setPresname] = useState<string>("");
-    const [presentator, setpresentator] = useState<Presentators | null>(null);
-    const [action, setAction] = useState<"add" | "update">("add");
+    const [selecteduser, setSelectedUser] = useState<Users | null>(null);
     const [error, setError] = useState<string>("");
-
-    useEffect(() => {
-        if (props.action === "update") {
-            setAction("update");
-        }
-    }, [presentator])
+    let token = localStorage.getItem('token');
 
     const handlechangepresentator = async () => {
-        let change = 'POST';
-        let url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/presentators/${getTokenUrl()}`
-        if (action === "update") {
-            change = 'PATCH';
-            url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/presentators/${presentator?.getId()}/${getTokenUrl()}`
-        }
+        let url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/presentators/${selecteduser?.getId()}`;
         if (presname === "") {
             setError("Please fill in all fields");
         } else {
             const response = await fetch(url, {
-                method: change,
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ name: presname }),
+                body: JSON.stringify({ name: presname }), 
             });
             if (!response.ok) {
                 const data = await response.json();
@@ -49,35 +37,27 @@ export function ManagePresentator(props: Props) {
         }
     }
 
-    const handlepresentatorchange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const presentator = props.institution.getPresentators()?.find((pres: Presentators) => pres.getId() === e.target.value);
-        setPresname(presentator!.getName());
-        setpresentator(presentator!);
+    const handleUserchange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const chosenuser = props.institution.getUsers()?.find((user: Users) => user.getEmail() === e.target.value);
+        setSelectedUser(chosenuser!)
     }
 
     return (
         <div className="form-container">
-            <h2>{action === "update" ? "Update" : "Add"} Presentator</h2>
+            <h2>Add Presentator</h2>
             <div className="form-div">
-                {
-                    action === "update" ?
-                        <>
-                            <select onChange={handlepresentatorchange} value={presentator?.getId() || 'default'}>
-                                <option value="default" disabled>Presentators</option>
-                                {props.institution.getPresentators()?.map((pres: Presentators) => (
-                                    <option key={pres.getId()} value={pres.getId()}>{pres.getName()}</option>
-                                ))}
-                            </select><br />
-                            <label>Presentator Name: </label><br />
-                            <input placeholder="Name:" type="text" value={presname} onChange={(e) => setPresname(e.target.value)} /><br />
-                        </> : <>
-                            <label>Presentator Name: </label><br />
-                            <input placeholder="Name:" type="text" value={presname} onChange={(e) => setPresname(e.target.value)} /><br />
-                        </>
-                }
+                <label>Presentator Name: </label><br />
+                <input placeholder="Name:" type="text" value={presname} onChange={(e) => setPresname(e.target.value)} /><br />
+                <label>Add user to presentator: </label><br />
+                <select onChange={handleUserchange} value={selecteduser?.getEmail() || "default"}>
+                    <option value="default" disabled>Select User</option>
+                    {props.institution.getUsers()?.map((user: Users) => (
+                        <option key={user.getId()} value={user.getEmail()}>{user.getEmail()}</option>
+                    ))}
+                </select><br />
                 <p id="errors">{error}</p>
                 <div className="button-container">
-                    <button onClick={handlechangepresentator}>{action === "update" ? "Save" : "Create New"} Presentator</button>
+                    <button onClick={handlechangepresentator}>Create New Presentator</button>
                 </div>
             </div>
         </div>
