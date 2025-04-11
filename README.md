@@ -1,3 +1,6 @@
+# Planora
+This repository contains the web front of **Planora**, a comprehensive all-in-one institution management system.
+
 # Setup
 
 ## Prerequisites
@@ -19,7 +22,7 @@ Install the required dependencies:
 npm i
 ```
 
-### 3. Run the Code in Development Mode
+### 3. Run the Frontend in Development Mode
 Finally, to start the backend in development mode, use the following command:
 ```bash
 npm run dev
