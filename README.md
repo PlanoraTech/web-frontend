@@ -19,7 +19,7 @@ Install the required dependencies:
 npm i
 ```
 
-### 3. Run the Backend in Development Mode
+### 3. Run the Code in Development Mode
 Finally, to start the backend in development mode, use the following command:
 ```bash
 npm run dev
