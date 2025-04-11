@@ -1,3 +1,4 @@
+![Image](https://github.com/user-attachments/assets/429968dc-036d-46be-ace2-c39ba5023bf2)
 # Planora
 This repository contains the web front of **Planora**, a comprehensive all-in-one institution management system.
 
