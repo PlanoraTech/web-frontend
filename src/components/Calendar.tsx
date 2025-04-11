@@ -9,10 +9,9 @@ import { Presentators } from '../shared/classes/presentators'
 import { AppointmentCard } from './UserUI/AppointmentCard'
 import { Events } from '../shared/classes/events'
 import { Institutions } from '../shared/classes/institutions'
-import { EventDay } from './UserUI/EventDay'
+import { Event } from './UserUI/Event'
 import { Rooms } from '../shared/classes/rooms'
 import { Subjects } from '../shared/classes/subjects'
-import ReactDOM from 'react-dom'
 
 interface Props {
     institution?: Institutions,
@@ -29,7 +28,6 @@ export function Calendar(props: Props) {
 
     useEffect(() => {
         setEvents(convertAppointmentsToEvents(props.appointments! || [], props.institution?.getEvents() || []));
-        // setEvents(convertAppointmentsToEvents(getTestDataForAppointments() || [], props.institution?.getEvents() || []));
     }, [props.appointments, props.institution?.getEvents()]);
 
 
@@ -85,14 +83,13 @@ export function Calendar(props: Props) {
             )
         } else {
             return (
-                <EventDay event={eventInfo.event.extendedProps.event} />
+                <Event event={eventInfo.event.extendedProps.event} />
             )
         }
     }
 
     async function handleAppointmentTimeChange(id: string, start: Date, end: Date) {
         let app = props.appointments!.find(app => app.getId() === id);
-        console.log(app);
         JSON.parse(app!.getOrigin()!).type;
         if (app) {
             let url = `${import.meta.env.VITE_BASE_URL}/${app.getInstitutionId()!}/${JSON.parse(app!.getOrigin()!).type!}/${JSON.parse(app!.getOrigin()!).id!}/appointments/${app!.getId()!}`;

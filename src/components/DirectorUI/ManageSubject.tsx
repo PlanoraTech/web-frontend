@@ -44,7 +44,6 @@ export function ManageSubject(props: Props) {
                 setError(data.message);
             }
             else {
-                console.log(response);
                 props.action === "update" ? setError("Subject updated successfully") : setError("Subject created successfully");
                 setSubjectname("");
                 setSubjectid("");
@@ -65,7 +64,6 @@ export function ManageSubject(props: Props) {
             setError(data.message);
         }
         else {
-            console.log(response);
             setSubjectname("");
             setSubjectid("");
             setSubject(null);

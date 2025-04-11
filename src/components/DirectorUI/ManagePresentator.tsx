@@ -30,8 +30,7 @@ export function ManagePresentator(props: Props) {
                 setError(data.message);
             }
             else {
-                console.log(response);
-                setError("");
+                setError("Presentator created successfully");
                 setPresname("");
             }
         }

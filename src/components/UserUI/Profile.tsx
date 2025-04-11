@@ -68,11 +68,10 @@ export function Profile() {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ oldPassword: password, newPassword: password }),
+                body: JSON.stringify({ oldPassword: password, newPassword: newpassword }),
             })
             if (!response.ok) {
                 const data = await response.json();
-                console.log(data);
                 setError(data.message);
             } else {
                 setError("Password changed successfully");

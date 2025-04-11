@@ -5,7 +5,7 @@ import { Rooms } from "../shared/classes/rooms";
 import { getTimeWithZeros } from "../functions/getTimeWithZeros";
 import { Subjects } from "../shared/classes/subjects";
 import ReactDOM from "react-dom";
-import { fetchAvailableRooms } from "../functions/fetches";
+import { fetchAvailablePresentators, fetchAvailableRooms } from "../functions/fetches";
 import { formatDateForInput } from "../functions/formatDateForInput";
 
 interface Props {
@@ -39,6 +39,7 @@ export function AppointmentPopOver(props: Props) {
 
     useEffect(() => {
         getAvailableRooms();
+        getAvailablePresentators();
         setSelectedRooms([]);
         setSelectedPresentators([]);
         setDefaultRooms([...props.appointment.getRooms()!]);
@@ -52,6 +53,13 @@ export function AppointmentPopOver(props: Props) {
         const availablerooms = await fetchAvailableRooms(props.appointment, props.appointment.getInstitutionId()!);
         if (availablerooms) {
             setAvailableRooms(availablerooms);
+        }
+    }
+
+    async function getAvailablePresentators() {
+        const availablepresentators = await fetchAvailablePresentators(props.appointment, props.appointment.getInstitutionId()!);
+        if (availablepresentators) {
+            setAvailablePresentators(availablepresentators);
         }
     }
 
@@ -144,13 +152,12 @@ export function AppointmentPopOver(props: Props) {
                             setError(["Presentator already added"]);
                         } else {
                             setError([]);
-                            presentators.push(props.presentatorlist.find(pres => pres.getId() === e.target.value)!);
+                            presentators.push(availablePresentators.find(pres => pres.getId() === e.target.value)!);
                             selectElementSet.push({ id: id, elementId: e.target.value })
-                            console.log('pres')
                         }
                     }}>
                         <option value="default">Select a presentator</option>
-                        {props.presentatorlist.map((pres: Presentators) => (
+                        {availablePresentators && availablePresentators!.map((pres: Presentators) => (
                             <option key={pres.getId()} value={pres.getId()}>{pres.getName()}</option>
                         ))}
                     </select>
@@ -197,16 +204,18 @@ export function AppointmentPopOver(props: Props) {
                 });
                 if (!response.ok) {
                     const data = await response.json();
-                    console.log(data);
+                    if (props.appointment.getStart() < new Date()) {
+                        setError(["You cannot change past appointments!"]);
+                    } else {
+                        setError([`${data.message}`]);
+                    }
                 }
                 else {
-                    console.log(response);
                     props.appointment.setStart(start);
                     props.appointment.setEnd(end);
                     props.appointment.setSubject(subject);
                     props.appointment.setRooms(existing_rooms);
                     props.appointment.setPresentators(existing_presentators);
-                    console.log(props.appointment);
                     setSubject(props.appointment.getSubject()!);
                     setDefaultPresentators(props.appointment.getPresentators()!);
                     setDefaultRooms(props.appointment.getRooms()!);
@@ -223,7 +232,6 @@ export function AppointmentPopOver(props: Props) {
     };
 
     const handledeleteappointment = async () => {
-        console.log('delete');
         let url = `${import.meta.env.VITE_BASE_URL}/${props.appointment.getInstitutionId()!}/${JSON.parse(props.appointment!.getOrigin()!).type!}/${JSON.parse(props.appointment!.getOrigin()!).id!}/appointments/${props.appointment!.getId()!}`;
         const response = await fetch(url, {
             method: 'DELETE',
@@ -238,7 +246,6 @@ export function AppointmentPopOver(props: Props) {
         }
         else {
             setError(["Appointment deleted successfully!"]);
-            console.log(response);
             setTimeout(() => {
                 removeall();
                 props.onClose();

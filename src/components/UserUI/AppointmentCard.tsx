@@ -119,7 +119,6 @@ export function AppointmentCard(props: Props) {
     }
 
     const handleshowpopover = (event: React.MouseEvent<HTMLDivElement>) => {
-        // console.log(props.appointment)
         let x = event.clientX - 70;
         let y = event.clientY + 10;
         let popoverHeight;
@@ -139,7 +138,6 @@ export function AppointmentCard(props: Props) {
 
     const handlesubstitution = async () => {
         var checkbox = document.getElementById(`checkbox-${props.appointment?.getId()}`) as HTMLInputElement;
-        console.log(checkbox);
         let origin = JSON.parse(props.appointment.getOrigin()!);
         if (checkbox!.checked) {
             const response = await fetch(`${import.meta.env.VITE_BASE_URL}/${props.appointment.getInstitutionId()}/${origin.type}/${origin.id}/appointments/${props.appointment.getId()}/presentators/${localStorage.getItem("presentatorid")}/substitute`, {

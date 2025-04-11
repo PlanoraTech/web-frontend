@@ -23,7 +23,6 @@ export function ManageAppointment(props: Props) {
     }
 
     const handlecreateappointment = async () => {
-        console.log(start, end, selectedTimetable, subject);
         if (start === "" || end === "" || !selectedTimetable || !subject) {
             setError("Please fill in all fields ");
         } else if (start >= end) {
@@ -46,7 +45,6 @@ export function ManageAppointment(props: Props) {
                 setError(data.message);
             }
             else {
-                console.log(response);
                 setError("Appointment created successfully");
                 setStart("");
                 setEnd("");

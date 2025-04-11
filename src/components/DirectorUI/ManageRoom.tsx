@@ -36,7 +36,6 @@ export function ManageRoom(props: Props) {
                 setError(data.message);
             }
             else {
-                console.log(response);
                 setError("Room added successfully");
                 setRoomname("");
             }
@@ -57,7 +56,6 @@ export function ManageRoom(props: Props) {
             setError(data.message);
         }
         else {
-            console.log(response);
             setError("Room deleted successfully");
             setRoomname("");
         }

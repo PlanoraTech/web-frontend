@@ -37,7 +37,6 @@ export function ManageTimetable(props: Props) {
                 setError(data.message);
             }
             else {
-                console.log(response);
                 props.action === "update" ? setError("Timetable updated successfully") : setError("Timetable created successfully");
                 setTtname("");
             }
@@ -63,7 +62,6 @@ export function ManageTimetable(props: Props) {
             setError(data.message);
         }
         else {
-            console.log(response);
             setError("Timetable deleted successfully");
             setTtname("");
         }

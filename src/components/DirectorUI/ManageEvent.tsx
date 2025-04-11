@@ -58,12 +58,9 @@ export function ManageEvent(props: Props) {
             });
             if (!response.ok) {
                 const data = await response.json();
-                console.log(data);
                 setError(data.message);
             }
             else {
-                console.log(response);
-
                 setError("Event saved successfully");
                 setEventtitle("");
                 setEventdate("");

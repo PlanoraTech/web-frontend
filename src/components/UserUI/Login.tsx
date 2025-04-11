@@ -43,7 +43,6 @@ export function Login() {
 
             } else {
                 const data = await response.json();
-                console.log(data);
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('expiry', data.expiry);
                 localStorage.setItem('institutions', JSON.stringify(data.user.institutions));
@@ -61,19 +60,14 @@ export function Login() {
 
     const handleregister = async () => {
         if (!regemail || !regemailagain || !regpassword || !regpasswordagain) {
-            console.log("empty fields");
             setError("Please fill in all fields");
         } else if (regemail != regemailagain) {
-            console.log("emails are not the same");
             setError("Emails are not the same");
         } else if (regpassword != regpasswordagain) {
-            console.log("passwords are not the same");
             setError("Passwords are not the same");
         } else if (/^((?!\.)[\w-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/gim.test(regemail) == false) {
-            console.log("invalid email");
             setError("Invalid email");
         } else if (/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&#]{8,128}$/.test(regpassword) == false) {
-            console.log("invalid password");
             setError("Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number and one special character");
         } else {
             const response = await fetch(`${import.meta.env.VITE_AUTH_URL}/register`, {
@@ -88,7 +82,6 @@ export function Login() {
                 setError(data.message);
             } else {
                 const data = await response.json();
-                console.log(data);
                 localStorage.setItem('token', data.token);
                 localStorage.setItem('expiry', data.expiry);
                 navigate('/profile');

@@ -4,7 +4,7 @@ interface Props {
     event: Events;
 }
 
-export function EventDay(props: Props) {
+export function Event(props: Props) {
     return (
         <>
             <div className="event-card" title={`${props.event?.getTitle()} - ${props.event?.getDate().toDateString()}`} >

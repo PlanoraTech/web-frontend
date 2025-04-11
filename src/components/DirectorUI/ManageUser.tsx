@@ -36,7 +36,6 @@ export function ManageUser(props: Props) {
                 setError(data.message);
             }
             else {
-                console.log(response);
                 props.action === "update" ? setError("User updated successfully") : setError("User created successfully");
                 setEmail("");
             }
@@ -62,7 +61,6 @@ export function ManageUser(props: Props) {
             setError(data.message);
         }
         else {
-            console.log(response);
             setError("User deleted successfully");
             setEmail("");
         }

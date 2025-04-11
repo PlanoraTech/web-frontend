@@ -20,7 +20,6 @@ export async function fetchInstitutions() {
     const instlist = institutions.map((institution: any) =>
         new Institutions(institution.id, institution.name, institution.type, institution.access, institution.color, institution.website)
     );
-    console.log(instlist);
     return (instlist as Institutions[]).sort((a, b) => a.getName().localeCompare(b.getName()));
 }
 
@@ -33,7 +32,6 @@ export async function fetchManageInstitutions() {
         const fetchedinstitution = await response.json();
         return new Institutions(fetchedinstitution.id, fetchedinstitution.name, fetchedinstitution.type, fetchedinstitution.access, fetchedinstitution.color, fetchedinstitution.website);
     }));
-    console.log(instlist);
     return instlist.sort((a, b) => a.getName().localeCompare(b.getName()));
 }
 
@@ -180,7 +178,5 @@ async function fetchAppointmentsData<T extends { getInstitutionId: () => string 
         const appointments = makeAppointmentFn(appointmentsData);
         setAppointmentsFn(appointments);
         return appointments;
-    } catch (error) {
-        console.log("Error fetching appointments:", error);
-    }
+    } catch (error) { }
 }
