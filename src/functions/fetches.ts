@@ -69,7 +69,7 @@ export async function fetchUsers(selectedinstitution: Institutions) {
 export async function fetchTimetableAppointments(selectedttable: Timetables, selectedinstitution: Institutions) {
     return await fetchAppointmentsData(selectedttable, `timetables/${selectedttable.getId()}/appointments`,
         (appointments) => appointments.map(appointment => {
-            let appt = makeAppointments(appointment);
+            let appt = makeAppointments(appointment, selectedinstitution.getId()!);
             appt.setOrigin(JSON.stringify({ type: "timetables", id: selectedttable.getId() }));
             appt.setInstitutionId(selectedinstitution.getId()!);
             return appt;
@@ -80,7 +80,7 @@ export async function fetchTimetableAppointments(selectedttable: Timetables, sel
 export async function fetchPresentatorAppointments(selectedpresentator: Presentators, selectedinstitution: Institutions) {
     return await fetchAppointmentsData(selectedpresentator, `presentators/${selectedpresentator.getId()}/appointments`,
         (appointments) => appointments.map(appointment => {
-            let appt = makeAppointments(appointment);
+            let appt = makeAppointments(appointment, selectedinstitution.getId()!);
             appt.setOrigin(JSON.stringify({ type: "presentators", id: selectedpresentator.getId() }));
             appt.setInstitutionId(selectedinstitution.getId()!);
             return appt;
@@ -91,7 +91,7 @@ export async function fetchPresentatorAppointments(selectedpresentator: Presenta
 export async function fetchRoomAppointments(selectedroom: Rooms, selectedinstitution: Institutions) {
     return await fetchAppointmentsData(selectedroom, `rooms/${selectedroom.getId()}/appointments`,
         (appointments) => appointments.map(appointment => {
-            let appt = makeAppointments(appointment);
+            let appt = makeAppointments(appointment, selectedinstitution.getId()!);
             appt.setOrigin(JSON.stringify({ type: "rooms", id: selectedroom.getId() }));
             appt.setInstitutionId(selectedinstitution.getId()!);
             return appt;
@@ -135,18 +135,18 @@ export async function fetchAvailablePresentators(appointment: Appointments, inst
 }
 
 // Helper function to create appointments from raw data
-function makeAppointments(appointment: any) {
+function makeAppointments(appointment: any, institutionId: string) {
     let oneroomlist = [];
     let onepreslist = [];
     for (let j = 0; j < appointment.rooms.length; j++) {
-        oneroomlist.push(new Rooms(appointment.rooms[j].id, appointment.rooms[j].name, appointment.rooms[j].isAvailable, appointment.rooms[j].institutionId));
+        oneroomlist.push(new Rooms(appointment.rooms[j].id, appointment.rooms[j].name, appointment.rooms[j].isAvailable, institutionId));
     }
     for (let j = 0; j < appointment.presentators.length; j++) {
-        let pres: Presentators = new Presentators(appointment.presentators[j].id, appointment.presentators[j].name, appointment.presentators[j].institutionId);
+        let pres: Presentators = new Presentators(appointment.presentators[j].id, appointment.presentators[j].name, institutionId);
         pres.setIsSubstituted(appointment.presentators[j].isSubstituted);
         onepreslist.push(pres);
     }
-    let subject: Subjects = new Subjects(appointment.subject.id, appointment.subject.name, appointment.subject.subjectId, appointment.subject.institutionId);
+    let subject: Subjects = new Subjects(appointment.subject.id, appointment.subject.name, appointment.subject.subjectId, institutionId);
     return new Appointments(appointment.id, subject, onepreslist, oneroomlist, appointment.start, appointment.end, appointment.isCancelled)
 }
 

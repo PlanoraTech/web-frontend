@@ -50,20 +50,24 @@ export function ManageTimetable(props: Props) {
     }
 
     const handleDeleteTimetable = async () => {
-        const response = await fetch(`${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/timetables/${timetable?.getId()}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-        });
-        if (!response.ok) {
-            const data = await response.json();
-            setError(data.message);
-        }
-        else {
-            setError("Timetable deleted successfully");
-            setTtname("");
+        if (confirm("Are you sure you want to delete this timetable?")) {
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/timetables/${timetable?.getId()}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                setError(data.message);
+            }
+            else {
+                setError("Timetable deleted successfully");
+                setTtname("");
+            }
+        } else {
+            setError("Timetable deletion cancelled");
         }
     }
 

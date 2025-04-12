@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Nav } from "../Nav";
+import { Nav } from "./Nav";
 import { useNavigate } from "react-router";
-import { CostumCheckbox } from "../CostumCheckbox";
+import { CostumCheckbox } from "./CostumCheckbox";
 
 export function Login() {
     const [error, setError] = useState("");
@@ -40,7 +40,6 @@ export function Login() {
             if (!response.ok) {
                 const data = await response.json();
                 setError(data.message);
-
             } else {
                 const data = await response.json();
                 localStorage.setItem('token', data.token);

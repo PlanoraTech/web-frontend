@@ -49,20 +49,24 @@ export function ManageUser(props: Props) {
     }
 
     const handledeleteUser = async () => {
-        const response = await fetch(`${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/users/${user?.getId()}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+        if (confirm("Are you sure you want to delete this user?")) {
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/users/${user?.getId()}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                setError(data.message);
             }
-        });
-        if (!response.ok) {
-            const data = await response.json();
-            setError(data.message);
-        }
-        else {
-            setError("User deleted successfully");
-            setEmail("");
+            else {
+                setError("User deleted successfully");
+                setEmail("");
+            }
+        } else {
+            setError("User deletion cancelled");
         }
     }
 

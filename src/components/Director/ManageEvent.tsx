@@ -73,22 +73,26 @@ export function ManageEvent(props: Props) {
     }
 
     const handleeventdelete = async () => {
-        const response = await fetch(`${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/events/${selectedEvent?.getId()}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-        });
-        if (!response.ok) {
-            const data = await response.json();
-            setError(data.message);
+        if (confirm("Are you sure you want to delete this event?")) {
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/events/${selectedEvent?.getId()}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                setError(data.message);
+            } else {
+                setError("Event deleted successfully");
+                setSelectedEvent(null);
+                setSelectedEventtitle("");
+                setSelectedEventdate("");
+                props.institution.setEvents(props.institution.getEvents()!.filter((event: Events) => event.getId() !== selectedEvent?.getId()!));
+            }
         } else {
-            setError("Event deleted successfully");
-            setSelectedEvent(null);
-            setSelectedEventtitle("");
-            setSelectedEventdate("");
-            props.institution.setEvents(props.institution.getEvents()!.filter((event: Events) => event.getId() !== selectedEvent?.getId()!));
+            setError("Event deletion cancelled");
         }
     }
 

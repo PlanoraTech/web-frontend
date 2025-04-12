@@ -6,10 +6,10 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import { Appointments } from '../shared/classes/appointments'
 import { Presentators } from '../shared/classes/presentators'
-import { AppointmentCard } from './UserUI/AppointmentCard'
+import { AppointmentCard } from './AppointmentCard'
 import { Events } from '../shared/classes/events'
 import { Institutions } from '../shared/classes/institutions'
-import { Event } from './UserUI/Event'
+import { Event } from './Event'
 import { Rooms } from '../shared/classes/rooms'
 import { Subjects } from '../shared/classes/subjects'
 
@@ -103,10 +103,14 @@ export function Calendar(props: Props) {
             });
             if (!response.ok) {
                 const data = await response.json();
-                console.log(data);
+                if (app.getStart() < new Date()) {
+                    alert("You cannot change past appointments!")
+                } else {
+                    alert(data.message);
+                }
             }
             else {
-                console.log(response);
+                alert("Apppointment changed successfully!");
             }
         }
     }
@@ -122,11 +126,11 @@ export function Calendar(props: Props) {
             initialView="timeGridWeek"
             dayMaxEventRows={2}
             events={events}
-            weekends={false} 
-            nowIndicator={true} 
-            editable={handleEdit()} 
-            eventResizableFromStart={true} 
-            selectable={true} 
+            weekends={false}
+            nowIndicator={true}
+            editable={handleEdit()}
+            eventResizableFromStart={true}
+            selectable={true}
             eventContent={renderEventContent}
             allDayText="All-day"
             slotLabelFormat={{

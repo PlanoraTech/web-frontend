@@ -6,7 +6,5 @@ export async function getData<T>(fetchFn: (institution: Institutions) => Promise
         const { items, error } = result;
         error.forEach(err => error.push(err));
         setListFn(items.sort((a: any, b: any) => a.getName().localeCompare(b.getName())));
-    } else {
-        console.error('Fetch failed or returned undefined');
-    }
+    } else { }
 }

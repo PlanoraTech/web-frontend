@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Nav } from "../Nav"
+import { Nav } from "./Nav"
 
 export function Profile() {
     const [email, setEmail] = useState("");
@@ -28,9 +28,8 @@ export function Profile() {
             body: JSON.stringify({ token: localStorage.getItem('token') }),
         })
         if (!response.ok) {
-            console.log(response.status);
+            alert(response.text);
         } else {
-            console.log(response.status);
             localStorage.removeItem('token');
             localStorage.removeItem('expiry');
             localStorage.removeItem('role');
@@ -43,10 +42,9 @@ export function Profile() {
             const response = await fetch(`${import.meta.env.VITE_AUTH_URL}/profile`, { headers });
             if (!response.ok) {
                 const data = await response.json();
-                console.log(data);
+                setError(data.message);
             } else {
                 const data = await response.json();
-                console.log(data);
                 setEmail(data.email);
                 setInstitutions(data.institutions);
             }

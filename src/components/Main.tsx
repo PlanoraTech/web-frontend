@@ -10,13 +10,13 @@ import { fetchEvents, fetchTimetables, fetchPresentators, fetchRooms, fetchTimet
 import { getData } from "../functions/getData";
 import { resetState, setSelectionAndResetAppointments } from "../functions/utils";
 import { useNavigate } from "react-router";
-import { ManageAppointment } from "./DirectorUI/ManageAppointment";
-import { ManageEvent } from "./DirectorUI/ManageEvent";
-import { ManagePresentator } from "./DirectorUI/ManagePresentator";
-import { ManageRoom } from "./DirectorUI/ManageRoom";
-import { ManageSubject } from "./DirectorUI/ManageSubject";
-import { ManageTimetable } from "./DirectorUI/ManageTimetable";
-import { ManageUser } from "./DirectorUI/ManageUser";
+import { ManageAppointment } from "./Director/ManageAppointment";
+import { ManageEvent } from "./Director/ManageEvent";
+import { ManagePresentator } from "./Director/ManagePresentator";
+import { ManageRoom } from "./Director/ManageRoom";
+import { ManageSubject } from "./Director/ManageSubject";
+import { ManageTimetable } from "./Director/ManageTimetable";
+import { ManageUser } from "./Director/ManageUser";
 
 interface Props {
     type: "main" | "manage"
@@ -179,7 +179,7 @@ export function Main(props: Props) {
             "Add Presentator": <ManagePresentator institution={selectedInstitution!} />,
             "Add Room": <ManageRoom institution={selectedInstitution!} action="add" />,
             "Add Subject": <ManageSubject institution={selectedInstitution!} action="add" />,
-            "Add Appointment": <ManageAppointment timetables={selectedTimetablelist!} subjectlist={selectedInstitution.getSubjects()!} action="add" />,
+            "Add Appointment": <ManageAppointment timetables={selectedTimetablelist!} subjectlist={selectedInstitution.getSubjects()!} action="add" presentatorlist={selectedInstitution.getPresentators()!} roomlist={selectedInstitution.getRooms()!}/>,
             "Add User": <ManageUser institution={selectedInstitution!} action="add" />,
             "Add Event": <ManageEvent institution={selectedInstitution!} action="add" />,
             "Update Timetable": <ManageTimetable institution={selectedInstitution!} action="update" />,

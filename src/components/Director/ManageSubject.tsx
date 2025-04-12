@@ -52,22 +52,26 @@ export function ManageSubject(props: Props) {
     }
 
     const handleDeleteSubject = async () => {
-        const response = await fetch(`${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/subjects/${subject?.getId()}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-        });
-        if (!response.ok) {
-            const data = await response.json();
-            setError(data.message);
-        }
-        else {
-            setSubjectname("");
-            setSubjectid("");
-            setSubject(null);
-            setError("Subject deleted successfully");
+        if (confirm("Are you sure you want to delete this subject?")) {
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/subjects/${subject?.getId()}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                setError(data.message);
+            }
+            else {
+                setSubjectname("");
+                setSubjectid("");
+                setSubject(null);
+                setError("Subject deleted successfully");
+            }
+        } else {
+            setError("Subject deletion cancelled");
         }
     }
 

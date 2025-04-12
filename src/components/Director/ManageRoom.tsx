@@ -43,21 +43,25 @@ export function ManageRoom(props: Props) {
     }
 
     const handleRoomDelete = async () => {
-        const url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/rooms/${room?.getId()}`
-        const response = await fetch(url, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-        });
-        if (!response.ok) {
-            const data = await response.json();
-            setError(data.message);
-        }
-        else {
-            setError("Room deleted successfully");
-            setRoomname("");
+        if (confirm("Are you sure you want to delete this room?")) {
+            const url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/rooms/${room?.getId()}`
+            const response = await fetch(url, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                setError(data.message);
+            }
+            else {
+                setError("Room deleted successfully");
+                setRoomname("");
+            }
+        } else {
+            setError("Room deletion cancelled");
         }
     }
 
