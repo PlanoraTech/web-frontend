@@ -77,9 +77,6 @@ export function ManageAppointment(props: Props) {
                     setAppointment(app);
                     setSuccess("Appointment created successfully");
                     handleshowpopover(app);
-                    console.log(start, end);
-                    console.log(app.getStart(), app.getEnd());
-                    console.log(new Date(start), new Date(end));
                 }
             } 
         }

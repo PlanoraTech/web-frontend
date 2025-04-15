@@ -105,7 +105,6 @@ export function PopOver(props: Props) {
     }
 
     async function changeAppointmentPart(type: 'rooms' | 'presentators') {
-        console.log('changeing appointment part', type);
         const isRooms = type === 'rooms';
         const getAll = isRooms ? getAllRooms() : getAllPresentators();
         const getOriginal = isRooms ? props.appointment.getRooms() : props.appointment.getPresentators();
@@ -134,7 +133,6 @@ export function PopOver(props: Props) {
                     const data = await response.json();
                     setError([`${data.message}`]);
                 } else {
-                    console.log(response);
                     getAvailable;
                     if (type === 'rooms' && props.type === 'presentator') {
                         setError(["Rooms changed successfully!"]);
@@ -150,7 +148,6 @@ export function PopOver(props: Props) {
     }
 
     const changeTimeAndSubject = async () => {
-        console.log('changing time and subject')
         if (subject == props.appointment.getSubject() && start == props.appointment.getStart().toISOString() && end == props.appointment.getEnd().toISOString() && JSON.stringify(getAllRooms()) == JSON.stringify(props.appointment.getRooms()) && JSON.stringify(getAllPresentators()) == JSON.stringify(props.appointment.getPresentators())) {
             setError(["No changes made!"]);
         } else if (start >= end) {
