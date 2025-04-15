@@ -1,19 +1,17 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 import './index.css'
 import { Home } from './components/Home'
-import { Login } from './components/UserUI/Login'
-import { Profile } from './components/UserUI/Profile'
+import { Login } from './components/Login'
+import { Profile } from './components/Profile'
 import { ThemeProvider } from './ThemeContext'
 import { Main } from './components/Main'
 
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <>
-            <h1>Go to the <a href='/home'>homepage</a></h1>
-        </>,
+        element: <Navigate to="/home" replace />,
     },
     {
         path: "/home",
@@ -34,7 +32,11 @@ const router = createBrowserRouter([
     {
         path: "/manage",
         element: <Main type='manage' />,
-    }
+    },
+    {
+        path: "*",
+        element: <Navigate to="/home" replace />,
+    },
 ]);
 
 createRoot(document.getElementById('root')!).render(

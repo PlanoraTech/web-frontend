@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Institutions } from "../../shared/classes/institutions";
 import { Rooms } from "../../shared/classes/rooms";
+import { getBearerToken } from "../../functions/utils";
 
 interface Props {
     institution: Institutions;
@@ -11,62 +12,79 @@ export function ManageRoom(props: Props) {
     const [roomname, setRoomname] = useState<string>("");
     const [room, setRoom] = useState<Rooms | null>(null);
     const [error, setError] = useState<string>("");
-    let token = localStorage.getItem('token');
+    const [success, setSuccess] = useState<string>("");
 
     const handlechangeroom = async () => {
+        setError("");
+        setSuccess("");
         let change = 'POST';
         let url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/rooms`
         if (props.action === "update") {
             change = 'PATCH';
             url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/rooms/${room?.getId()}`
         }
-        if (roomname === "") {
+        if (roomname.trim() === "") {
             setError("Please fill in all fields");
-        } else {
-            const response = await fetch(url, {
-                method: change,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ name: roomname }),
-            });
-            if (!response.ok) {
-                const data = await response.json();
-                setError(data.message);
-            }
-            else {
-                console.log(response);
-                setError("Room added successfully");
-                setRoomname("");
-            }
+            return;
         }
-    }
-
-    const handleRoomDelete = async () => {
-        const url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/rooms/${room?.getId()}`
+        if (roomname === room?.getName()) {
+            setError("No changes made");
+            return;
+        }
         const response = await fetch(url, {
-            method: 'DELETE',
+            method: change,
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${getBearerToken()}`
             },
+            body: JSON.stringify({ name: roomname }),
         });
         if (!response.ok) {
             const data = await response.json();
             setError(data.message);
         }
         else {
-            console.log(response);
-            setError("Room deleted successfully");
+            setSuccess("Room added successfully");
             setRoomname("");
+            setRoom(null);
+        }
+
+    }
+
+    const handleRoomDelete = async () => {
+        setError("");
+        setSuccess("");
+        if (confirm("Are you sure you want to delete this room?")) {
+            const url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/rooms/${room?.getId()}`
+            const response = await fetch(url, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getBearerToken()}`
+                },
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                setError(data.message);
+            }
+            else {
+                setSuccess("Room deleted successfully");
+                setRoomname("");
+                setRoom(null);
+            }
+        } else {
+            setError("Room deletion cancelled");
         }
     }
 
     const handleroomchange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const room = props.institution.getRooms()?.find((rm: Rooms) => rm.getId() === e.target.value);
-        setRoomname(room!.getName());
-        setRoom(room!);
+        const selected = props.institution.getRooms()?.find((rm: Rooms) => rm.getId() === e.target.value);
+        if (selected) {
+            setRoomname(selected.getName());
+            setRoom(selected);
+            setSuccess("");
+            setError("");
+        }
     }
 
     return (
@@ -90,10 +108,11 @@ export function ManageRoom(props: Props) {
                         <input placeholder="Name:" type="text" value={roomname} onChange={(e) => setRoomname(e.target.value)} /><br />
                     </>
                 }
-                <p id="errors">{error}</p>
+                {error && <p id="errors">{error}</p>}
+                {success && <p id="success">{success}</p>}
                 <div className="button-container">
                     <button onClick={handlechangeroom}>{props.action === "update" ? "Save" : "Create New "} Room</button>
-                    {props.action === "update" && <button onClick={handleRoomDelete}>Delete Event</button>}
+                    {props.action === "update" && <button onClick={handleRoomDelete}>Delete Room</button>}
                 </div>
             </div>
         </div>

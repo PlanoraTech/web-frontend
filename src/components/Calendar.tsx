@@ -6,13 +6,13 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import { Appointments } from '../shared/classes/appointments'
 import { Presentators } from '../shared/classes/presentators'
-import { AppointmentCard } from './UserUI/AppointmentCard'
+import { AppointmentCard } from './AppointmentCard'
 import { Events } from '../shared/classes/events'
 import { Institutions } from '../shared/classes/institutions'
-import { EventDay } from './UserUI/EventDay'
+import { Event } from './Event'
 import { Rooms } from '../shared/classes/rooms'
 import { Subjects } from '../shared/classes/subjects'
-import ReactDOM from 'react-dom'
+import { getBearerToken } from '../functions/utils'
 
 interface Props {
     institution?: Institutions,
@@ -25,11 +25,9 @@ interface Props {
 
 export function Calendar(props: Props) {
     const [events, setEvents] = useState<EventInput[]>([]);
-    let token = localStorage.getItem('token');
 
     useEffect(() => {
         setEvents(convertAppointmentsToEvents(props.appointments! || [], props.institution?.getEvents() || []));
-        // setEvents(convertAppointmentsToEvents(getTestDataForAppointments() || [], props.institution?.getEvents() || []));
     }, [props.appointments, props.institution?.getEvents()]);
 
 
@@ -85,14 +83,13 @@ export function Calendar(props: Props) {
             )
         } else {
             return (
-                <EventDay event={eventInfo.event.extendedProps.event} />
+                <Event event={eventInfo.event.extendedProps.event} />
             )
         }
     }
 
-    async function handleAppointmentTimeChange(id: string, start: Date, end: Date) {
+    async function handleAppointmentTimeChange(id: string, start: string, end: string) {
         let app = props.appointments!.find(app => app.getId() === id);
-        console.log(app);
         JSON.parse(app!.getOrigin()!).type;
         if (app) {
             let url = `${import.meta.env.VITE_BASE_URL}/${app.getInstitutionId()!}/${JSON.parse(app!.getOrigin()!).type!}/${JSON.parse(app!.getOrigin()!).id!}/appointments/${app!.getId()!}`;
@@ -100,16 +97,22 @@ export function Calendar(props: Props) {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${getBearerToken()}`
                 },
                 body: JSON.stringify({ start: start, end: end }),
             });
             if (!response.ok) {
                 const data = await response.json();
-                console.log(data);
+                if (app.getStart() < new Date()) {
+                    alert("You cannot change past appointments!")
+                } else {
+                    alert(data.message);
+                }
             }
             else {
-                console.log(response);
+                app.setStart(new Date((new Date(start)).getTime() + (new Date(start)).getTimezoneOffset() * 60000));
+                app.setEnd(new Date((new Date(end)).getTime() + (new Date(end)).getTimezoneOffset() * 60000));
+                alert("Apppointment changed successfully!");
             }
         }
     }
@@ -125,11 +128,11 @@ export function Calendar(props: Props) {
             initialView="timeGridWeek"
             dayMaxEventRows={2}
             events={events}
-            weekends={false} 
-            nowIndicator={true} 
-            editable={handleEdit()} 
-            eventResizableFromStart={true} 
-            selectable={true} 
+            weekends={false}
+            nowIndicator={true}
+            editable={handleEdit()}
+            eventResizableFromStart={true}
+            selectable={true}
             eventContent={renderEventContent}
             allDayText="All-day"
             slotLabelFormat={{
@@ -137,6 +140,7 @@ export function Calendar(props: Props) {
                 minute: '2-digit',
                 hour12: false
             }}
+            scrollTime={"08:00:00"}
             buttonText={{
                 today: "Today",
                 month: "Month",
@@ -144,7 +148,7 @@ export function Calendar(props: Props) {
                 day: "Day"
             }}
             eventChange={(info) => {
-                handleAppointmentTimeChange(info.oldEvent.extendedProps.appointment.getId(), info.event._instance!.range.start, info.event._instance!.range.end);
+                handleAppointmentTimeChange(info.oldEvent.extendedProps.appointment.getId(), (info.event._instance!.range.start).toISOString(), (info.event._instance!.range.end).toISOString());
             }}
         />
     )

@@ -1,6 +1,5 @@
 import { Institutions } from "./institutions";
 import { Appointments } from "./appointments";
-import { Events } from "./events";
 
 export class Timetables {
     private id: string;
@@ -8,13 +7,14 @@ export class Timetables {
     private appointments?: Appointments[];
     private institution: Institutions;
     private institutionId: string;
-    private events?: Events[];
+    private version: string;
 
-    constructor(id: string, name: string, institution: Institutions, institutionId: string) {
+    constructor(id: string, name: string, institution: Institutions, institutionId: string, version: string) {
         this.id = id;
         this.name = name;
         this.institution = institution;
         this.institutionId = institutionId;
+        this.version = version;
     }
 
     setId(id: string) {
@@ -57,11 +57,11 @@ export class Timetables {
         return this.institutionId;
     }
 
-    setEvents(events: Events[]) {
-        this.events = events;
+    getVersion() {
+        return this.version;
     }
 
-    getEvents() {
-        return this.events;
+    setVersion(version: string) {
+        this.version = version;
     }
 }

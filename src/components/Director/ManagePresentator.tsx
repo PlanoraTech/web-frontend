@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Institutions } from "../../shared/classes/institutions";
 import { Users } from "../../shared/classes/users";
+import { getBearerToken } from "../../functions/utils";
 
 interface Props {
     institution: Institutions;
@@ -10,31 +11,32 @@ export function ManagePresentator(props: Props) {
     const [presname, setPresname] = useState<string>("");
     const [selecteduser, setSelectedUser] = useState<Users | null>(null);
     const [error, setError] = useState<string>("");
-    let token = localStorage.getItem('token');
+    const [success, setSuccess] = useState<string>("");
 
     const handlechangepresentator = async () => {
-        let url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/presentators/${selecteduser?.getId()}`;
-        if (presname === "") {
+        setError("");
+        setSuccess("");
+        if (presname.trim() === "" || !selecteduser) {
             setError("Please fill in all fields");
-        } else {
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ name: presname }), 
-            });
-            if (!response.ok) {
-                const data = await response.json();
-                setError(data.message);
-            }
-            else {
-                console.log(response);
-                setError("");
-                setPresname("");
-            }
+            return;
         }
+        const response = await fetch(`${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/presentators/${selecteduser?.getId()}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${getBearerToken()}`
+            },
+            body: JSON.stringify({ name: presname }),
+        });
+        if (!response.ok) {
+            const data = await response.json();
+            setError(data.message);
+        }
+        else {
+            setSuccess("Presentator created successfully");
+            setPresname("");
+        }
+
     }
 
     const handleUserchange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -55,7 +57,8 @@ export function ManagePresentator(props: Props) {
                         <option key={user.getId()} value={user.getEmail()}>{user.getEmail()}</option>
                     ))}
                 </select><br />
-                <p id="errors">{error}</p>
+                {error && <p id="errors">{error}</p>}
+                {success && <p id="success">{success}</p>}
                 <div className="button-container">
                     <button onClick={handlechangepresentator}>Create New Presentator</button>
                 </div>

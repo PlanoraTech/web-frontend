@@ -19,3 +19,8 @@ export const resetState = (setSelectedTimetable: React.Dispatch<React.SetStateAc
     setSelectedAppointments([]);
     setError([]);
 };
+
+export function getBearerToken() {
+    let token = localStorage.getItem('token');
+    return token;
+}
