@@ -17,18 +17,12 @@ export function ManageUser(props: Props) {
     const handlechangeuser = async () => {
         setError("");
         setSuccess("");
-        let change = 'POST';
-        let url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/users`
-        if (props.action === "update") {
-            change = 'PATCH';
-            url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/users/${user?.getId()}`
-        }
         if (email.trim() === "") {
             setError("Email and role must be filled out");
             return;
         }
-        const response = await fetch(url, {
-            method: change,
+        const response = await fetch(`${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/users`, {
+            method: 'POST',
             headers: {
                 "Content-Type": "application/json",
                 'Authorization': `Bearer ${getBearerToken()}`
@@ -40,7 +34,7 @@ export function ManageUser(props: Props) {
             setError(data.message);
         }
         else {
-            props.action === "update" ? setSuccess("User updated successfully") : setSuccess("User created successfully");
+            setSuccess("User added successfully");
             setEmail("");
         }
 
@@ -109,8 +103,7 @@ export function ManageUser(props: Props) {
                 {error && <p id="errors">{error}</p>}
                 {success && <p id="success">{success}</p>}
                 <div className="button-container">
-                    <button onClick={handlechangeuser}>{props.action === "update" ? "Update" : "Add"} User</button>
-                    {props.action === "update" ? <button onClick={handledeleteUser}>Delete User</button> : null}
+                    {props.action === "update" ? <button onClick={handledeleteUser}>Delete User</button> : <button onClick={handlechangeuser}>Add User</button>}
                 </div>
             </div>
         </div>

@@ -59,6 +59,7 @@ export function Login() {
     }
 
     const handleregister = async () => {
+        setError("");
         if (!regemail || !regemailagain || !regpassword || !regpasswordagain) {
             setError("Please fill in all fields");
             return;

@@ -140,6 +140,7 @@ export function Calendar(props: Props) {
                 minute: '2-digit',
                 hour12: false
             }}
+            scrollTime={"08:00:00"}
             buttonText={{
                 today: "Today",
                 month: "Month",
