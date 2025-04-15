@@ -15,6 +15,8 @@ export function ManageRoom(props: Props) {
     const [success, setSuccess] = useState<string>("");
 
     const handlechangeroom = async () => {
+        setError("");
+        setSuccess("");
         let change = 'POST';
         let url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/rooms`
         if (props.action === "update") {
@@ -50,6 +52,8 @@ export function ManageRoom(props: Props) {
     }
 
     const handleRoomDelete = async () => {
+        setError("");
+        setSuccess("");
         if (confirm("Are you sure you want to delete this room?")) {
             const url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/rooms/${room?.getId()}`
             const response = await fetch(url, {
@@ -66,6 +70,7 @@ export function ManageRoom(props: Props) {
             else {
                 setSuccess("Room deleted successfully");
                 setRoomname("");
+                setRoom(null);
             }
         } else {
             setError("Room deletion cancelled");

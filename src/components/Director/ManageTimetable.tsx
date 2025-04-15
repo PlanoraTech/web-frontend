@@ -29,24 +29,27 @@ export function ManageTimetable(props: Props) {
             }
             if (ttname.trim() === "") {
                 setError("Please fill in all fields");
-            } else {
-                const response = await fetch(url, {
-                    method: change,
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${getBearerToken()}`
-                    },
-                    body: JSON.stringify({ name: ttname, version: ttversion }),
-                });
-                if (!response.ok) {
-                    const data = await response.json();
-                    setError(data.message);
-                }
-                else {
-                    props.action === "update" ? setSuccess("Timetable updated successfully") : setSuccess("Timetable created successfully");
-                    setTtname("");
-                }
+                return;
             }
+            const response = await fetch(url, {
+                method: change,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getBearerToken()}`
+                },
+                body: JSON.stringify(ttversion.trim() === "" ? { name: ttname } : { name: ttname, version: ttversion }),
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                setError(data.message);
+            }
+            else {
+                props.action === "update" ? setSuccess("Timetable updated successfully") : setSuccess("Timetable created successfully");
+                setTtname("");
+                setTtversion("");
+                setTimetable(null);
+            }
+
         } else {
             cloneTimetable();
         }
@@ -103,6 +106,8 @@ export function ManageTimetable(props: Props) {
             else {
                 setSuccess("Timetable deleted successfully");
                 setTtname("");
+                setTtversion("");
+                setTimetable(null);
             }
         } else {
             setError("Timetable deletion cancelled");

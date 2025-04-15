@@ -89,7 +89,7 @@ export function ManageUser(props: Props) {
 
     return (
         <div className="form-container">
-            <h2>{props.action === "update" ? "Update" : "Add"} User</h2>
+            <h2>{props.action === "update" ? "Update" : "Add"} User {props.action === "add" ? "To Institution" : ""}</h2>
             <div className="form-div">
                 {
                     props.action === "update" ? <>
