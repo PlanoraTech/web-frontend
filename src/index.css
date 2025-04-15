@@ -545,9 +545,6 @@ tr {
     text-align: center;
 }
 
-.error-message {
-    color: #fc6464;
-}
 
 /*------------------------------------*/
 
@@ -818,6 +815,11 @@ tr {
 
 #errors {
     color: red;
+    text-align: center;
+}
+
+#success {
+    color: var(--light10);
     text-align: center;
 }
 

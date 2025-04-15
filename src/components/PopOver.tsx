@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import { Appointments } from "../shared/classes/appointments";
 import { Presentators } from "../shared/classes/presentators";
 import { Rooms } from "../shared/classes/rooms";
-import { getTimeWithZeros } from "./getTimeWithZeros";
+import { getTimeWithZeros } from "../functions/getTimeWithZeros";
 import { Subjects } from "../shared/classes/subjects";
 import ReactDOM from "react-dom";
-import { fetchAvailablePresentators, fetchAvailableRooms } from "./fetches";
-import { formatDateForInput } from "./formatDateForInput";
+import { fetchAvailablePresentators, fetchAvailableRooms } from "../functions/fetches";
+import { formatDateForInput } from "../functions/formatDateForInput";
+import { getBearerToken } from "../functions/utils";
 
 interface Props {
     appointment: Appointments;
@@ -27,8 +28,8 @@ export function PopOver(props: Props) {
     const [defaultPresentators, setDefaultPresentators] = useState<Presentators[]>([...props.appointment.getPresentators()!]);
     const [rooms, setRooms] = useState<Rooms[]>([]);
     const [presentators, setPresentators] = useState<Presentators[]>([]);
-    const [start, setStart] = useState<string>(props.appointment.getStart().toISOString());
-    const [end, setEnd] = useState<string>(props.appointment.getEnd().toISOString());
+    const [start, setStart] = useState<string>(props.appointment.getStart().toString());
+    const [end, setEnd] = useState<string>(props.appointment.getEnd().toString());
     const [selectedRooms, setSelectedRooms] = useState<{ id: string, element: JSX.Element }[]>([]);
     const [selectedPresentators, setSelectedPresentators] = useState<{ id: string, element: JSX.Element }[]>([]);
     const [selectElementSet, setSelectElementSet] = useState<{ id: string, elementId: string }[]>([]);
@@ -36,7 +37,6 @@ export function PopOver(props: Props) {
     const [availablePresentators, setAvailablePresentators] = useState<Presentators[]>([]);
     const [_, setUpdate] = useState(false);
     const [error, setError] = useState<string[]>([]);
-    let token = localStorage.getItem('token');
 
     useEffect(() => {
         if (props.type == 'manage') {
@@ -69,42 +69,12 @@ export function PopOver(props: Props) {
     }
 
     const saveAppointment = async () => {
-        if (subject == props.appointment.getSubject() && start == props.appointment.getStart().toISOString() && end == props.appointment.getEnd().toISOString() && JSON.stringify(getAllPresentators()) == JSON.stringify(props.appointment.getPresentators()) && JSON.stringify(getAllRooms()) == JSON.stringify(props.appointment.getRooms())) {
-            setError(["No changes made!"]);
-        } else if (getAllPresentators().length == 0 || getAllRooms().length == 0) {
-            setError(["Please select at least one presentator and one room!"]);
-        } else if (start >= end) {
-            setError(["End date should be after start date!"]);
-        } else if (props.appointment.getStart() < new Date()) {
-            setError(["You cannot change past appointments!"]);
-        } else {
-            if (error.length == 0) {
-                let url = `${import.meta.env.VITE_BASE_URL}/${props.appointment.getInstitutionId()!}/${JSON.parse(props.appointment!.getOrigin()!).type!}/${JSON.parse(props.appointment!.getOrigin()!).id!}/appointments/${props.appointment!.getId()!}`;
-                const response = await fetch(url, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ start: start, end: end, presentators: getAllPresentators(), rooms: getAllRooms(), subject: subject }),
-                });
-                if (!response.ok) {
-                    const data = await response.json();
-                    setError([`${data.message}`]);
-                } else {
-                    if (!props.new) {
-                        getAvailablePresentators();
-                        getAvailableRooms();
-                        updateAppointment();
-                        setError(["Appointment saved successfully!"]);
-                    } else {
-                        updateAppointment();
-                        setError(["Appointment created successfully!"]);
-                    }
-                }
-            } else {
-                setError([...error, "Please resolve the issues to save the appointment!"])
-            }
+        if (JSON.stringify(getAllPresentators()) != JSON.stringify(props.appointment.getPresentators()) || JSON.stringify(getAllRooms()) != JSON.stringify(props.appointment.getRooms())) {
+            changeAppointmentPart('presentators')
+            changeAppointmentPart('rooms')
+        }
+        if (new Date(start).toString() != props.appointment.getStart().toString() || new Date(end).toString() != props.appointment.getEnd().toString() || subject != props.appointment.getSubject()) {
+            changeTimeAndSubject()
         }
     };
 
@@ -115,7 +85,7 @@ export function PopOver(props: Props) {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${getBearerToken()}`
                 },
             });
             if (!response.ok) {
@@ -134,35 +104,76 @@ export function PopOver(props: Props) {
         }
     }
 
-    const changeRooms = async () => {
-        let url = `${import.meta.env.VITE_BASE_URL}/${props.appointment.getInstitutionId()!}/${JSON.parse(props.appointment!.getOrigin()!).type!}/${JSON.parse(props.appointment!.getOrigin()!).id!}/appointments/${props.appointment!.getId()!}/rooms`
-        if (JSON.stringify(getAllRooms()) == JSON.stringify(props.appointment.getRooms())) {
+    async function changeAppointmentPart(type: 'rooms' | 'presentators') {
+        console.log('changeing appointment part', type);
+        const isRooms = type === 'rooms';
+        const getAll = isRooms ? getAllRooms() : getAllPresentators();
+        const getOriginal = isRooms ? props.appointment.getRooms() : props.appointment.getPresentators();
+        const getChanged = isRooms ? getChangedRooms() : getChangedPresentators();
+        const updateAppointment = isRooms ? updateAppointmentRooms() : updateAppointmentPresentators();
+        const getAvailable = isRooms ? getAvailableRooms() : getAvailablePresentators();
+        const url = `${import.meta.env.VITE_BASE_URL}/${props.appointment.getInstitutionId()!}/${JSON.parse(props.appointment!.getOrigin()!).type!}/${JSON.parse(props.appointment!.getOrigin()!).id!}/appointments/${props.appointment!.getId()!}/${type}`;
+        if (JSON.stringify(getAll) === JSON.stringify(getOriginal)) {
             setError(["No changes made!"]);
-        } else if (getAllRooms().length == 0) {
-            setError(["Please select at least one room!"]);
+        } else if (getAll.length === 0) {
+            setError([`Please select at least one ${type.slice(0, -1)}!`]);
         } else if (props.appointment.getStart() < new Date()) {
             setError(["You cannot change past appointments!"]);
         } else {
-            if (error.length == 0) {
+            if (error.length === 0) {
                 const response = await fetch(url, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${getBearerToken()}`
                     },
-                    body: JSON.stringify(getChangedRooms()),
+                    body: JSON.stringify(getChanged),
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    setError([`${data.message}`]);
+                } else {
+                    console.log(response);
+                    getAvailable;
+                    if (type === 'rooms' && props.type === 'presentator') {
+                        setError(["Rooms changed successfully!"]);
+                    } else {
+                        props.new ? setError(["Appointment created successfully!"]) : setError(["Appointment saved successfully!"]);
+                    }
+                    updateAppointment;
+                }
+            } else {
+                setError([...error, "Please resolve the issues to save the appointment!"]);
+            }
+        }
+    }
+
+    const changeTimeAndSubject = async () => {
+        console.log('changing time and subject')
+        if (subject == props.appointment.getSubject() && start == props.appointment.getStart().toISOString() && end == props.appointment.getEnd().toISOString() && JSON.stringify(getAllRooms()) == JSON.stringify(props.appointment.getRooms()) && JSON.stringify(getAllPresentators()) == JSON.stringify(props.appointment.getPresentators())) {
+            setError(["No changes made!"]);
+        } else if (start >= end) {
+            setError(["End date should be after start date!"]);
+        } else if (props.appointment.getStart() < new Date()) {
+            setError(["You cannot change past appointments!"]);
+        } else {
+            if (error.length == 0) {
+                let url = `${import.meta.env.VITE_BASE_URL}/${props.appointment.getInstitutionId()!}/${JSON.parse(props.appointment!.getOrigin()!).type!}/${JSON.parse(props.appointment!.getOrigin()!).id!}/appointments/${props.appointment!.getId()!}`;
+                const response = await fetch(url, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getBearerToken()}`
+                    },
+                    body: JSON.stringify({ start: start, end: end, subject: subject }),
                 });
                 if (!response.ok) {
                     const data = await response.json();
                     setError([`${data.message}`]);
-                }
-                else {
-                    getAvailableRooms();
-                    setError(["Rooms changed successfully!"]);
-                    props.appointment.setRooms(getAllRooms());
-                    setRooms([]);
-                    setSelectedRooms([]);
-                    setDefaultRooms(props.appointment.getRooms()!);
+                } else {
+                    props.new ? setError(["Appointment created successfully!"]) : setError(["Appointment saved successfully!"]);
+                    updateAppointmentTimeAndSubject();
                 }
             } else {
                 setError([...error, "Please resolve the issues to save the appointment!"])
@@ -185,13 +196,13 @@ export function PopOver(props: Props) {
                             setError(["Room already added"]);
                         } else {
                             setError([]);
-                            rooms.push((!props.new ? availableRooms : props.roomlist)!.find(room => room.getId() === e.target.value)!);
+                            rooms.push((!props.new ? availableRooms : availableRooms)!.find(room => room.getId() === e.target.value)!);
                             setRooms(rooms);
                             selectElementSet.push({ id: id, elementId: e.target.value })
                         }
                     }}>
                         <option value="default">Select a room</option>
-                        {(!props.new ? availableRooms : props.roomlist)!.map((room: Rooms) => (
+                        {(!props.new ? availableRooms : availableRooms)!.map((room: Rooms) => (
                             <option key={room.getId()} value={room.getId()}>{room.getName()}</option>
                         ))}
                     </select>
@@ -213,13 +224,13 @@ export function PopOver(props: Props) {
                             setError(["Presentator already added"]);
                         } else {
                             setError([]);
-                            presentators.push((!props.new ? availablePresentators : props.presentatorlist)!.find(pres => pres.getId() === e.target.value)!);
+                            presentators.push((!props.new ? availablePresentators : availablePresentators)!.find(pres => pres.getId() === e.target.value)!);
                             setPresentators(presentators);
                             selectElementSet.push({ id: id, elementId: e.target.value })
                         }
                     }}>
                         <option value="default">Select a presentator</option>
-                        {(!props.new ? availablePresentators : props.presentatorlist)!.map((pres: Presentators) => (
+                        {(!props.new ? availablePresentators : availablePresentators)!.map((pres: Presentators) => (
                             <option key={pres.getId()} value={pres.getId()}>{pres.getName()}</option>
                         ))}
                     </select>
@@ -264,6 +275,14 @@ export function PopOver(props: Props) {
             rooms.push({ id: room.getId() });
         })
         return rooms;
+    }
+
+    function getChangedPresentators(): { id: string; }[] {
+        let presentators: { id: string; }[] = [];
+        getAllPresentators().forEach((pres) => {
+            presentators.push({ id: pres.getId() });
+        })
+        return presentators;
     }
 
     const deleteOption = (id: string) => {
@@ -313,19 +332,25 @@ export function PopOver(props: Props) {
         setError([]);
     }
 
-    function updateAppointment() {
+    function updateAppointmentTimeAndSubject() {
         props.appointment.setStart(start);
         props.appointment.setEnd(end);
         props.appointment.setSubject(subject);
-        props.appointment.setRooms(getAllRooms());
-        props.appointment.setPresentators(getAllPresentators());
+        setStart(props.appointment.getStart().toString());
+        setEnd(props.appointment.getEnd().toString());
         setSubject(props.appointment.getSubject()!);
-        setDefaultPresentators(props.appointment.getPresentators()!);
+    }
+    function updateAppointmentRooms() {
+        props.appointment.setRooms(getAllRooms());
         setDefaultRooms(props.appointment.getRooms()!);
-        setSelectedPresentators([]);
         setSelectedRooms([]);
-        setPresentators([]);
         setRooms([]);
+    }
+    function updateAppointmentPresentators() {
+        props.appointment.setPresentators(getAllPresentators());
+        setDefaultPresentators(props.appointment.getPresentators()!);
+        setSelectedPresentators([]);
+        setPresentators([]);
     }
 
     return (
@@ -459,7 +484,7 @@ export function PopOver(props: Props) {
                                         <p key={index} id="errors">{err}</p>
                                     ))}
                                     <div className="button-container">
-                                        <button onClick={changeRooms}>Change room(s)</button>
+                                        <button onClick={() => changeAppointmentPart('rooms')}>Change room(s)</button>
                                     </div>
                                 </div>
                             </div>

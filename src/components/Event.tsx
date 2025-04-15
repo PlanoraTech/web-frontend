@@ -1,4 +1,4 @@
-import { Events } from "../../shared/classes/events";
+import { Events } from "../shared/classes/events";
 
 interface Props {
     event: Events;

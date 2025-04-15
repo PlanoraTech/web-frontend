@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Nav } from "./Nav"
+import { getBearerToken } from "../functions/utils";
 
 export function Profile() {
     const [email, setEmail] = useState("");
@@ -15,15 +16,13 @@ export function Profile() {
         }
     }, []);
 
-    let token = localStorage.getItem('token');
-    const headers = { 'Authorization': `Bearer ${token}` };
 
     const handlelogout = async () => {
         const response = await fetch(`${import.meta.env.VITE_AUTH_URL}/logout`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${getBearerToken()}`
             },
             body: JSON.stringify({ token: localStorage.getItem('token') }),
         })
@@ -36,6 +35,8 @@ export function Profile() {
             window.location.href = "/login";
         }
     }
+
+    const headers = { 'Authorization': `Bearer ${getBearerToken()}` };
 
     useEffect(() => {
         async function fetchProfile() {
@@ -64,7 +65,7 @@ export function Profile() {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${getBearerToken()}`
                 },
                 body: JSON.stringify({ oldPassword: password, newPassword: newpassword }),
             })

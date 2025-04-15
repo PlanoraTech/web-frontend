@@ -17,6 +17,8 @@ import { ManageRoom } from "./Director/ManageRoom";
 import { ManageSubject } from "./Director/ManageSubject";
 import { ManageTimetable } from "./Director/ManageTimetable";
 import { ManageUser } from "./Director/ManageUser";
+import { InstitutionSelect } from "./InstitutionSelect";
+import { AppointmentSelects } from "./AppointmentSelects";
 
 interface Props {
     type: "main" | "manage"
@@ -115,7 +117,7 @@ export function Main(props: Props) {
     }
 
     const renderErrors = (errors: string[]) => {
-        return errors.map((err, index) => <h3 key={index} style={{ color: '#fc6464' }} className="choose">{err}</h3>);
+        return errors.map((err, index) => <h3 key={index} id="errors" className="choose">{err}</h3>);
     };
 
     const handleMainInstitutionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -153,6 +155,7 @@ export function Main(props: Props) {
     const handleActionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const action = e.target.value;
         setActiontype(action);
+        resetState(setSelectedTimetable, setSelectedPresentator, setSelectedRoom, setSelectedAppointments, setError);
         setActionadd("");
         setActionupdate("");
         setShowAppointments(false);
@@ -179,7 +182,7 @@ export function Main(props: Props) {
             "Add Presentator": <ManagePresentator institution={selectedInstitution!} />,
             "Add Room": <ManageRoom institution={selectedInstitution!} action="add" />,
             "Add Subject": <ManageSubject institution={selectedInstitution!} action="add" />,
-            "Add Appointment": <ManageAppointment timetables={selectedTimetablelist!} subjectlist={selectedInstitution.getSubjects()!} action="add" presentatorlist={selectedInstitution.getPresentators()!} roomlist={selectedInstitution.getRooms()!}/>,
+            "Add Appointment": <ManageAppointment timetables={selectedTimetablelist!} subjectlist={selectedInstitution.getSubjects()!} action="add" presentatorlist={selectedInstitution.getPresentators()!} roomlist={selectedInstitution.getRooms()!} />,
             "Add User": <ManageUser institution={selectedInstitution!} action="add" />,
             "Add Event": <ManageEvent institution={selectedInstitution!} action="add" />,
             "Update Timetable": <ManageTimetable institution={selectedInstitution!} action="update" />,
@@ -202,6 +205,21 @@ export function Main(props: Props) {
         setActionupdate("");
     }
 
+    function renderActionSelect(type: "Add" | "Update", onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void, value: string | null) {
+        const options = type === "Add"
+            ? ["Add Timetable", "Add Presentator", "Add Room", "Add Subject", "Add Event", "Add Appointment", "Add User"]
+            : ["Update Timetable", "Update Room", "Update Subject", "Update Event", "Update User"];
+
+        return (
+            <select onChange={onChange} value={value || "default"}>
+                <option value="default" disabled>{type} Actions</option>
+                {options.map(opt => (
+                    <option key={opt} value={opt}>{opt}</option>
+                ))}
+            </select>
+        );
+    }
+
     return (
         <>
             <Nav />
@@ -214,7 +232,7 @@ export function Main(props: Props) {
                         <h3 className="choose">Choose a timetable or presentator or a room!</h3>
                     )}
                     {selectedInstitution && selectedTimetable && (
-                        <h3 className="choose">{selectedTimetable.getName()}</h3>
+                        <h3 className="choose">{selectedTimetable.getName()} - '{selectedTimetable.getVersion()}'</h3>
                     )}
                     {selectedInstitution && selectedPresentator && (
                         <h3 className="choose">{selectedPresentator.getName()}</h3>
@@ -225,33 +243,12 @@ export function Main(props: Props) {
                     {renderErrors(error)}
                     <div id="main">
                         <div className="sidebar">
-                            <select onChange={handleMainInstitutionChange} value={selectedInstitution?.getId() || 'default'}>
-                                <option value={"default"} disabled>Institutions</option>
-                                {institutions.map((institution: Institutions) => (
-                                    <option key={institution.getId()} value={institution.getId()}>{institution.getName()}</option>
-                                ))}
-                            </select>
+                            <InstitutionSelect institutions={institutions} selectedInstitution={selectedInstitution} handleMainInstitutionChange={handleMainInstitutionChange} />
                             {selectedInstitution ?
-                                <>
-                                    <select onChange={handleTimeTableChange} value={selectedTimetable?.getId() || 'default'}>
-                                        <option value="default" disabled>TimeTables</option>
-                                        {selectedTimetablelist?.map((tt: Timetables) => (
-                                            <option key={tt.getId()} value={tt.getId()}>{tt.getName()}</option>
-                                        ))}
-                                    </select>
-                                    <select onChange={handlePresentatorChange} value={selectedPresentator?.getId() || 'default'}>
-                                        <option value="default" disabled>Presentators</option>
-                                        {selectedPresentatorlist?.map((pres: Presentators) => (
-                                            <option key={pres.getId()} value={pres.getId()}>{pres.getName()}</option>
-                                        ))}
-                                    </select>
-                                    <select onChange={handleRoomChange} value={selectedRoom?.getId() || 'default'}>
-                                        <option value="default" disabled>Rooms</option>
-                                        {selectedRoomlist?.map((room: Rooms) => (
-                                            <option key={room.getId()} value={room.getId()}>{room.getName()}</option>
-                                        ))}
-                                    </select>
-                                </>
+                                <AppointmentSelects handleTimeTableChange={handleTimeTableChange} selectedTimetable={selectedTimetable} selectedTimetablelist={selectedTimetablelist}
+                                    handlePresentatorChange={handlePresentatorChange} selectedPresentator={selectedPresentator} selectedPresentatorlist={selectedPresentatorlist}
+                                    handleRoomChange={handleRoomChange} selectedRoom={selectedRoom} selectedRoomlist={selectedRoomlist}
+                                />
                                 : null}
                         </div>
                         <div id="schedule">
@@ -266,68 +263,23 @@ export function Main(props: Props) {
                     <h2 className="choose">Director's menu</h2>
                     <div id="manage_main">
                         <div className="manage_sidebar">
-                            <select onChange={handleManageInstitutionChange} value={selectedInstitution?.getId() || 'default'}>
-                                <option value={"default"} disabled>Institutions</option>
-                                {manageinstitutions && manageinstitutions!.map((institution: Institutions) => (
-                                    <option key={institution.getId()} value={institution.getId()}>{institution.getName()}</option>
-                                ))}
-                            </select><br />
+                            <InstitutionSelect institutions={manageinstitutions} selectedInstitution={selectedInstitution} handleMainInstitutionChange={handleManageInstitutionChange} />
                             {selectedInstitution ? (
                                 <>
                                     <button onClick={showManageAppointments}>Appointments</button>
                                     {showAppointments ?
-                                        <>
-                                            <select onChange={handleTimeTableChange} value={selectedTimetable?.getId() || 'default'}>
-                                                <option value="default" disabled>TimeTables</option>
-                                                {selectedTimetablelist?.map((tt: Timetables) => (
-                                                    <option key={tt.getId()} value={tt.getId()}>{tt.getName()}</option>
-                                                ))}
-                                            </select>
-                                            <select onChange={handlePresentatorChange} value={selectedPresentator?.getId() || 'default'}>
-                                                <option value="default" disabled>Presentators</option>
-                                                {selectedPresentatorlist?.map((pres: Presentators) => (
-                                                    <option key={pres.getId()} value={pres.getId()}>{pres.getName()}</option>
-                                                ))}
-                                            </select>
-                                            <select onChange={handleRoomChange} value={selectedRoom?.getId() || 'default'}>
-                                                <option value="default" disabled>Rooms</option>
-                                                {selectedRoomlist?.map((room: Rooms) => (
-                                                    <option key={room.getId()} value={room.getId()}>{room.getName()}</option>
-                                                ))}
-                                            </select>
-                                        </>
+                                        <AppointmentSelects handleTimeTableChange={handleTimeTableChange} selectedTimetable={selectedTimetable} selectedTimetablelist={selectedTimetablelist}
+                                            handlePresentatorChange={handlePresentatorChange} selectedPresentator={selectedPresentator} selectedPresentatorlist={selectedPresentatorlist}
+                                            handleRoomChange={handleRoomChange} selectedRoom={selectedRoom} selectedRoomlist={selectedRoomlist}
+                                        />
                                         : null}
                                     <select onChange={handleActionChange} value={actiontype! || "default"}>
                                         <option value={"default"} disabled>Options</option>
                                         <option>Add</option>
                                         <option>Update</option>
                                     </select>
-                                    {actiontype === "Add" ? (
-                                        <>
-                                            <select onChange={handleAddActionChange} value={actionadd! || "default"}>
-                                                <option value={"default"} disabled>Add Actions</option>
-                                                <option>Add Timetable</option>
-                                                <option>Add Presentator</option>
-                                                <option>Add Room</option>
-                                                <option>Add Subject</option>
-                                                <option>Add Event</option>
-                                                <option>Add Appointment</option>
-                                                <option>Add User</option>
-                                            </select>
-                                        </>
-                                    ) : null}
-                                    {actiontype === "Update" ? (
-                                        <>
-                                            <select onChange={handleUpdateActionChange} value={actionupdate! || "default"}>
-                                                <option value={"default"} disabled>Update Actions</option>
-                                                <option>Update Timetable</option>
-                                                <option>Update Room</option>
-                                                <option>Update Subject</option>
-                                                <option>Update Event</option>
-                                                <option>Update User</option>
-                                            </select>
-                                        </>
-                                    ) : null}
+                                    {actiontype === "Add" && renderActionSelect("Add", handleAddActionChange, actionadd)}
+                                    {actiontype === "Update" && renderActionSelect("Update", handleUpdateActionChange, actionupdate)}
                                 </>
                             ) : null}
                         </div>

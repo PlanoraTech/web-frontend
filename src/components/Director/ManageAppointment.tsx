@@ -6,7 +6,8 @@ import { Appointments } from "../../shared/classes/appointments";
 import { Presentators } from "../../shared/classes/presentators";
 import { Rooms } from "../../shared/classes/rooms";
 import ReactDOM from "react-dom";
-import { PopOver } from "../../functions/PopOver";
+import { PopOver } from "../PopOver";
+import { getBearerToken } from "../../functions/utils";
 
 interface Props {
     timetables: Timetables[];
@@ -23,10 +24,10 @@ export function ManageAppointment(props: Props) {
     const [end, setEnd] = useState<string>(new Date(Date.now()).toISOString());
     const [subject, setSubject] = useState<Subjects | null>(null);
     const [error, setError] = useState<string>("");
+    const [success, setSuccess] = useState<string>("");
     const [showpopover, setPopover] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
     const [position, setPosition] = useState({ x: 0, y: 0 });
-    let token = localStorage.getItem("token");
 
     useEffect(() => {
         if (ref.current) {
@@ -44,21 +45,21 @@ export function ManageAppointment(props: Props) {
 
     const handlecreateappointment = async () => {
         setError("");
-        if (start === "" || end === "" || !selectedTimetable || !subject) {
+        setSuccess("");
+        const validationError = validateTimeFields(start, end);
+        if (validationError) {
+            setError(validationError);
+            return;
+        }
+        if (!selectedTimetable || !subject) {
             setError("Please fill in all fields ");
-        } else if (start >= end) {
-            setError("End date should be after start date ");
-        } else if (start < new Date().toISOString()) {
-            setError("Start date should be in the future ");
-        } else if (end < new Date().toISOString()) {
-            setError("End date should be in the future ");
         } else {
             if (error == "") {
                 const response = await fetch(`${import.meta.env.VITE_BASE_URL}/${selectedTimetable!.getInstitutionId()}/timetables/${selectedTimetable!.getId()}/appointments`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${getBearerToken()}`
                     },
                     body: JSON.stringify({ start: start, end: end, subjectId: subject?.getId() }),
                 });
@@ -70,16 +71,17 @@ export function ManageAppointment(props: Props) {
                     const data = await response.json();
                     let presentators: Presentators[] = [];
                     let rooms: Rooms[] = [];
-                    let app = new Appointments(data.id, subject!, presentators, rooms, start, end, false);
+                    let app = new Appointments(data.id, subject!, presentators, rooms, new Date(start), new Date(end), false);
                     app.setOrigin(JSON.stringify({ type: "timetables", id: selectedTimetable.getId() }));
                     app.setInstitutionId(selectedTimetable!.getInstitutionId()!);
                     setAppointment(app);
-                    setError("Appointment created successfully");
+                    setSuccess("Appointment created successfully");
                     handleshowpopover(app);
+                    console.log(start, end);
+                    console.log(app.getStart(), app.getEnd());
+                    console.log(new Date(start), new Date(end));
                 }
-            } else {
-                setError("Please resolve the errors before continuing");
-            }
+            } 
         }
     }
 
@@ -94,8 +96,28 @@ export function ManageAppointment(props: Props) {
             setError("You need to add at least one presentator and one room to the appointment");
         } else {
             setPopover(false);
+            resetForm();
         }
     };
+
+    function resetForm() {
+        setStart(new Date(Date.now()).toString());
+        setEnd(new Date(Date.now()).toString());
+        setSelectedTimetable(null);
+        setSubject(null);
+        setError("");
+        setSuccess("");
+        setAppointment(null);
+    }
+
+    function validateTimeFields(start: string, end: string): string | null {
+        const now = new Date().toISOString();
+        if (!start || !end) return "Please fill in all fields.";
+        if (start >= end) return "End date should be after start date.";
+        if (start < now) return "Start date should be in the future.";
+        if (end < now) return "End date should be in the future.";
+        return null;
+    }
 
     return (
         <div className="form-container">
@@ -112,14 +134,14 @@ export function ManageAppointment(props: Props) {
                 <input placeholder="Start:" type="datetime-local" value={formatDateForInput(new Date(start))} onChange={(e) => setStart(e.target.value)} required /><br />
                 <label>End date: </label><br />
                 <input placeholder="End:" type="datetime-local" value={formatDateForInput(new Date(end))} onChange={(e) => setEnd(e.target.value)} required /><br />
-                <label>Subject id: </label><br />
+                <label>Subject: </label><br />
                 <select onChange={(e) => setSubject(props.subjectlist?.find((subject: Subjects) => subject.getId() === e.target.value) || null)} value={subject?.getId() || 'default'} required>
                     <option value="default" disabled>Subjects</option>
                     {props.subjectlist?.map((subject: Subjects) => (
                         <option key={subject.getId()} value={subject.getId()}>{subject.getName()}</option>
                     ))}
                 </select>
-                <div id="add_nessesary_stuff" ref={ref}>
+                <div id="add_necessary_stuff" ref={ref}>
 
                 </div>
                 {showpopover && (
@@ -136,10 +158,11 @@ export function ManageAppointment(props: Props) {
                             onClose={handleClosePopover}
                             new={true}
                         />,
-                        document.getElementById("add_nessesary_stuff")!
+                        document.getElementById("add_necessary_stuff")!
                     )
                 )}
-                <p id="errors">{error}</p>
+                {error && <p id="errors">{error}</p>}
+                {success && <p id="success">{success}</p>}
                 <div className="button-container">
                     <button onClick={handlecreateappointment}>Create New Appointment</button>
                 </div>

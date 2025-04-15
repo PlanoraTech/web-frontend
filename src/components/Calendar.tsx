@@ -12,6 +12,7 @@ import { Institutions } from '../shared/classes/institutions'
 import { Event } from './Event'
 import { Rooms } from '../shared/classes/rooms'
 import { Subjects } from '../shared/classes/subjects'
+import { getBearerToken } from '../functions/utils'
 
 interface Props {
     institution?: Institutions,
@@ -24,7 +25,6 @@ interface Props {
 
 export function Calendar(props: Props) {
     const [events, setEvents] = useState<EventInput[]>([]);
-    let token = localStorage.getItem('token');
 
     useEffect(() => {
         setEvents(convertAppointmentsToEvents(props.appointments! || [], props.institution?.getEvents() || []));
@@ -88,7 +88,7 @@ export function Calendar(props: Props) {
         }
     }
 
-    async function handleAppointmentTimeChange(id: string, start: Date, end: Date) {
+    async function handleAppointmentTimeChange(id: string, start: string, end: string) {
         let app = props.appointments!.find(app => app.getId() === id);
         JSON.parse(app!.getOrigin()!).type;
         if (app) {
@@ -97,7 +97,7 @@ export function Calendar(props: Props) {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${getBearerToken()}`
                 },
                 body: JSON.stringify({ start: start, end: end }),
             });
@@ -110,6 +110,8 @@ export function Calendar(props: Props) {
                 }
             }
             else {
+                app.setStart(new Date((new Date(start)).getTime() + (new Date(start)).getTimezoneOffset() * 60000));
+                app.setEnd(new Date((new Date(end)).getTime() + (new Date(end)).getTimezoneOffset() * 60000));
                 alert("Apppointment changed successfully!");
             }
         }
@@ -145,7 +147,7 @@ export function Calendar(props: Props) {
                 day: "Day"
             }}
             eventChange={(info) => {
-                handleAppointmentTimeChange(info.oldEvent.extendedProps.appointment.getId(), info.event._instance!.range.start, info.event._instance!.range.end);
+                handleAppointmentTimeChange(info.oldEvent.extendedProps.appointment.getId(), (info.event._instance!.range.start).toISOString(), (info.event._instance!.range.end).toISOString());
             }}
         />
     )

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTheme } from "../ThemeContext";
+import { getBearerToken } from '../functions/utils';
 
 export function Nav() {
     const [loggedin, setLoggedin] = useState('Sign up/Login');
@@ -8,13 +9,12 @@ export function Nav() {
 
     useEffect(() => {
         if (localStorage.getItem('token')) {
-            let token = localStorage.getItem('token')
             async function autologin() {
                 const response = await fetch(`${import.meta.env.VITE_AUTH_URL}/login/auto`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${getBearerToken()}`
                     }
                 })
                 if (!response.ok) {
@@ -38,7 +38,6 @@ export function Nav() {
             autologin();
         } else {
             localStorage.removeItem('token');
-            localStorage.removeItem('expiry');
             localStorage.removeItem('role');
             localStorage.removeItem('institutions');
             localStorage.removeItem('presentatorid');

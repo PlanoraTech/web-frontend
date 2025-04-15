@@ -12,17 +12,21 @@ export class Appointments {
     private isCancelled: boolean;
     private institutionId?: string;
     private origin?: string;
-    constructor(id: string, subject: Subjects, presentators: Presentators[], rooms: Rooms[], start: string, end: string, isCancelled: boolean) {
+    constructor(id: string, subject: Subjects, presentators: Presentators[], rooms: Rooms[], start: string | Date, end: string | Date, isCancelled: boolean) {
         this.id = id;
         this.subject = subject;
         this.presentators = presentators;
         this.rooms = rooms;
-        let default_start = new Date(start)
-        const utcStart = new Date(default_start.getTime() + default_start.getTimezoneOffset() * 60000);
-        this.start = utcStart;
-        let default_end = new Date(end)
-        const utcEnd = new Date(default_end.getTime() + default_end.getTimezoneOffset() * 60000);
-        this.end = utcEnd;
+        if (typeof start === 'string') {
+            this.start = new Date((new Date(start)).getTime() + (new Date(start)).getTimezoneOffset() * 60000);
+        } else {
+            this.start = start;
+        }
+        if (typeof end === 'string') {
+            this.end = new Date((new Date(end)).getTime() + (new Date(end)).getTimezoneOffset() * 60000);
+        } else {
+            this.end = end;
+        }
         this.isCancelled = isCancelled;
     }
 
@@ -58,22 +62,24 @@ export class Appointments {
         return this.rooms;
     }
 
-    setStart(start: string) {
-        let default_start = new Date(start)
-        const utcStart = new Date(default_start.getTime() + default_start.getTimezoneOffset() * 60000);
-        // this.start = utcStart;
-        this.start = new Date(start);
+    setStart(start: string | Date) {
+        if (typeof start === 'string') {
+            this.start = new Date(start);
+        } else {
+            this.start = start;
+        }
     }
 
     getStart() {
         return this.start;
     }
 
-    setEnd(end: string) {
-        let default_end = new Date(end)
-        const utcEnd = new Date(default_end.getTime() + default_end.getTimezoneOffset() * 60000);
-        // this.end = utcEnd;
-        this.end = new Date(end);
+    setEnd(end: string | Date) {
+        if (typeof end === 'string') {
+            this.end = new Date(end);
+        } else {
+            this.end = end;
+        }
     }
 
     getEnd() {

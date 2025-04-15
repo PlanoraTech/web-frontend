@@ -7,10 +7,10 @@ import { Presentators } from "../shared/classes/presentators";
 import { Rooms } from "../shared/classes/rooms";
 import { Subjects } from "../shared/classes/subjects";
 import { Timetables } from "../shared/classes/timetables";
+import { getBearerToken } from "./utils";
 
 // Handle token from local storage
-let token = localStorage.getItem('token') || "";
-const headers = { 'Authorization': `Bearer ${token}` };
+const headers = { 'Authorization': `Bearer ${getBearerToken()}` };
 
 // Fetch institutions
 export async function fetchInstitutions() {
@@ -37,7 +37,7 @@ export async function fetchManageInstitutions() {
 
 // Fetch timetables for a selected institution
 export async function fetchTimetables(selectedinstitution: Institutions) {
-    return fetchData(selectedinstitution, "timetables", (item, institutionId) => new Timetables(item.id, item.name, selectedinstitution, institutionId), (items) => selectedinstitution.setTimetables(items));
+    return fetchData(selectedinstitution, "timetables", (item, institutionId) => new Timetables(item.id, item.name, selectedinstitution, institutionId, item.version), (items) => selectedinstitution.setTimetables(items));
 }
 
 // Fetch presentators for a selected institution

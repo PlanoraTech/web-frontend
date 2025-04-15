@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
 import { Institutions } from "../../shared/classes/institutions";
 import { Events } from "../../shared/classes/events";
 import { formatDateForInput } from "../../functions/formatDateForInput";
+import { getBearerToken } from "../../functions/utils";
+import { useState } from "react";
 
 interface Props {
     institution: Institutions;
@@ -10,86 +11,68 @@ interface Props {
 
 export function ManageEvent(props: Props) {
     const [event, setEvent] = useState<Events | null>(null);
-    const [selectedEvent, setSelectedEvent] = useState<Events | null>(null);
     const [eventtitle, setEventtitle] = useState<string>("");
-    const [eventdate, setEventdate] = useState<string>(new Date(Date.now()).toISOString()!);
-    const [selectedEventtitle, setSelectedEventtitle] = useState<string>(selectedEvent?.getTitle()!);
-    const [selectedEventdate, setSelectedEventdate] = useState<string>(selectedEvent?.getDate().toISOString()!);
-    const [action, setAction] = useState<"add" | "update">("add");
+    const [eventdate, setEventdate] = useState<string>(event?.getDate().toString() || new Date(Date.now()).toString());
     const [error, setError] = useState<string>("");
-    let token = localStorage.getItem('token');
+    const [success, setSuccess] = useState<string>("");
 
-    useEffect(() => {
-        if (props.action === "update") {
-            setAction("update");
-        }
-    }, [selectedEvent])
 
     const handleeventsave = async () => {
+        setError("");
+        setSuccess("");
         let change = 'POST';
         let url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/events`
-        if (action === "update") {
+        if (props.action === "update") {
             change = 'PATCH';
             url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/events/${event?.getId()}`
         }
-        if (action == "add") {
-            if (eventtitle === "" || eventdate === "") {
-                setError("Please fill in all fields");
-            }
-            if (eventdate < new Date(Date.now()).toISOString()) {
-                setError("Please select a valid date");
-            }
-        } else {
-            if (selectedEventtitle === "" || selectedEventdate === "") {
-                setError("Please fill in all fields");
-            }
-            if (selectedEventdate < new Date(Date.now()).toISOString()) {
-                setError("Please select a valid date");
-            }
+        if (eventtitle.trim() === "" || eventdate === "") {
+            setError("Please fill in all fields");
+            return;
         }
-        if (error == "") {
-            const response = await fetch(url, {
-                method: change,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: action == "update" ? JSON.stringify({ title: selectedEventtitle, date: selectedEventdate }) : JSON.stringify({ title: eventtitle, date: eventdate }),
-            });
-            if (!response.ok) {
-                const data = await response.json();
-                setError(data.message);
-            }
-            else {
-                setError("Event saved successfully");
-                setEventtitle("");
-                setEventdate("");
-                setEvent(null)
-                setSelectedEvent(null)
-                setSelectedEventdate("")
-                setSelectedEventtitle("")
-            }
+        if (new Date(eventdate) < new Date()) {
+            setError("Please select a future date");
+            return;
+        }
+        if (eventtitle == event?.getTitle() && new Date(eventdate).toString() == event?.getDate().toString()) {
+            setError("No changes made");
+            return;
+        }
+        const response = await fetch(url, {
+            method: change,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${getBearerToken()}`
+            },
+            body: JSON.stringify({ title: eventtitle, date: eventdate }),
+        });
+        if (!response.ok) {
+            const data = await response.json();
+            setError(data.message);
+        }
+        else {
+            setSuccess("Event saved successfully");
+            setEventtitle("");
+            setEventdate(new Date(Date.now()).toString());
+            setEvent(null);
         }
     }
 
     const handleeventdelete = async () => {
         if (confirm("Are you sure you want to delete this event?")) {
-            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/events/${selectedEvent?.getId()}`, {
+            const response = await fetch(`${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/events/${event?.getId()}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${getBearerToken()}`
                 },
             });
             if (!response.ok) {
                 const data = await response.json();
                 setError(data.message);
             } else {
-                setError("Event deleted successfully");
-                setSelectedEvent(null);
-                setSelectedEventtitle("");
-                setSelectedEventdate("");
-                props.institution.setEvents(props.institution.getEvents()!.filter((event: Events) => event.getId() !== selectedEvent?.getId()!));
+                setSuccess("Event deleted successfully");
+                props.institution.setEvents(props.institution.getEvents()!.filter((ev: Events) => ev.getId() !== event?.getId()!));
             }
         } else {
             setError("Event deletion cancelled");
@@ -98,44 +81,51 @@ export function ManageEvent(props: Props) {
 
     const handleeventchange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const chosenevent = props.institution.getEvents()?.find((event: Events) => event.getId() === e.target.value);
-        setSelectedEvent(chosenevent!);
-        setSelectedEventdate(chosenevent?.getDate().toISOString()!);
-        setSelectedEventtitle(chosenevent?.getTitle()!);
+        setEvent(chosenevent!);
+        setEventdate(chosenevent?.getDate().toISOString()!);
+        setEventtitle(chosenevent?.getTitle()!);
         setError("");
+        setSuccess("");
+    }
+
+    const inputs = () => {
+        return (
+            <>
+                <label>Event Title: </label><br />
+                <input placeholder="Title:" type="text" value={eventtitle} onChange={(e) => setEventtitle(e.target.value)} /><br />
+                <label>Event Date: </label><br />
+                <input type="datetime-local" value={formatDateForInput(new Date(eventdate))} onChange={(e) => setEventdate(e.target.value)} /><br />
+            </>
+        )
     }
 
     return (
         <div className="form-container">
-            <h2>{action === "update" ? "Update" : "Add"} Event</h2>
+            <h2>{props.action === "update" ? "Update" : "Add"} Event</h2>
             <div className="form-div">
                 {
-                    action === "update" ?
+                    props.action === "update" ?
                         <>
-                            <select onChange={handleeventchange} value={selectedEvent?.getId() || 'default'}>
+                            <select onChange={handleeventchange} value={event?.getId() || 'default'}>
                                 <option value="default" disabled>Events</option>
                                 {props.institution.getEvents()?.map((event: Events) => (
                                     <option key={event.getId()} value={event.getId()}>{event.getTitle()}</option>
                                 ))}
                             </select><br />
-                            {selectedEvent &&
+                            {event &&
                                 <>
-                                    <label>Event Title: </label><br />
-                                    <input placeholder="Title:" type="text" value={selectedEventtitle} onChange={(e) => setSelectedEventtitle(e.target.value)} /><br />
-                                    <label>Event Date: </label><br />
-                                    <input type="datetime-local" value={formatDateForInput(new Date(selectedEventdate))} onChange={(e) => setSelectedEventdate(e.target.value)} /><br />
+                                    {inputs()}
                                 </>
                             }
                         </> : <>
-                            <label>Event Title: </label><br />
-                            <input placeholder="Title:" type="text" value={eventtitle} onChange={(e) => setEventtitle(e.target.value)} /><br />
-                            <label>Event Date: </label><br />
-                            <input placeholder="date" type="datetime-local" value={formatDateForInput(new Date(eventdate))} onChange={(e) => setEventdate(e.target.value)} /><br />
+                            {inputs()}
                         </>
                 }
-                <p id="errors">{error}</p>
+                {error && <p id="errors">{error}</p>}
+                {success && <p id="success">{success}</p>}
                 <div className="button-container">
-                    <button onClick={handleeventsave}>{action === "update" ? "Save" : "Create New"} Event</button>
-                    {action === "update" && <button onClick={handleeventdelete}>Delete Event</button>}
+                    <button onClick={handleeventsave}>{props.action === "update" ? "Save" : "Create New"} Event</button>
+                    {props.action === "update" && <button onClick={handleeventdelete}>Delete Event</button>}
                 </div>
             </div>
         </div>

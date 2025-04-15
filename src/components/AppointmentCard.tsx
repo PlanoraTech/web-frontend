@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { Appointments } from "../shared/classes/appointments"
 import { Presentators } from "../shared/classes/presentators";
-import { PopOver } from "../functions/PopOver";
+import { PopOver } from "./PopOver";
 import ReactDOM from "react-dom";
 import { getTimeWithZeros } from "../functions/getTimeWithZeros";
 import { Subjects } from "../shared/classes/subjects";
 import { Rooms } from "../shared/classes/rooms";
 import { CostumCheckbox } from "./CostumCheckbox";
+import { getBearerToken } from "../functions/utils";
 
 interface Props {
     appointment: Appointments;
@@ -32,8 +33,6 @@ export function AppointmentCard(props: Props) {
     const rootStyles = getComputedStyle(document.documentElement);
     const dark_text = rootStyles.getPropertyValue("--dark-text");
     const light_text = rootStyles.getPropertyValue("---light-text");
-
-    let token = localStorage.getItem('token');
 
     useEffect(() => {
         setRole();
@@ -164,6 +163,7 @@ export function AppointmentCard(props: Props) {
         } else {
             setIsWaiting(false);
         }
+        setUpdate(prev => !prev);
     }
 
     function crossed(): string {
@@ -215,7 +215,7 @@ export function AppointmentCard(props: Props) {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${getBearerToken()}`
             },
             body: JSON.stringify(body),
         });

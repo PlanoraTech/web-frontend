@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Institutions } from "../../shared/classes/institutions";
 import { Users } from "../../shared/classes/users";
+import { getBearerToken } from "../../functions/utils";
 
 interface Props {
     institution: Institutions;
@@ -11,41 +12,48 @@ export function ManageUser(props: Props) {
     const [email, setEmail] = useState<string>("");
     const [user, setUser] = useState<Users | null>(null);
     const [error, setError] = useState<string>("");
-    let token = localStorage.getItem('token');
+    const [success, setSuccess] = useState<string>("");
 
     const handlechangeuser = async () => {
+        setError("");
+        setSuccess("");
         let change = 'POST';
         let url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/users`
         if (props.action === "update") {
             change = 'PATCH';
             url = `${import.meta.env.VITE_BASE_URL}/${props.institution.getId()}/users/${user?.getId()}`
         }
-        if (email === "") {
+        if (email.trim() === "") {
             setError("Email and role must be filled out");
-        } else {
-            const response = await fetch(url, {
-                method: change,
-                headers: {
-                    "Content-Type": "application/json",
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ email: email }),
-            });
-            if (!response.ok) {
-                const data = await response.json();
-                setError(data.message);
-            }
-            else {
-                props.action === "update" ? setError("User updated successfully") : setError("User created successfully");
-                setEmail("");
-            }
+            return;
         }
+        const response = await fetch(url, {
+            method: change,
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${getBearerToken()}`
+            },
+            body: JSON.stringify({ email: email }),
+        });
+        if (!response.ok) {
+            const data = await response.json();
+            setError(data.message);
+        }
+        else {
+            props.action === "update" ? setSuccess("User updated successfully") : setSuccess("User created successfully");
+            setEmail("");
+        }
+
     }
 
     const handleuserchange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const user = props.institution.getUsers()?.find((user: Users) => user.getEmail() === e.target.value);
-        setEmail(user!.getEmail());
-        setUser(user!);
+        const selected = props.institution.getUsers()?.find((user: Users) => user.getEmail() === e.target.value);
+        if (selected) {
+            setEmail(selected.getEmail());
+            setUser(selected);
+            setError("");
+            setSuccess("");
+        }
     }
 
     const handledeleteUser = async () => {
@@ -54,7 +62,7 @@ export function ManageUser(props: Props) {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${getBearerToken()}`
                 }
             });
             if (!response.ok) {
@@ -62,12 +70,21 @@ export function ManageUser(props: Props) {
                 setError(data.message);
             }
             else {
-                setError("User deleted successfully");
+                setSuccess("User deleted successfully");
                 setEmail("");
             }
         } else {
             setError("User deletion cancelled");
         }
+    }
+
+    const inputs = () => {
+        return (
+            <>
+                <label>User Email: </label><br />
+                <input placeholder="Email:" type="text" value={email} onChange={(e) => setEmail(e.target.value)} /><br />
+            </>
+        )
     }
 
     return (
@@ -83,15 +100,14 @@ export function ManageUser(props: Props) {
                             ))}
                         </select><br />
                         {user ? <>
-                            <label>User Email: </label><br />
-                            <input placeholder="Email:" type="text" value={email} onChange={(e) => setEmail(e.target.value)} /><br />
+                            {inputs()}
                         </> : null}
                     </> : <>
-                        <label>User Email: </label><br />
-                        <input placeholder="Email:" type="text" value={email} onChange={(e) => setEmail(e.target.value)} /><br />
+                        {inputs()}
                     </>
                 }
-                <p id="errors">{error}</p>
+                {error && <p id="errors">{error}</p>}
+                {success && <p id="success">{success}</p>}
                 <div className="button-container">
                     <button onClick={handlechangeuser}>{props.action === "update" ? "Update" : "Add"} User</button>
                     {props.action === "update" ? <button onClick={handledeleteUser}>Delete User</button> : null}
