@@ -23,7 +23,18 @@ Install the required dependencies:
 npm i
 ```
 
-### 3. Run the Frontend in Development Mode
+### 3. Configure Environment Variables (.env)
+Create a .env file in the root directory of the project with the following content:
+```.env
+VITE_BASE_URL=https://example.com/institutions
+VITE_AUTH_URL=https://example.com
+```
+Variable descriptions:
+- VITE_BASE_URL: Base URL for institution-related API calls.
+- VITE_AUTH_URL: Base URL for authentication-related API calls.
+
+
+### 4. Run the Frontend in Development Mode
 Finally, to start the backend in development mode, use the following command:
 ```bash
 npm run dev
