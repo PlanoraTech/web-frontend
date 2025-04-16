@@ -150,31 +150,31 @@ export function PopOver(props: Props) {
     const changeTimeAndSubject = async () => {
         if (subject == props.appointment.getSubject() && start == props.appointment.getStart().toISOString() && end == props.appointment.getEnd().toISOString() && JSON.stringify(getAllRooms()) == JSON.stringify(props.appointment.getRooms()) && JSON.stringify(getAllPresentators()) == JSON.stringify(props.appointment.getPresentators())) {
             setError(["No changes made!"]);
-        } else if (start >= end) {
+            return;
+        }
+        if (start >= end) {
             setError(["End date should be after start date!"]);
-        } else if (props.appointment.getStart() < new Date()) {
+            return;
+        }
+        if (props.appointment.getStart() < new Date()) {
             setError(["You cannot change past appointments!"]);
+            return;
+        }
+        let url = `${import.meta.env.VITE_BASE_URL}/${props.appointment.getInstitutionId()!}/${JSON.parse(props.appointment!.getOrigin()!).type!}/${JSON.parse(props.appointment!.getOrigin()!).id!}/appointments/${props.appointment!.getId()!}`;
+        const response = await fetch(url, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${getBearerToken()}`
+            },
+            body: JSON.stringify({ start: start, end: end, subjectId: subject.getId() }),
+        });
+        if (!response.ok) {
+            const data = await response.json();
+            setError([`${data.message}`]);
         } else {
-            if (error.length == 0) {
-                let url = `${import.meta.env.VITE_BASE_URL}/${props.appointment.getInstitutionId()!}/${JSON.parse(props.appointment!.getOrigin()!).type!}/${JSON.parse(props.appointment!.getOrigin()!).id!}/appointments/${props.appointment!.getId()!}`;
-                const response = await fetch(url, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${getBearerToken()}`
-                    },
-                    body: JSON.stringify({ start: start, end: end, subject: subject }),
-                });
-                if (!response.ok) {
-                    const data = await response.json();
-                    setError([`${data.message}`]);
-                } else {
-                    props.new ? setSuccess("Appointment created successfully!") : setSuccess("Appointment saved successfully!");
-                    updateAppointmentTimeAndSubject();
-                }
-            } else {
-                setError([...error, "Please resolve the issues to save the appointment!"])
-            }
+            props.new ? setSuccess("Appointment created successfully!") : setSuccess("Appointment saved successfully!");
+            updateAppointmentTimeAndSubject();
         }
     }
 
