@@ -73,6 +73,9 @@ export function ManageEvent(props: Props) {
             } else {
                 setSuccess("Event deleted successfully");
                 props.institution.setEvents(props.institution.getEvents()!.filter((ev: Events) => ev.getId() !== event?.getId()!));
+                setEvent(null);
+                setEventtitle("");
+                setEventdate(new Date(Date.now()).toString());
             }
         } else {
             setError("Event deletion cancelled");
