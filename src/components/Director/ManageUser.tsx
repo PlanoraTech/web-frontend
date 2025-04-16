@@ -36,8 +36,8 @@ export function ManageUser(props: Props) {
         else {
             setSuccess("User added successfully");
             setEmail("");
+            setUser(null);
         }
-
     }
 
     const handleuserchange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -65,7 +65,7 @@ export function ManageUser(props: Props) {
             }
             else {
                 setSuccess("User deleted successfully");
-                setEmail("");
+                setUser(null);
             }
         } else {
             setError("User deletion cancelled");
@@ -83,7 +83,7 @@ export function ManageUser(props: Props) {
 
     return (
         <div className="form-container">
-            <h2>{props.action === "update" ? "Update" : "Add"} User {props.action === "add" ? "To Institution" : ""}</h2>
+            <h2>{props.action === "update" ? "Delete" : "Add"} User {props.action === "add" ? "To Institution" : ""}</h2>
             <div className="form-div">
                 {
                     props.action === "update" ? <>
@@ -93,9 +93,6 @@ export function ManageUser(props: Props) {
                                 <option key={user.getEmail()} value={user.getEmail()}>{user.getEmail()}</option>
                             ))}
                         </select><br />
-                        {user ? <>
-                            {inputs()}
-                        </> : null}
                     </> : <>
                         {inputs()}
                     </>

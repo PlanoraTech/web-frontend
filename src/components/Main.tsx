@@ -188,7 +188,7 @@ export function Main(props: Props) {
             "Update Timetable": <ManageTimetable institution={selectedInstitution!} action="update" />,
             "Update Room": <ManageRoom institution={selectedInstitution!} action="update" />,
             "Update Subject": <ManageSubject institution={selectedInstitution!} action="update" />,
-            "Update User": <ManageUser institution={selectedInstitution!} action="update" />,
+            "Delete User": <ManageUser institution={selectedInstitution!} action="update" />,
             "Update Event": <ManageEvent institution={selectedInstitution!} action="update" />
         };
         let selectedAction = actiontype === "Add" ? actionadd : actionupdate;
@@ -208,7 +208,7 @@ export function Main(props: Props) {
     function renderActionSelect(type: "Add" | "Update", onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void, value: string | null) {
         const options = type === "Add"
             ? ["Add Timetable", "Add Presentator", "Add Room", "Add Subject", "Add Event", "Add Appointment", "Add User"]
-            : ["Update Timetable", "Update Room", "Update Subject", "Update Event", "Update User"];
+            : ["Update Timetable", "Update Room", "Update Subject", "Update Event", "Delete User"];
 
         return (
             <select onChange={onChange} value={value || "default"}>
@@ -261,7 +261,7 @@ export function Main(props: Props) {
                 <>
                     {renderErrors(error)}
                     <h2 className="choose">Director's menu</h2>
-                    <div id="manage_main">
+                    <div id="manage-main">
                         <div className="manage_sidebar">
                             <InstitutionSelect institutions={manageinstitutions} selectedInstitution={selectedInstitution} handleMainInstitutionChange={handleManageInstitutionChange} />
                             {selectedInstitution ? (
@@ -283,9 +283,9 @@ export function Main(props: Props) {
                                 </>
                             ) : null}
                         </div>
-                        <div id="manage_schedule">
+                        <div id="manage-schedule">
                             {showAppointments ? (
-                                <div className="calendar_div">
+                                <div id="calendar-div">
                                     <Calendar appointments={selectedAppointments!} presentatorlist={selectedInstitution?.getPresentators()!} institution={selectedInstitution!} roomlist={selectedInstitution?.getRooms()!} subjectlist={selectedInstitution?.getSubjects()!} type={props.type} />
                                 </div>
                             ) : null}

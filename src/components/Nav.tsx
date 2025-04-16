@@ -8,7 +8,7 @@ export function Nav() {
     const { theme, toggleTheme } = useTheme();
 
     useEffect(() => {
-        if (localStorage.getItem('token')) {
+        if (getBearerToken()) {
             async function autologin() {
                 const response = await fetch(`${import.meta.env.VITE_AUTH_URL}/login/auto`, {
                     method: 'POST',
@@ -49,11 +49,11 @@ export function Nav() {
     return (
         <>
             <ul>
-                <li className="logo-nav"><a className='links' href="/home"><b>Home</b></a></li>
+                <li><a className='links' href="/home"><b>Home</b></a></li>
                 <li><a className='links' href="/timetables"><b>Institutions</b></a></li>
                 {localStorage.getItem('role') === 'DIRECTOR' ? <li><a className='links' href="/manage"><b>Manage</b></a></li> : null}
-                <li className="login-nav"><a className='links' href={`/${loggedinlink}`}><b>{loggedin}</b></a></li>
-                <li className="light-dark-switch" onClick={toggleTheme}><b>{theme === "light" ? "Dark Mode" : "Light Mode"}</b></li>
+                <li id="login-nav"><a className='links' href={`/${loggedinlink}`}><b>{loggedin}</b></a></li>
+                <li id="light-dark-switch" onClick={toggleTheme}><b>{theme === "light" ? "Dark Mode" : "Light Mode"}</b></li>
             </ul >
         </>
     );

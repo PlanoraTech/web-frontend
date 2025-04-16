@@ -78,7 +78,7 @@ export function ManageAppointment(props: Props) {
                     setSuccess("Appointment created successfully");
                     handleshowpopover(app);
                 }
-            } 
+            }
         }
     }
 
@@ -124,7 +124,7 @@ export function ManageAppointment(props: Props) {
                 <select onChange={handleTimeTableChange} value={selectedTimetable?.getId() || 'default'} required>
                     <option value="default" disabled>TimeTables</option>
                     {props.timetables?.map((tt: Timetables) => (
-                        <option key={tt.getId()} value={tt.getId()}>{tt.getName()}</option>
+                        <option key={tt.getId()} value={tt.getId()}>{tt.getName()} - '{tt.getVersion()}'</option>
                     ))}
                 </select><br />
                 <label>Start date: </label><br />

@@ -42,6 +42,8 @@ export function ManagePresentator(props: Props) {
     const handleUserchange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const chosenuser = props.institution.getUsers()?.find((user: Users) => user.getEmail() === e.target.value);
         setSelectedUser(chosenuser!)
+        setError("");
+        setSuccess("");
     }
 
     return (

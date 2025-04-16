@@ -78,6 +78,7 @@ export function ManageTimetable(props: Props) {
             setSuccess("Timetable cloned successfully");
             setTtname("");
             setTtversion("");
+            setTimetable(null);
         }
     }
 

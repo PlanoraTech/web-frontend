@@ -37,6 +37,7 @@ export function PopOver(props: Props) {
     const [availablePresentators, setAvailablePresentators] = useState<Presentators[]>([]);
     const [_, setUpdate] = useState(false);
     const [error, setError] = useState<string[]>([]);
+    const [success, setSuccess] = useState<string>("");
 
     useEffect(() => {
         if (props.type == 'manage') {
@@ -93,7 +94,7 @@ export function PopOver(props: Props) {
                 setError([`${data.message}`]);
             }
             else {
-                setError(["Appointment deleted successfully!"]);
+                setSuccess("Appointment deleted successfully!");
                 setTimeout(() => {
                     removeall();
                     props.onClose(null);
@@ -114,36 +115,35 @@ export function PopOver(props: Props) {
         const url = `${import.meta.env.VITE_BASE_URL}/${props.appointment.getInstitutionId()!}/${JSON.parse(props.appointment!.getOrigin()!).type!}/${JSON.parse(props.appointment!.getOrigin()!).id!}/appointments/${props.appointment!.getId()!}/${type}`;
         if (JSON.stringify(getAll) === JSON.stringify(getOriginal)) {
             setError(["No changes made!"]);
-        } else if (getAll.length === 0) {
+            return;
+        }
+        if (getAll.length === 0) {
             setError([`Please select at least one ${type.slice(0, -1)}!`]);
-        } else if (props.appointment.getStart() < new Date()) {
+            return;
+        }
+        if (props.appointment.getStart() < new Date()) {
             setError(["You cannot change past appointments!"]);
+            return;
+        }
+        const response = await fetch(url, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${getBearerToken()}`
+            },
+            body: JSON.stringify(getChanged),
+        });
+        if (!response.ok) {
+            const data = await response.json();
+            setError([`${data.message}`]);
         } else {
-            if (error.length === 0) {
-                const response = await fetch(url, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${getBearerToken()}`
-                    },
-                    body: JSON.stringify(getChanged),
-                });
-
-                if (!response.ok) {
-                    const data = await response.json();
-                    setError([`${data.message}`]);
-                } else {
-                    getAvailable;
-                    if (type === 'rooms' && props.type === 'presentator') {
-                        setError(["Rooms changed successfully!"]);
-                    } else {
-                        props.new ? setError(["Appointment created successfully!"]) : setError(["Appointment saved successfully!"]);
-                    }
-                    updateAppointment;
-                }
+            getAvailable;
+            if (type === 'rooms' && props.type === 'presentator') {
+                setSuccess("Rooms changed successfully!");
             } else {
-                setError([...error, "Please resolve the issues to save the appointment!"]);
+                props.new ? setSuccess("Appointment created successfully!") : setSuccess("Appointment saved successfully!");
             }
+            updateAppointment;
         }
     }
 
@@ -169,7 +169,7 @@ export function PopOver(props: Props) {
                     const data = await response.json();
                     setError([`${data.message}`]);
                 } else {
-                    props.new ? setError(["Appointment created successfully!"]) : setError(["Appointment saved successfully!"]);
+                    props.new ? setSuccess("Appointment created successfully!") : setSuccess("Appointment saved successfully!");
                     updateAppointmentTimeAndSubject();
                 }
             } else {
@@ -352,18 +352,18 @@ export function PopOver(props: Props) {
 
     return (
         <>
-            <div className="popover" style={{ top: props.y, left: props.x }}>
+            <div id="popover" style={{ top: props.y, left: props.x }}>
                 <button className="close" onClick={() => {
                     removeall();
                     props.onClose(props.appointment);
                 }}><b>✕</b></button>
                 {
                     props.type == 'main' ? (
-                        <div className="popover_content">
+                        <div className="popover-content">
                             <div className="popover_header">
                                 <h3>{props.appointment.getSubject()?.getName()}</h3>
                             </div>
-                            <div className="popover_body">
+                            <div className="popover-body">
                                 <p style={{ fontSize: '1.1rem' }}>{getTimeWithZeros(props.appointment.getStart())} - {getTimeWithZeros(props.appointment.getEnd())}</p>
                                 <label><b>Room(s):</b></label>
                                 <p>{props.appointment.getRooms()?.map(room => room.getName()).join(" - ")}</p>
@@ -376,7 +376,7 @@ export function PopOver(props: Props) {
                 {
                     props.type == 'manage' ? (
                         <>
-                            <div className="popover_content">
+                            <div className="popover-content">
                                 <div className="popover_header">
                                     <h3>{props.appointment.getSubject()?.getName()}</h3>
                                     <select onChange={handleSubjectChange} value={subject.getId()}>
@@ -385,7 +385,7 @@ export function PopOver(props: Props) {
                                         ))}
                                     </select>
                                 </div>
-                                <div className="popover_body">
+                                <div className="popover-body">
                                     <div id="popover_rooms">
                                         <p>{props.appointment.getRooms()!.length == 0 ? "No rooms added to this appointment" : props.appointment.getRooms()!.map(room => room.getName()).join(" - ")}</p>
                                         {
@@ -435,6 +435,7 @@ export function PopOver(props: Props) {
                                     {error.map((err, index) => (
                                         <p key={index} id="errors">{err}</p>
                                     ))}
+                                    {success && <p id="success">{success}</p>}
                                     <div className="button-container">
                                         <button onClick={saveAppointment}>Save</button>
                                         {!props.new ? <button onClick={handledeleteappointment}>Delete</button> : null}
@@ -447,11 +448,11 @@ export function PopOver(props: Props) {
                 {
                     props.type == 'presentator' ? (
                         <>
-                            <div className="popover_content">
+                            <div className="popover-content">
                                 <div className="popover_header">
                                     <h3>{props.appointment.getSubject()?.getName()}</h3>
                                 </div>
-                                <div className="popover_body">
+                                <div className="popover-body">
                                     <div id="popover_rooms">
                                         <p>{props.appointment.getRooms()!.map(room => room.getName()).join(" - ")}</p>
                                         {
@@ -480,6 +481,7 @@ export function PopOver(props: Props) {
                                     {error.map((err, index) => (
                                         <p key={index} id="errors">{err}</p>
                                     ))}
+                                    {success && <p id="success">{success}</p>}
                                     <div className="button-container">
                                         <button onClick={() => changeAppointmentPart('rooms')}>Change room(s)</button>
                                     </div>
