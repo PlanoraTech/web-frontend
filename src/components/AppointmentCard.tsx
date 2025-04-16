@@ -19,8 +19,8 @@ interface Props {
 
 export function AppointmentCard(props: Props) {
     const [showpopover, setPopover] = useState(false);
-    const [iscancelled, setIscancelled] = useState(false);
-    const [iswaiting, setIsWaiting] = useState(props.appointment?.getIsCancelled() || false);
+    const [iscancelled, setIscancelled] = useState(props.appointment?.getIsCancelled()!);
+    const [iswaiting, setIsWaiting] = useState(false);
     const [issubstituted, setIsSubstituted] = useState(props.appointment?.getPresentators()?.find(pres => pres.getId() === localStorage.getItem("presentatorid"))?.getIsSubstituted()!);
     const [ispresentatorsappointment, setIsPresentatorsAppointment] = useState(false);
     const [isdirector, setIsDirector] = useState(false);
@@ -253,7 +253,7 @@ export function AppointmentCard(props: Props) {
                         {iscancelled ? <p style={{ color: `${cancelledcolor()}` }}><b>Cancelled!</b></p> : null}
                     </div>
                     {
-                        ispresentatorsappointment && ispart && props.appointment.getStart() > new Date() ? (
+                        !iscancelled && ispresentatorsappointment && ispart && props.appointment.getStart() > new Date() ? (
                             <CostumCheckbox where="top" id={`checkbox-${props.appointment?.getId()}`} checked={issubstituted} onChange={handlesubstitution} labelText="Substitute? " />
                         ) : null
                     }
