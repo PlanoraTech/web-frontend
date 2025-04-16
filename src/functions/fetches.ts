@@ -1,4 +1,3 @@
-// Import necessary classes
 import { Users } from "../shared/classes/users";
 import { Appointments } from "../shared/classes/appointments";
 import { Events } from "../shared/classes/events";
@@ -9,10 +8,8 @@ import { Subjects } from "../shared/classes/subjects";
 import { Timetables } from "../shared/classes/timetables";
 import { getBearerToken } from "./utils";
 
-// Handle token from local storage
 const headers = { 'Authorization': `Bearer ${getBearerToken()}` };
 
-// Fetch institutions
 export async function fetchInstitutions() {
     const url = `${import.meta.env.VITE_BASE_URL}`;
     const response = await fetch(url, { headers });
@@ -23,7 +20,6 @@ export async function fetchInstitutions() {
     return (instlist as Institutions[]).sort((a, b) => a.getName().localeCompare(b.getName()));
 }
 
-// Fetch institutions for management
 export async function fetchManageInstitutions() {
     const ins = JSON.parse(localStorage.getItem("institutions")!);
     const instlist = await Promise.all(ins.map(async (institutionData: any) => {
@@ -35,37 +31,30 @@ export async function fetchManageInstitutions() {
     return instlist.sort((a, b) => a.getName().localeCompare(b.getName()));
 }
 
-// Fetch timetables for a selected institution
 export async function fetchTimetables(selectedinstitution: Institutions) {
     return fetchData(selectedinstitution, "timetables", (item, institutionId) => new Timetables(item.id, item.name, selectedinstitution, institutionId, item.version), (items) => selectedinstitution.setTimetables(items));
 }
 
-// Fetch presentators for a selected institution
 export async function fetchPresentators(selectedinstitution: Institutions) {
     return fetchData(selectedinstitution, "presentators", (item, institutionId) => new Presentators(item.id, item.name, institutionId), (items) => selectedinstitution.setPresentators(items));
 }
 
-// Fetch rooms for a selected institution
 export async function fetchRooms(selectedinstitution: Institutions) {
     return fetchData(selectedinstitution, "rooms", (item, institutionId) => new Rooms(item.id, item.name, item.isAvailable, institutionId), (items) => selectedinstitution.setRooms(items));
 }
 
-// Fetch events for a selected institution
 export async function fetchEvents(selectedinstitution: Institutions) {
     return fetchData(selectedinstitution, "events", (item, institutionId) => new Events(item.id, item.title, item.date, institutionId), (items) => selectedinstitution.setEvents(items));
 }
 
-// Fetch subjects for a selected institution
 export async function fetchSubjects(selectedinstitution: Institutions) {
     return fetchData(selectedinstitution, "subjects", (item, institutionId) => new Subjects(item.id, item.name, item.subjectId, institutionId), (items) => selectedinstitution.setSubjects(items));
 }
 
-// Fetch users for a selected institution
 export async function fetchUsers(selectedinstitution: Institutions) {
     return fetchData(selectedinstitution, "users", (item) => new Users(item.id, item.email), (items) => selectedinstitution.setUsers(items));
 }
 
-// Fetch timetable appointments for a selected timetable and institution
 export async function fetchTimetableAppointments(selectedttable: Timetables, selectedinstitution: Institutions) {
     return await fetchAppointmentsData(selectedttable, `timetables/${selectedttable.getId()}/appointments`,
         (appointments) => appointments.map(appointment => {
@@ -76,7 +65,6 @@ export async function fetchTimetableAppointments(selectedttable: Timetables, sel
         }), (items) => selectedttable.setAppointments(items));
 }
 
-// Fetch presentator appointments for a selected presentator and institution
 export async function fetchPresentatorAppointments(selectedpresentator: Presentators, selectedinstitution: Institutions) {
     return await fetchAppointmentsData(selectedpresentator, `presentators/${selectedpresentator.getId()}/appointments`,
         (appointments) => appointments.map(appointment => {
@@ -87,7 +75,6 @@ export async function fetchPresentatorAppointments(selectedpresentator: Presenta
         }), (items) => selectedpresentator.setAppointments(items));
 }
 
-// Fetch room appointments for a selected room and institution
 export async function fetchRoomAppointments(selectedroom: Rooms, selectedinstitution: Institutions) {
     return await fetchAppointmentsData(selectedroom, `rooms/${selectedroom.getId()}/appointments`,
         (appointments) => appointments.map(appointment => {
@@ -98,7 +85,6 @@ export async function fetchRoomAppointments(selectedroom: Rooms, selectedinstitu
         }), (items) => selectedroom.setAppointments(items));
 }
 
-// Fetch available rooms for a specific appointment
 export async function fetchAvailableRooms(appointment: Appointments, institutionId: string) {
     try {
         const url = `${import.meta.env.VITE_BASE_URL}/${institutionId}/${JSON.parse(appointment!.getOrigin()!).type!}/${JSON.parse(appointment!.getOrigin()!).id!}/appointments/${appointment!.getId()!}/rooms/available`;
@@ -115,7 +101,6 @@ export async function fetchAvailableRooms(appointment: Appointments, institution
     } catch (error) { }
 }
 
-// Fetch available presentators for a specific appointment
 export async function fetchAvailablePresentators(appointment: Appointments, institutionId: string) {
     try {
         const url = `${import.meta.env.VITE_BASE_URL}/${institutionId}/${JSON.parse(appointment!.getOrigin()!).type!}/${JSON.parse(appointment!.getOrigin()!).id!}/appointments/${appointment!.getId()!}/presentators/available`;
@@ -134,7 +119,6 @@ export async function fetchAvailablePresentators(appointment: Appointments, inst
     } catch (error) { }
 }
 
-// Helper function to create appointments from raw data
 function makeAppointments(appointment: any, institutionId: string) {
     let oneroomlist = [];
     let onepreslist = [];
@@ -150,7 +134,6 @@ function makeAppointments(appointment: any, institutionId: string) {
     return new Appointments(appointment.id, subject, onepreslist, oneroomlist, appointment.start, appointment.end, appointment.isCancelled)
 }
 
-// Fetch general data for selected institution and endpoint
 export async function fetchData<T>(selectedinstitution: Institutions, endpoint: string, mapFunction: (item: any, institutionId: string) => T, setter: (items: T[]) => void) {
     try {
         const url = `${import.meta.env.VITE_BASE_URL}/${selectedinstitution.getId()}/${endpoint}`;
@@ -169,7 +152,6 @@ export async function fetchData<T>(selectedinstitution: Institutions, endpoint: 
     } catch (err) { }
 }
 
-// Fetch appointments data for a specific entity (timetables, presentators, rooms)
 async function fetchAppointmentsData<T extends { getInstitutionId: () => string }>(entity: T, endpoint: string, makeAppointmentFn: (appointments: any[]) => Appointments[], setAppointmentsFn: (items: Appointments[]) => void) {
     try {
         const url = `${import.meta.env.VITE_BASE_URL}/${entity.getInstitutionId()!}/${endpoint}`;

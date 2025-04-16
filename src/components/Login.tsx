@@ -45,7 +45,6 @@ export function Login() {
         } else {
             const data = await response.json();
             localStorage.setItem('token', data.token);
-            localStorage.setItem('expiry', data.expiry);
             localStorage.setItem('institutions', JSON.stringify(data.user.institutions));
             if (data.user.institutions.length === 0) {
                 localStorage.setItem('role', "USER");

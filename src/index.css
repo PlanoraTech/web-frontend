@@ -1,5 +1,5 @@
 :root {
-    /*dark colors*/
+    /* Dark colors */
     --dark00: #000;
     --dark01: #121212;
     --dark02: #1E1E1E;
@@ -12,16 +12,16 @@
     --dark08: #363636;
     --dark09: #383838;
     --dark-text: white;
-    /*----------*/
+    /*---------------------*/
 
-    /* new colors */
+    /* Color palette for light colors */
     --light: #FDFAF6;
     --beige: #FAF1E6;
     --light_greenish: #E4EFE7;
     --green: #99BC85;
-    /*------------*/
+    /*--------------------------*/
 
-    /*light colors*/
+    /* Light colors */
     --light00: #ffffff;
     --light20: #FDFAF6;
     --light21: #f9efe3;
@@ -38,9 +38,7 @@
     --light10: #99BC85;
     --light11: #8baa78;
     --light-text: black;
-
-
-    /*-----------*/
+    /*---------------------*/
 }
 
 .dark-theme {
@@ -103,8 +101,7 @@ body {
     font-size: 1rem;
 }
 
-/* nav bar style */
-
+/* Nav bar */
 
 ul {
     margin: 0;
@@ -133,42 +130,27 @@ li {
     background-color: var(--links-hover-bg-color);
 }
 
-.light-dark-switch {
+#light-dark-switch {
     float: right;
     padding: 14px 16px;
     transition-duration: 0.5s;
 
 }
 
-.light-dark-switch:hover {
+#light-dark-switch:hover {
     cursor: pointer;
     transition-duration: 0.5s;
     background-color: var(--links-hover-bg-color);
 }
 
-.login-nav {
+#login-nav {
     float: right;
 }
 
-.logo-nav-img {
-    padding: 0;
-    max-width: 15%;
-    max-height: 46px;
-}
+/*--------------------------------------------------------------------------------------------------------------------*/
 
-.logo-nav-img img {
-    max-width: 46px;
-}
+/* Homepage */
 
-.logo-nav-img a {
-    padding: 0;
-}
-
-/*---------------------------------------------------------------*/
-
-/*Homepage/introduction*/
-
-/* Globális beállítások */
 .home-container {
     height: 90vh;
     overflow: hidden;
@@ -179,8 +161,7 @@ li {
     align-items: center;
 }
 
-/* Hero szekció */
-.hero {
+.home-big {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -193,34 +174,31 @@ li {
     box-shadow: 2px 8px 16px 2px rgba(0, 0, 0, 0.3);
 }
 
-.hero-content h1 {
+.home-content h1 {
     margin-top: 0;
     font-size: 3.5rem;
     font-weight: 700;
 }
 
-.hero-content .brand {
+.home-content #planora {
     color: var(--light08);
     text-shadow: 0px 0px 10px var(--light08);
 }
 
-.hero-content p {
+.home-content p {
     font-size: 1.4rem;
     max-width: 700px;
 }
 
-/* Feature szekció */
-.features {
+.home-small {
     display: flex;
     flex-direction: row;
     justify-content: center;
     gap: 5vmin;
     margin-top: 5vh;
-    /* flex-wrap: wrap; */
-    /* max-width: 1000px; */
 }
 
-.feature {
+.content-box {
     background: var(--schedule-bg-color);
     padding: 3vh 2vw;
     border-radius: 10px;
@@ -230,42 +208,39 @@ li {
     transition: 0.3s ease-in-out;
 }
 
-.feature h2 {
+.content-box h2 {
     font-size: 1.8rem;
     color: var(--light06);
 }
 
-.feature p {
+.content-box p {
     font-size: 1.1rem;
     margin-top: 10px;
     opacity: 0.85;
 }
 
-/* Hover effect */
-.feature:hover {
+.content-box:hover {
     background: var(--day2-4-bg-color);
     transform: scale(1.05);
 }
 
-/* Reszponzivitás */
 @media (max-width: 768px) {
-    .hero-content h1 {
+    .home-content h1 {
         font-size: 2.5rem;
     }
 
-    .feature {
+    .content-box {
         width: 20vw;
     }
 
-    .features {
+    .home-small {
         flex-wrap: wrap;
-        /* max-width: 1000px; */
     }
 }
 
-/*-----------------------------------------------------------------*/
+/*--------------------------------------------------------------------------------------------------------------------*/
 
-/*User/Presentator UI*/
+/* User/Presentator/Director UI */
 
 select,
 button {
@@ -294,10 +269,10 @@ select:focus {
     background-color: var(--select-button-hover-bg-color);
 }
 
-/*Time table*/
+/* Time table */
 
 #main,
-#manage_main {
+#manage-main {
     margin: auto;
     display: grid;
     margin-top: 3vh;
@@ -305,7 +280,7 @@ select:focus {
     grid-template-columns: 1fr 5fr 1fr;
 }
 
-#manage_main {
+#manage-main {
     width: 98vw;
 }
 
@@ -325,14 +300,16 @@ select:focus {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
 }
 
-#manage_schedule {
+#manage-schedule {
     height: 83vh;
     overflow-y: auto;
     border-radius: 7px;
     min-width: fit-content;
 }
 
-.calendar_div {
+/* Calendar */
+
+#calendar-div {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
 }
 
@@ -404,7 +381,6 @@ tr {
 }
 
 .fc-daygrid-day-events {
-    /* min-height: 5vmin !important; */
     position: relative;
     display: flex;
     margin: 1vh !important;
@@ -427,30 +403,23 @@ tr {
 
 .fc-day {
     width: min-content !important;
-    /* height: min-content !important; */
 }
 
 .fc-event-main {
-    /* display: flex !important;
-    flex-direction: column !important; */
     align-items: center !important;
     justify-content: center !important;
-    /* height: min-content; */
 }
 
 .fc-h-event {
-    /* background-color: pink; */
     background-color: transparent;
     border: none;
 }
 
 .fc-v-event,
 .fc-timegrid-event-harness-inset .fc-timegrid-event {
-    background-color: magenta;
     background-color: transparent;
     border: none;
     box-shadow: none;
-    /* width: fit-content; */
 }
 
 .fc-timegrid-event-harness .fc-timegrid-event-harness-inset {
@@ -482,6 +451,8 @@ tr {
     background-color: var(--dayheader-bg-color) !important;
 }
 
+/*--------------------------------------------------------*/
+
 ::-webkit-scrollbar {
     width: 10px;
     border-radius: 5px;
@@ -499,55 +470,17 @@ tr {
     background-color: var(--links-hover-bg-color);
 }
 
-.days {
-    gap: 5px;
-    display: grid;
-    justify-content: center;
-    grid-template-rows: min-content auto;
-}
-
-.day-2,
-.day-4 {
-    background-color: var(--day2-4-bg-color);
-}
-
-.day-header {
-    padding: 5px;
-    font-weight: bold;
-    text-align: center;
-    background-color: var(--dayheader-bg-color);
-}
-
-.day-header-mon {
-    border-radius: 7px 0px 0px 0px;
-}
-
-.day-header-fri {
-    border-radius: 0px 7px 0px 0px;
-}
-
-.card-container {
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    align-self: self-start;
-}
-
 .choose {
     text-align: center;
 }
 
-
 /*------------------------------------*/
-
-/*-------------------------------------------------------*/
+/*----------------------------------------------------------------------------------------------------------------*/
 
 /*Cards*/
 
 .class-card {
     min-width: 5vw;
-    /* min-width: 10vw; */
     width: inherit;
     height: inherit;
     overflow: hidden;
@@ -609,8 +542,9 @@ tr {
     margin: 0;
 }
 
-.event-card {
-    /* margin: 5px; */
+/* Event card */
+
+#event-card {
     width: 10vw;
     min-width: 5vw;
     transition: 0.3s;
@@ -623,12 +557,12 @@ tr {
     background-color: var(--class-event-card-bg-color);
 }
 
-.event-card:hover {
+#event-card:hover {
     transition: 0.3s;
     box-shadow: 2px 8px 16px 2px rgba(0, 0, 0, 0.3);
 }
 
-.event-card h3 {
+#event-card h3 {
     overflow: hidden;
     margin-top: 1.3vh;
     white-space: nowrap;
@@ -636,66 +570,29 @@ tr {
     text-overflow: ellipsis;
 }
 
-.events-container {
-    display: flex;
-    border-radius: 7px;
-    align-items: center;
-    flex-direction: column;
-    background-color: var(--dayheader-bg-color);
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.3);
-}
-
-.events-container h4 {
-    margin: 0.5vh 0vh 0.5vh 0vh;
-}
-
-.events-card-container {
-    max-height: 77.25vh;
-    overflow-y: auto;
+#event-container {
     padding: 0.35vh 0vh 0.8vh 0vh;
 }
 
-.event-container {
-    padding: 0.35vh 0vh 0.8vh 0vh;
-}
-
-.event-container p {
+#event-container p {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
     margin: 0.3vh 0vh 0.3vh 0vh;
 }
 
-#uncancel {
-    text-decoration: none !important;
-}
+/*-------------------------------------*/
+/*--------------------------------------------------------------------------------------------------------------*/
 
-/*--------------------------------------------------------------*/
-
-/*login-register-profile-action*/
+/* Login-register-profile and add/update forms */
 
 .form-button {
     cursor: pointer;
     text-decoration: underline;
 }
 
-.form-popup {
-    position: absolute;
-    box-sizing: border-box;
-    z-index: 9999;
-    width: fit-content;
-    max-width: 22vw;
-    height: fit-content;
-    background-color: var(--schedule-bg-color);
-    box-shadow: 2px 8px 16px 2px rgba(0, 0, 0, 0.3);
-    border-radius: 7px;
-    padding: 10px;
-    top: 50%;
-    left: 50%;
-}
-
 .form-container,
-.profile-container {
+#profile-container {
     width: 25vw;
     max-width: 27vw;
     margin: auto;
@@ -707,29 +604,29 @@ tr {
     background-color: var(--form-profile-container-bg-color);
 }
 
-.input-container {
+#input-container {
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-.input-container input {
+#input-container input {
     max-width: 20vw;
 }
 
-.profile-container {
+#profile-container {
     min-width: 25vw;
     width: fit-content;
 }
 
 .form-container h2,
-.profile-container h2 {
+#profile-container h2 {
     margin-top: 1.3vh;
     text-align: center;
 }
 
 .form-div input:not([type="checkbox"]),
-.popover input {
+#popover input {
     height: 3vh;
     border: none;
     width: 24.5vw;
@@ -741,7 +638,7 @@ tr {
     background-color: var(--form-input-bg-color);
 }
 
-.form-div .popover input {
+.form-div #popover input {
     width: fit-content;
 }
 
@@ -770,13 +667,15 @@ tr {
     background-color: var(--button-container-active-bg-color);
 }
 
-.costum_checkbox_container {
+/* Costum checkbox */
+
+#costum_checkbox_container {
     display: flex;
     flex-direction: row;
     align-items: center;
 }
 
-.costum_checkbox_container input[type="checkbox"] {
+#costum_checkbox_container input[type="checkbox"] {
     appearance: none;
     width: 14px;
     height: 14px;
@@ -787,15 +686,15 @@ tr {
     transition: background-color 0.2s, border-color 0.2s;
 }
 
-.costum_checkbox_container input[type="checkbox"]:checked {
+#costum_checkbox_container input[type="checkbox"]:checked {
     background-color: var(--checkbox-checked-bg-color);
 }
 
-.costum_checkbox_container input[type="checkbox"]:checked:hover {
+#costum_checkbox_container input[type="checkbox"]:checked:hover {
     accent-color: var(--links-hover-bg-color);
 }
 
-.costum_checkbox_container input[type="checkbox"]:checked::after {
+#costum_checkbox_container input[type="checkbox"]:checked::after {
     display: flex;
     align-items: center;
     justify-items: center;
@@ -805,6 +704,8 @@ tr {
     height: 13px;
     color: var(--dark-text);
 }
+
+/*-------------------------------------------------------------------*/
 
 #errors {
     color: red;
@@ -816,10 +717,10 @@ tr {
     text-align: center;
 }
 
-/*------------------------------------*/
-/*popover*/
+/*-----------------------------------------------------------------------------------------------------*/
+/* Popover */
 
-.popover {
+#popover {
     position: absolute;
     box-sizing: border-box;
     z-index: 9999;
@@ -832,23 +733,23 @@ tr {
     padding: 10px;
 }
 
-.popover h3 {
+#popover h3 {
     margin: 1vh 0vh 2vh 0vh;
 }
 
-.popover_body p {
+.popover-body p {
     margin: 0.3vh 0vh 1vh 0vh;
 }
 
-.popover_content {
+.popover-content {
     margin-left: 0.8vw;
 }
 
-.popover input {
+#popover input {
     width: 15vw;
 }
 
-.popover_body {
+.popover-body {
     margin-left: 1vw;
 }
 
@@ -859,6 +760,6 @@ tr {
     box-shadow: none;
 }
 
-.popover_body .close {
+.popover-body .close {
     float: none;
 }
