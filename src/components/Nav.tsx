@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTheme } from "../ThemeContext";
 import { getBearerToken } from '../functions/utils';
+import { Link } from 'react-router';
 
 export function Nav() {
     const [loggedin, setLoggedin] = useState('Sign up/Login');
@@ -49,10 +50,10 @@ export function Nav() {
     return (
         <>
             <ul>
-                <li><a className='links' href="/home"><b>Home</b></a></li>
-                <li><a className='links' href="/timetables"><b>Institutions</b></a></li>
-                {localStorage.getItem('role') === 'DIRECTOR' ? <li><a className='links' href="/manage"><b>Manage</b></a></li> : null}
-                <li id="login-nav"><a className='links' href={`/${loggedinlink}`}><b>{loggedin}</b></a></li>
+                <li><Link to="/home"><b>Home</b></Link></li>
+                <li><Link to="/timetables"><b>Institutions</b></Link></li>
+                {localStorage.getItem('role') === 'DIRECTOR' ? <li><Link to="/manage"><b>Manage</b></Link></li> : null}
+                <li id="login-nav"><Link to={`/${loggedinlink}`}><b>{loggedin}</b></Link></li>
                 <li id="light-dark-switch" onClick={toggleTheme}><b>{theme === "light" ? "Dark Mode" : "Light Mode"}</b></li>
             </ul >
         </>
