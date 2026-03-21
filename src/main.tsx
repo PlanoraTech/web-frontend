@@ -11,10 +11,6 @@ import { Main } from './components/Main'
 const router = createBrowserRouter([
     {
         path: "/",
-        element: <Navigate to="/home" replace />,
-    },
-    {
-        path: "/home",
         element: <Home />,
     },
     {
@@ -35,7 +31,7 @@ const router = createBrowserRouter([
     },
     {
         path: "*",
-        element: <Navigate to="/home" replace />,
+        element: <Navigate to="/" replace />,
     },
 ]);
 
