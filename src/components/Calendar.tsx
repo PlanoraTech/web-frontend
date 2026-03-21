@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { EventInput } from '@fullcalendar/core'
+import { EventInput, DateRangeInput } from '@fullcalendar/core'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
@@ -25,10 +25,28 @@ interface Props {
 
 export function Calendar(props: Props) {
     const [events, setEvents] = useState<EventInput[]>([]);
+    const [validRange, setValidRange] = useState<DateRangeInput | undefined>(undefined);
 
     useEffect(() => {
         setEvents(convertAppointmentsToEvents(props.appointments! || [], props.institution?.getEvents() || []));
     }, [props.appointments, props.institution?.getEvents()]);
+
+    useEffect(() => {
+        if (events.length > 0) {
+            let lastDate = new Date(0);
+            events.forEach(e => {
+                const eventEnd = e.end ? new Date(e.end as string | number | Date) : (e.start ? new Date(e.start as string | number | Date) : null);
+                if (eventEnd && eventEnd.getTime() > lastDate.getTime()) {
+                    lastDate = eventEnd;
+                }
+            });
+            const endDate = new Date(lastDate);
+            endDate.setDate(endDate.getDate() + 1);
+            setValidRange({ end: endDate });
+        } else {
+            setValidRange(undefined);
+        }
+    }, [events]);
 
 
     function convertAppointmentsToEvents(appointments: Appointments[], events: Events[]): EventInput[] {
@@ -120,6 +138,7 @@ export function Calendar(props: Props) {
     return (
         <FullCalendar
             plugins={[dayGridPlugin, interactionPlugin, timeGridPlugin]}
+            validRange={validRange}
             headerToolbar={{
                 left: 'prev,next today',
                 center: 'title',
