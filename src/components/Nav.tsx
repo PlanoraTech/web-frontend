@@ -50,10 +50,10 @@ export function Nav() {
     return (
         <>
             <ul>
-                <li><Link to="/home"><b>Home</b></Link></li>
-                <li><Link to="/timetables"><b>Institutions</b></Link></li>
-                {localStorage.getItem('role') === 'DIRECTOR' ? <li><Link to="/manage"><b>Manage</b></Link></li> : null}
-                <li id="login-nav"><Link to={`/${loggedinlink}`}><b>{loggedin}</b></Link></li>
+                <li><Link className='links' to="/home"><b>Home</b></Link></li>
+                <li><Link className='links' to="/timetables"><b>Institutions</b></Link></li>
+                {localStorage.getItem('role') === 'DIRECTOR' ? <li><Link className='links' to="/manage"><b>Manage</b></Link></li> : null}
+                <li id="login-nav"><Link className='links' to={`/${loggedinlink}`}><b>{loggedin}</b></Link></li>
                 <li id="light-dark-switch" onClick={toggleTheme}><b>{theme === "light" ? "Dark Mode" : "Light Mode"}</b></li>
             </ul >
         </>
